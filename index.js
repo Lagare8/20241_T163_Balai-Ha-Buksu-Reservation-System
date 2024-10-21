@@ -11,6 +11,22 @@ const sessionStore = new MongoDBStore({
 })
 
 ///USER ROUTES//////
+app.put('/update-status/reservations/:id', (req, res) => { //update
+ 
+});
+
+app.get('/reservations/status', (req, res) => {
+ // employee can see the reservation status
+})
+
+app.get('/booking-history', (req, res) => {
+/// view the booking history ///
+})
+
+app.delete('/cancel/reservations/:id', (req, res) => {
+  // the employee can cancel the bookings
+});
+
 
 app.get('/reservation', (req, res) => {
   res.send('Hello World!')
