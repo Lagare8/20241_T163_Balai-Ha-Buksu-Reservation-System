@@ -57,6 +57,21 @@ app.get('/reservation/status', (req, res) => {
 })
 
 //// EMPLOYEEE ROUTES///////
+app.put('/update-status/reservations/:id', (req, res) => { //update
+ 
+});
+
+app.get('/reservations/status', (req, res) => {
+ // employee can see the reservation status
+})
+
+app.get('/booking-history', (req, res) => {
+/// view the booking history ///
+})
+
+app.delete('/cancel/reservations/:id', (req, res) => {
+  // the employee can cancel the bookings
+});
 
 
 ////ADMIN ROUTESSS//////
