@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const Room = require("../../models/employee-manager/roomModel");
+const Room = require("./employees");
 
 
 //View all rooms
@@ -59,6 +59,29 @@ router.get('/:id',async(req,res)=>{
     }
 
 })
+
+// GET: View the booking history
+app.get('/booking-history', (req, res) => {
+
+    res.json(reservations);
+  });
+
+  // DELETE: Employee can cancel the bookings
+app.delete('/cancel/reservations/:id', (req, res) => {
+    const { id } = req.params;
+  
+    // Find the index of the reservation to delete
+    const reservationIndex = reservations.findIndex(r => r.id === parseInt(id));
+    
+    if (reservationIndex !== -1) {
+     
+      const canceledReservation = reservations.splice(reservationIndex, 1);
+      res.send(`Reservation ID ${id} has been canceled`);
+    } else {
+      res.status(404).send('Reservation not found');
+    }
+  });
+  
 
 
 module.exports = router;
