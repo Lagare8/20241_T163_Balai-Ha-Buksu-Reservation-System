@@ -106,11 +106,9 @@ mongoose
 
 /*---------------------------------------Create Routes-------------------------------------------*/
 
-/*
+
 //api for employee managemet of Admin
 const employeesRouter = require('./routes/emp-manager/employees.js');
 app.use('/employees',employeesRouter);
 const adminloginRouter = require('./routes/adminlogin.js');
 app.use('/adminlogin',adminloginRouter);
-
-*/
