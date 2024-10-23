@@ -88,23 +88,6 @@ app.post("/showAllBookings", function(req,res){
 /// view all boookings////
 })
 
-app.post("/addEmployee", function(req,res){
-  /// admin adds employee details to the system ////
-})
-app.get("/allEmployee", function(req,res){
-  /// admin view all employee details from the system ////
-})
-app.get("/Employee/i/:id", function(req,res){
-  /// admin view employee details by id from the system ////
-})
-app.delete("/deleteEmployee", function(req,res){
-  /// admin deletes employee details from the system ////
-})
-app.put("/updateEmployee", function(req,res){
-  /// admin update employee details from the system ////
-})
-
-
 app.get('/reservations/status', (req, res) => {
   /// admin view all the reservstion status ///
 })
