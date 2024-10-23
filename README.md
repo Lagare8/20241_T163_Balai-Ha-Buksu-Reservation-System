@@ -1,7 +1,7 @@
 # 20241_T163_Balai-Ha-Buksu-POS-System
 # Class Code: T163
 # Name of System:
-Balay Ha Buksu POS System 
+Balay Ha Buksu Reservation System 
 
 # System description:
 The system aims to have online reservations. It will allow the customer to book a reservation
