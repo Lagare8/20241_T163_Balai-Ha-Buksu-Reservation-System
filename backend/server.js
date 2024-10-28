@@ -33,7 +33,18 @@ mongoose
     .catch(err => console.error('DB connection error:', err));
 
 //---------------------------------------Create Routes-------------------------------------------//
+// admin routes //
 import employeesRouter from './routes/admin-manager/employees.js'; 
 app.use('/employees', employeesRouter);
-import roomsRouter from './routes/admin-manager/RoomRoutes.js'; 
-app.use('/rooms', roomsRouter);
+import adminRoomsRouter from './routes/admin-manager/RoomRoutes.js'; 
+app.use('/rooms', adminRoomsRouter);
+
+// employee routes //
+import reservationsRouter from './routes/employee-manager/reservation.js'; 
+app.use('/reservations', reservationsRouter);
+import employeeRoomsRouter from './routes/employee-manager/RoomRoutes.js'; 
+app.use('/rooms', employeeRoomsRouter);
+
+// user routes //
+import userRouter from './routes/user-manager/userReservation.js'; 
+app.use('/user', userRouter);
