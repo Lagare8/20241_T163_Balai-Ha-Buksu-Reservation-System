@@ -4,10 +4,10 @@ import './app.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-import userDashboard from './userDashboard';
 
 
-const App = () => {
+
+const UserDashboard = () => {
 
   return (
     <div>
@@ -78,4 +78,4 @@ const App = () => {
   );
 };
 
-export default userDashboard;
+export default UserDashboard;
