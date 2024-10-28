@@ -62,7 +62,7 @@ router.route("/delete/:id").delete(async(req,res)=>{
 })
 
 //get one admin
-/*
+
 router.route("/get/:id").get(async(req,res)=>{
     let Admin_id = req.params.id;
     adminlogin.findById(Admin_id).then((adminlogin)=>{
@@ -72,5 +72,5 @@ router.route("/get/:id").get(async(req,res)=>{
         res.status(500).send({status: "Error with get admin details", error: err.message});
     })
 })
-*/
+
 module.exports = router;                                            

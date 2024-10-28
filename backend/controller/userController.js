@@ -1,4 +1,4 @@
-import User from "../routes/user-manager/userReservation"
+import User from "../routes/user-manager/userReservation.js"
 
 const postUserReservation = async (req, res) => {
 

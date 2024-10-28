@@ -1,22 +1,21 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-import { postUserReservation, getUserBookingHistory, cancelReservation, checkAvailability} from "../../controller/userController";
+import { postUserReservation, getUserBookingHistory, cancelReservation, checkAvailability} from "../../controller/userController.js";
 // Simulated database using an array
 let reservations = [];
 
 // 1. Reserve a room
-router.postUserReservation('/reserve', postUserReservation 
+router.post('/reserve', postUserReservation 
     );
 
 // View user's booking history
-router.getUserBookingHistory('/booking-history/:userId', getUserBookingHistory);
+router.get('/booking-history/:userId', getUserBookingHistory);
 
-router.checkAvailability("/rooms", checkAvailability)
+router.get("/rooms", checkAvailability)
 
 // Cancel a reservation
-router.cancelReservation('/cancel/reservations/:id',  cancelReservation
-   );
+router.delete('/cancel/reservations/:id',  cancelReservation);
 
 
 
-module.exports = router;
+export default router;

@@ -1,15 +1,14 @@
-const express = require("express");
-import { getBookingHistory, deleteReservation, postReservation } from "../../controller/employeeController";
-
+import express from "express";
+import { getBookingHistory, deleteReservation, postReservation } from "../../controller/employeeController.js";
 const router = express.Router();
 
 // View booking history
-router.getBookingHistory("/", getBookingHistory);
+router.get("/", getBookingHistory);
 
 // Cancel a reservation
-router.deleteReservation('/cancel/reservations/:id', deleteReservation)
+router.delete('/cancel/reservations/:id', deleteReservation)
 
 //Accept a user reservation
-router.postReservation('/reserve', postReservation);
+router.post('/reserve', postReservation);
 
-module.exports = router;
+export default router;
