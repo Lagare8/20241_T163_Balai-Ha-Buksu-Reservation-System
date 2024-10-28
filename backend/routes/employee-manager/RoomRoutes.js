@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Room = require("../../models/employee-manager/roomModel");
-import {getRooms, getRoomById, putRooms} from "../../controller/employeeController";
+import {getRooms, getRoomById, putRooms} from "../../controller/employeeController.js";
 
 //View all rooms
 router.getRooms('/', getRooms)

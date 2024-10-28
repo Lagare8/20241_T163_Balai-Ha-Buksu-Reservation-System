@@ -1,17 +1,14 @@
-const router = require("express").Router();
-const Room = require("./employees");
-import { getRoomById, getRooms, putRooms } from "../../controller/adminController";
+import express from "express";
+import { getRooms, putRooms, getRoomById } from "../../controller/adminController.js"; 
+const router = express.Router();
 
 //View all rooms
-router.getRooms('/', getRooms)
-
-
+router.get('/', getRooms); //method for get 
 
 //update Rooms
-router.putRooms("/:id", putRooms)
-
+router.put("/:id", putRooms)
 
 //This route used to view specific Room details 
-router.getRoomById("/:id", getRoomById)
+router.get("/:id", getRoomById)
 
-module.exports = router;
+export default router; // Use export statement for router
