@@ -5,12 +5,12 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Login from './components/Login';
-import UserDashboard from '../src/userDasboard.jsx';
-import UserReserve from '../src/ReserveAvailability.jsx';
-import AdminDashboard from '../src/adminDashboard.jsx';
-import Rooms from '../src/Rooms.jsx';
-import Function from '../src/function.jsx';
-import Catering from '../src/foodCatering.jsx';
+import UserDashboard from './components/userDasboard.jsx';
+import UserReserve from './components/ReserveAvailability.jsx';
+import AdminDashboard from './components/adminDashboard.jsx';
+import Rooms from './components/Rooms.jsx';
+import Function from './components/function.jsx';
+import Catering from './components/foodCatering.jsx';
 
 function App() {
   return (
