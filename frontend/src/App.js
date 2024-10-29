@@ -8,7 +8,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import Login from './components/Login';
 import UserDashboard from '../src/userDasboard.jsx';
 import UserReserve from '../src/ReserveAvailability.jsx';
-
+import AdminDashboard from '../src/adminDashboard.jsx';
 
 function App() {
   return (
@@ -20,6 +20,7 @@ function App() {
         <Route index element={<Login/>}/>
         <Route path="/userDashboard" element={<UserDashboard/>}/>
         <Route path="/userReserve" element={<UserReserve/>}/>
+        <Route path="/adminDashboard" element={<AdminDashboard/>}/>
       </Routes>
     </BrowserRouter>
   );
