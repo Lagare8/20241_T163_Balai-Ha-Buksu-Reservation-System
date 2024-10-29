@@ -52,21 +52,40 @@ const UserReserve = () => {
       </nav>
 
       {/* Main Content */}
-        <div
-        className="main-content"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: '300px',
-          textAlign: 'center',
-          padding: '100px 20px',
-          filter: 'brightnes'
-        }}
-        >
-          
-        
+      <div className='container mt-4'>
+        <div className='card'>
+          <div className='card-body text-center'>
+            Balai Ha BukSu Offer
+          <div class="container">
+            <div class="row">
+              <div class="col-sm text-center">
+                Function Hall
+                <div className='card'>
+                  <div className='card-body'>
+                    ss
+                  </div>
+                </div>
+              </div>
+                <div class="col-sm text-center">
+                  Rooms
+                  <div className='card'>
+                    <div className='card-body'>
+
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm text-center">
+                  Catering Services
+                  <div className='card'>
+                    <div className='card-body'>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
