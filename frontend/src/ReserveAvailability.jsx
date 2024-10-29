@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './app.css';
+import './app.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,7 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 const UserReserve = () => {
 
   return (
-    <div>
+    <div style={{backgroundColor: 'gray', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', minHeight:'100vh'}}>
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#1b1f3b' }}>
         <div className="container">
@@ -60,27 +60,30 @@ const UserReserve = () => {
             <div class="row">
               <div class="col-sm text-center">
                 Function Hall
-                <div className='card'>
+                <div className='card border-0'>
                   <div className='card-body'>
-                    ss
+                      <img src="../assets/function.jpg" alt="Function Hall" className="img-fluid" style={{ height:'650px', width: '100%', objectFit: 'cover' }}/>
                   </div>
                 </div>
+                <a href="#" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
               </div>
                 <div class="col-sm text-center">
                   Rooms
-                  <div className='card'>
+                  <div className='card border-0'>
                     <div className='card-body'>
-
+                      <img src="../assets/room.png" alt="Rooms" className='img-fluid' style={{height: '650px', width: '100%', objectFit: 'cover'}} />
                     </div>
                   </div>
+                  <a href="#" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
                 </div>
                 <div class="col-sm text-center">
                   Catering Services
-                  <div className='card'>
+                  <div className='card border-0'>
                     <div className='card-body'>
-
+                      <img src="../assets/cater.png" alt="Cater" className='img-fluid' style={{height: '650px', width:'100%', objectFit:'cover'}} />
                     </div>
                   </div>
+                    <a href="#" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
                 </div>
               </div>
             </div>
