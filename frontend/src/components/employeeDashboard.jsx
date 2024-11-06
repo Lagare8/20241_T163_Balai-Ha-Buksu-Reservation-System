@@ -62,7 +62,7 @@ function EmpDashboard() {
                                     id="navbarDropdown"
                                     role="button"
                                     data-bs-toggle="dropdown"
-                                    aria-expanded="false"
+                                    aria-expanded="false"   
                                 >
                                     Update Offers
                                 </a>

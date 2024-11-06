@@ -10,7 +10,7 @@ function EmpFunctionHall() {
     return (
         <div style={{backgroundColor: 'gray', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', minHeight:'100vh'}}>
             {/* Navbar */}
-            <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#283555', height: '70px' }}>
+           <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#283555', height: '70px' }}>
                 <div className="container d-flex align-items-center">
                     <a className="navbar-brand d-flex align-items-center" href="#">
                         <img 
