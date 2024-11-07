@@ -1,8 +1,20 @@
-import React, {useState } from 'react';
+import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 import '../index.css';
 
 function Login() {
-    const [userType, setUserType] = useState('User'); // Define userType state
+    const [userType, setUserType] = useState('User');
+    const navigate = useNavigate();
+
+    const handleLoginSuccess = (credentialResponse) => {
+        console.log('Login successful', credentialResponse);
+        navigate('/userDashboard');
+    };
+
+    const handleLoginError = () => {
+        console.log('Login Failed');
+    };
 
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
@@ -10,7 +22,6 @@ function Login() {
                 <div className="p-4 bg-light rounded-left" style={{ maxWidth: '500px' }}>
                     <img src="/assets/Shield_logo_of_Bukidnon_State_University.png" alt="BUKSU Logo" className="mb-3" style={{ maxHeight: '150px', marginLeft: "110px", marginTop: "40px" }} />
                     <h2 className="text-center mb-3">Welcome to BUKSU Hotel</h2>
-                    {/* User Type Dropdown */}
                     <select 
                         className="form-select mb-3" 
                         value={userType} 
@@ -22,15 +33,16 @@ function Login() {
                     </select>
                     <input type="text" placeholder="User name or Email" className="form-control mb-3" />
                     <input type="password" placeholder="Password" className="form-control mb-3" />
-                    <button className="btn btn-primary mb-3" style={{marginLeft: "140px"}}>Log In</button>
-                    <p className="text-center mb-3" style={{marginRight: "20px"}}>Open with</p>
-                    <button className="btn btn-light btn-block d-flex align-items-center justify-content-center" style={{marginLeft: "130px"}}>
-                        <i className="fab fa-google ml-5"></i> Google
-                    </button>
+                    <button className="btn btn-primary mb-3" style={{ marginLeft: "140px" }}>Log In</button>
+                    <p className="text-center mb-3" style={{ marginRight: "20px" }}>Open with</p>
+                    <GoogleLogin
+                        onSuccess={handleLoginSuccess}
+                        onError={handleLoginError}
+                    />
                 </div>
                 <div className="p-4 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
                     <div className="text-center">
-                        <img src="/assets/lgo.png" alt="BUKSU Hotel Logo" className="mb-3" style={{}}/>
+                        <img src="/assets/lgo.png" alt="BUKSU Hotel Logo" className="mb-3"/>
                     </div>
                 </div>
             </div>
