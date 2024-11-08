@@ -64,7 +64,7 @@ const UserReserve = () => {
                       <img src="../assets/function.jpg" alt="Function Hall" className="img-fluid" style={{ height:'650px', width: '100%', objectFit: 'cover' }}/>
                   </div>
                 </div>
-                <a href="#" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
+                <a href="/functionCalendar" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
               </div>
                 <div class="col-sm text-center">
                   Rooms
@@ -73,7 +73,7 @@ const UserReserve = () => {
                       <img src="../assets/room.png" alt="Rooms" className='img-fluid' style={{height: '650px', width: '100%', objectFit: 'cover'}} />
                     </div>
                   </div>
-                  <a href="#" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
+                  <a href="/roomCalendar" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
                 </div>
                 <div class="col-sm text-center">
                   Catering Services
@@ -82,7 +82,7 @@ const UserReserve = () => {
                       <img src="../assets/cater.png" alt="Cater" className='img-fluid' style={{height: '650px', width:'100%', objectFit:'cover'}} />
                     </div>
                   </div>
-                    <a href="#" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
+                    <a href="/catering" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
                 </div>
               </div>
             </div>

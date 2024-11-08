@@ -3,10 +3,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
+
 
   return (
     <div>
@@ -67,7 +69,7 @@ const UserDashboard = () => {
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'black' }}>TESTWelcome to Balai ha BukSU</h1>
           <p style={{ fontSize: '1.5rem', color: 'black', marginBottom: '0' }}>Where Comfort Meets Culture</p>
           <div style={{ display: 'flex', justifyContent: 'end', width: '100%', marginTop: '10px', marginRight: '1050px' }}>
-          <a href="#" className="btn btn-lg" style={{ backgroundColor: '#007bff', color: 'black' }} >
+          <a href="/userReserve" className="btn btn-lg" style={{ backgroundColor: '#007bff', color: 'black' }} >
             Book Now< FontAwesomeIcon icon={faCalendarDays} style={{marginLeft: '20px'}} />
           </a>
         </div>
