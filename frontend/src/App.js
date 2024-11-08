@@ -15,6 +15,7 @@ import EmpDashboard from './components/employeeDashboard.jsx';
 import EmpRoom from './components/employeeRooms.jsx';
 import RoomCalendar from './components/RoomCalendar.jsx';
 import FunctionCalendar from './components/FunctionCalendar.jsx';
+import AdminBookings from './components/adminBookings.jsx';
 function App() {
   
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/catering" element={<Catering />} />
           <Route path="/roomCalendar" element={<RoomCalendar/>}/>
           <Route path="/functionCalendar" element={<FunctionCalendar/>}/>
+          <Route path="/adminBookings" element={<AdminBookings/>}/>
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>
