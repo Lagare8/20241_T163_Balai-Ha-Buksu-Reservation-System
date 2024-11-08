@@ -13,8 +13,8 @@ import Catering from './components/foodCatering.jsx';
 import EmpFunctionHall from './components/employeeFunctionHall.jsx';
 import EmpDashboard from './components/employeeDashboard.jsx';
 import EmpRoom from './components/employeeRooms.jsx';
-
-
+import RoomCalendar from './components/RoomCalendar.jsx';
+import FunctionCalendar from './components/FunctionCalendar.jsx';
 function App() {
   
   return (
@@ -31,6 +31,8 @@ function App() {
           <Route path="/rooms" element={<Rooms />} />
           <Route path="/function" element={<Function />} />
           <Route path="/catering" element={<Catering />} />
+          <Route path="/roomCalendar" element={<RoomCalendar/>}/>
+          <Route path="/functionCalendar" element={<FunctionCalendar/>}/>
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>
