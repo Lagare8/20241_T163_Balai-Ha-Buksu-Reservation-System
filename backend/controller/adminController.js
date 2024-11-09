@@ -3,8 +3,8 @@ import Employee from '../models/users/employee.js'; // Adjust path as needed
 
 const postEmployee = async (req, res) => {
     try {
-        const { username, email, role } = req.body;
-        const newEmployee = new Employee({ username, email, role });
+        const { username, email, password } = req.body;
+        const newEmployee = new Employee({ username, email, password });
         await newEmployee.save();
         res.status(201).json(newEmployee);
     } catch (error) {

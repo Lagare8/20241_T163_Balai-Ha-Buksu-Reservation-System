@@ -7,7 +7,13 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false);
     const [employees, setEmployees] = useState([]);
-
+    const [newEmployee, setNewEmployee] = useState({
+        username:'',
+        email: '',
+        password: '',
+        role: 'employee',
+    });
+    // fetching employee
     const fetchEmployees = async () => {
         try{
             const response = await fetch("http://localhost:5000/api/admin/employees");
@@ -21,6 +27,36 @@ const AdminDashboard = () => {
             console.error("Error fetching employees", error);
         }
     }
+    //add employee at adminDashboard
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewEmployee({ ...newEmployee, [name]: value });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("Form submitted");
+        try{
+            const response = await fetch("http://localhost:5000/api/admin/employees", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newEmployee),
+            });
+            if(response.ok){
+                const errorData = await response.json();
+                console.error("Error adding employee", errorData);
+                return;
+            }
+            const addedEmployee = await response.json();
+            console.log("Added Employee", addedEmployee);
+            setEmployees((prevEmployees) => [ ...prevEmployees, addedEmployee])
+            setShowModal(false);
+        } catch (error){
+            console.error("Error adding employee", error);
+        }
+    };
     useEffect(() => {
         fetchEmployees()
     }, [])
@@ -111,11 +147,11 @@ const AdminDashboard = () => {
             <nav className="navbar navbar-expand-lg navbar-dark" style={navbarStyle}>
                 <div className="container-fluid">
                 <a className="navbar-brand" href="#">
-                  <img src="../assets/Shield_logo_of_Bukidnon_State_University.png" alt="Logo" style={{ height: '80px', width: '80px'}} />
-                  </a>
+                <img src="../assets/Shield_logo_of_Bukidnon_State_University.png" alt="Logo" style={{ height: '80px', width: '80px'}} />
+                </a>
                 <a className="navbar-brand" href="#">
-                  <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
-                  </a>
+                <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
+                </a>
                     <div className="navbar-brand">Admin</div>
                     <input type="text" placeholder="Search..." className="form-control rounded-pill mx-3" style={{ maxWidth: '200px' }} />
                     <ul className="navbar-nav ms-auto align-items-center">
@@ -130,7 +166,7 @@ const AdminDashboard = () => {
                         </li>
                         <li className="nav-item">
                                 <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>
-                         </li>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -158,7 +194,7 @@ const AdminDashboard = () => {
 
                 {/* Modal */}
                 {showModal && (
-                    <div className="modal show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
+                    <div className={`modal fade ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
                         <div className="modal-dialog" role="document">
                             <div className="modal-content">
                                 <div className="modal-header">
@@ -166,20 +202,53 @@ const AdminDashboard = () => {
                                     <button type="button" className="close" onClick={toggleModal}>&times;</button>
                                 </div>
                                 <div className="modal-body">
-                                    <form>
-                                        <div className='form-group'>
-                                            <label htmlFor="inputName">Firstname</label>
-                                            <input type="text" className='form-control' id="name" placeholder='Name' />
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="form-group">
+                                            <label htmlFor="inputName">Username</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="name"
+                                                placeholder="Username"
+                                                name="username"
+                                                value={newEmployee.username}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
                                         </div>
-                                        <div className='form-group'>
-                                            <label htmlFor="area">Area</label>
-                                            <input type='text' className='form-control' id="area" placeholder='Area' />
+                                        <div className="form-group">
+                                            <label htmlFor="email">Email</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="area"
+                                                placeholder="Email"
+                                                name="email"
+                                                value={newEmployee.email}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="password">Password</label>
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                id="area"
+                                                placeholder="Password"
+                                                name="password"
+                                                value={newEmployee.password}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-secondary" onClick={toggleModal}>
+                                                Close
+                                            </button>
+                                            <button type="submit" className="btn btn-primary">Add Employee</button>
                                         </div>
                                     </form>
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-secondary" onClick={toggleModal}>Close</button>
-                                    <button type="button" className="btn btn-primary">Save changes</button>
                                 </div>
                             </div>
                         </div>
