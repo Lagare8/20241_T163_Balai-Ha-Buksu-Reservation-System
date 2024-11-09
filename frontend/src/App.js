@@ -20,6 +20,8 @@ import FunctionCalendar from './components/FunctionCalendar.jsx';
 import AdminBookings from './components/adminBookings.jsx';
 import EmployeeBookings from './components/employeeBookings.jsx';
 import EmpFoodcatering from './components/employeeCatering.jsx';
+import UserBookings from './components/userBooking.jsx';
+
 
 function App() {
   return (
@@ -32,6 +34,7 @@ function App() {
           {/* User Routes */}
           <Route path="/userDashboard" element={<UserDashboard />} />
           <Route path="/userReserve" element={<UserReserve />} />
+          <Route path="/userBookings" element={<UserBookings/>}/>
 
           {/* Employee Routes */}
           <Route path="/employeeDashboard" element={<EmpDashboard />} />

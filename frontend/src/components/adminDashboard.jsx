@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
@@ -6,7 +6,28 @@ import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false);
+    const [employees, setEmployees] = useState([]);
 
+    const fetchEmployees = async () => {
+        try{
+            const response = await fetch("http://localhost:5000/api/admin/employees");
+            if(!response.ok){
+                console.error("No internet connection");
+            }
+            const data = await response.json()
+            console.log("Fetched employees data:", data);
+            setEmployees(data);
+        }catch(error){
+            console.error("Error fetching employees", error);
+        }
+    }
+    useEffect(() => {
+        fetchEmployees()
+    }, [])
+    useEffect(() => {
+        console.log(employees);
+    }, [employees])
+    
     const toggleModal = () => setShowModal(!showModal);
 
     const renderContent = () => {
@@ -22,14 +43,18 @@ const AdminDashboard = () => {
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Area</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Maria Dela Cruz</td>
-                                    <td>Front Desk</td>
-                                </tr>
+                                {Array.isArray(employees) ? employees.map((employee, index) => (
+                                    <tr key={index}>
+                                        <td>{employee.username}</td>
+                                        <td>{employee.email}</td>
+                                        <td>{employee.role}</td>
+                                    </tr>
+                                )) : <tr><td colSpan="3">No employees found</td></tr>}
                             </tbody>
                         </table>
                     </div>

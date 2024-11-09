@@ -4,8 +4,6 @@ const router = express.Router();
 //View all rooms
 router.get('/', getRooms)
 
-
-
 //update Rooms
 router.put("/:id", putRooms)
 

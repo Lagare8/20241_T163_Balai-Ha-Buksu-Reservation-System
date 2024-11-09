@@ -10,7 +10,7 @@ const generateToken = (user) => {
 };
 
 const postUserReservation = async (req, res) => {
-
+    
 }
 
 const getUserBookingHistory = async (req, res) => {

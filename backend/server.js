@@ -28,7 +28,7 @@ app.use('/api/auth', authRouter);
 
 // Admin routes
 import employeesRouter from './routes/admin-manager/employees.js';
-app.use('/admin/employees', employeesRouter);
+app.use('/api/admin/employees', employeesRouter);
 
 import adminRoomsRouter from './routes/admin-manager/RoomRoutes.js';
 app.use('/admin/rooms', adminRoomsRouter);
