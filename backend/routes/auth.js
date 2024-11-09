@@ -1,5 +1,5 @@
 import express from 'express';
-import { User, Employee, Admin } from '../models/User'; // Import models
+import { User, Employee, Admin } from '../models/users/user.js'; // Import models
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
