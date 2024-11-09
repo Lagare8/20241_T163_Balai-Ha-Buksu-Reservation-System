@@ -6,6 +6,7 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 
+
 const UserDashboard = () => {
   const navigate = useNavigate();
 
@@ -16,7 +17,7 @@ const UserDashboard = () => {
       <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#1b1f3b' }}>
         <div className="container">
           <a className="navbar-brand" href="#">
-            <img src="logo.png" alt="Logo" style={{ height: '40px' }} />
+            <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
           </a>
           <button
             className="navbar-toggler"
