@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; 
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
 import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -7,6 +7,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays, faUserCircle, faBell } from '@fortawesome/free-solid-svg-icons';
 
 function EmpDashboard() {
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const toggleNotifications = () => {
+        setShowNotifications(!showNotifications);
+    };
+
+    const toggleProfile = () => {
+        setShowProfile(!showProfile);
+    };
+
+
     return (
         <div>
             {/* Navbar */}
@@ -73,10 +86,35 @@ function EmpDashboard() {
                                 </ul>
                             </li>
                             <li>
-                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
+                                <a className="nav-link" href="#" onClick={toggleNotifications}>
+                                    <FontAwesomeIcon icon={faBell} />
+                                </a>
+                                {showNotifications && (
+                                    <div className="notification-dropdown">
+                                        <ul className="list-group">
+                                            <li className="list-group-item">Notification 1</li>
+                                            <li className="list-group-item">Notification 2</li>
+                                            <li className="list-group-item">Notification 3</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>
+                                <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                    <FontAwesomeIcon icon={faUserCircle} />
+                                </a>
+                                {showProfile && (
+                                    <div className="profile-dropdown">
+                                        <ul className="list-group">
+                                            <li className="list-group-item">Profile Info</li>
+                                            <li className="list-group-item">Settings</li>
+                                           
+                                            <li>
+                                            <Link className="list-group-item" to="/">Logout</Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                             </li>
                         </ul>
                     </div>
