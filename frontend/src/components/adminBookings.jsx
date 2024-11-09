@@ -109,9 +109,12 @@ const AdminBookings = () => {
             {/* Navbar */}
             <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#1b1f3b' }}>
                 <div className="container">
-                    <a className="navbar-brand" href="#">
-                        <img src="logo.png" alt="Logo" style={{ height: '40px' }} />
-                    </a>
+                <a className="navbar-brand" href="#">
+                  <img src="../assets/Shield_logo_of_Bukidnon_State_University.png" alt="Logo" style={{ height: '80px', width: '80px'}} />
+                  </a>
+                <a className="navbar-brand" href="#">
+                  <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
+                  </a>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
