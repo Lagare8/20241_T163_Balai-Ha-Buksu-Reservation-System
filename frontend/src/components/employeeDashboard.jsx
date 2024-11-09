@@ -1,10 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; 
 import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Import Bootstrap JS
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faUserCircle, faBell } from '@fortawesome/free-solid-svg-icons';
 
 function EmpDashboard() {
     return (
@@ -35,26 +35,26 @@ function EmpDashboard() {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                             <form className="form-inline my-2 my-lg-0 ml-auto">
-                                <div className="d-flex align-items-center">
-                                    <input
-                                        className="form-control mr-2"
-                                        type="search"
-                                        placeholder="Search"
-                                        aria-label="Search"
-                                    />
-                                    <button className="btn btn-outline-light" type="submit">
-                                        <i className="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
+                    
+                    <form className="form-inline my-2 my-lg-0 ml-auto">
+                        <div className="d-flex align-items-center">
+                            <input
+                                className="form-control mr-2"
+                                type="search"
+                                placeholder="Search"
+                                aria-label="Search"
+                            />
+                            <button className="btn btn-outline-light" type="submit">
+                                <i className="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                     
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
-                              <li className="nav-item">
-                                     <a className="nav-link"  href="#">Home</a>
-                              </li>
-                            {/* Dropdown Menu */}
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/employeeDashboard">Home</Link>
+                            </li>
                             <li className="nav-item dropdown">
                                 <a
                                     className="nav-link dropdown-toggle text-white"
@@ -67,13 +67,13 @@ function EmpDashboard() {
                                     Update Offers
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a className="dropdown-item" href="#">Rooms</a></li>
-                                    <li><a className="dropdown-item" href="#">Function Hall</a></li>
-                                    <li><a className="dropdown-item" href="#">Food Catering</a></li>
+                                    <li><Link className="dropdown-item" to="/Emprooms">Rooms</Link></li>
+                                    <li><Link className="dropdown-item" to="/Empfunction-hall">Function Hall</Link></li>
+                                    <li><Link className="dropdown-item" to="/Empfood-catering">Food Catering</Link></li>
                                 </ul>
                             </li>
                             <li>
-                                     <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
+                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>

@@ -1,7 +1,8 @@
 import express from 'express';
-import { User, Employee, Admin } from '../models/User'; // Import models
+import { User, Employee, Admin } from '../models/users/user.js'; // Import models
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
 
 const router = express.Router();
 
@@ -62,28 +63,57 @@ router.post('/signup', async (req, res) => {
 
 // Login route
 router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    console.log('Login route hit'); 
+    console.log('Request body:', req.body); // Log the entire request body
+
+    const { email, password } = req.body;
+
+    console.log('Login attempt with email:', email); // Log the email you're attempting to login with
+    
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required!' });
+    }
+
+    // Normalize email (trim spaces, lower case) for comparison
+    const normalizedEmail = email.trim().toLowerCase();  // Use email here instead of username
+
     let user;
+    try {
+        // Search for user by email in the User collection
+        user = await User.findOne({ email: normalizedEmail });
+        
+        if (!user) {
+            // If not found, check Employee collection
+            user = await Employee.findOne({ email: normalizedEmail });
+        }
 
-    // Search for the user across all collections based on username/email
-    user = await User.findOne({ username }) || await Employee.findOne({ username }) || await Admin.findOne({ username });
+        if (!user) {
+            // If still not found, check Admin collection
+            user = await Admin.findOne({ email: normalizedEmail });
+        }
 
-    if (!user) {
-        return res.status(400).json({ message: 'User not found!' });
+        if (!user) {
+            return res.status(400).json({ message: 'User not found!' });
+        }
+
+        console.log('User found:', user);
+
+        // Check if the password matches
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if (!isPasswordCorrect) {
+            return res.status(400).json({ message: 'Invalid credentials!' });
+        }
+
+        // Successfully logged in, return a token
+        res.status(200).json({
+            message: 'Login successful!',
+            userType: user.constructor.modelName, // User type (User, Employee, Admin)
+            token: generateToken(user)
+        });
+    } catch (error) {
+        console.log('Error while searching for user:', error);
+        return res.status(500).json({ message: 'Error while searching for user!' });
     }
-
-    // Validate password
-    const isPasswordCorrect = await user.matchPassword(password);
-    if (!isPasswordCorrect) {
-        return res.status(400).json({ message: 'Invalid credentials!' });
-    }
-
-    // Respond with token and user type
-    res.status(200).json({
-        message: 'Login successful!',
-        userType: user.constructor.modelName, // User model name (User, Employee, Admin)
-        token: generateToken(user)  // Send JWT token
-    });
 });
 
 export default router;

@@ -8,7 +8,7 @@ import '../index.css'
 import { Link } from 'react-router-dom';
 
 
-function EmpFunctionHall() {
+function EmpFoodcatering() {
     return (
         <div style={{backgroundColor: 'gray', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', minHeight:'100vh'}}>
             {/* Navbar */}
@@ -84,14 +84,69 @@ function EmpFunctionHall() {
                     </div>
                 </div>
             </nav>
-            {/* Main Content */}
-            <div className="container text-center">
-            <h1 className="mt-5">Function Hall</h1>
-            <div className="card mx-auto mt-5" style={{ width: '18rem' }}>
-        <img src="../assets/function.jpg" className="card-img-top" alt="Function Hall Image" />
-        <div className="card-body">
-            <h5 className="card-title">Function Hall</h5>
-            <div className="d-flex justify-content-between">
+      {/* Main Content */}
+      <div className="container">
+        <h1 style={{ marginTop: '25px', textAlign: 'center' }}>Food Catering</h1>
+        <div className="row">
+          <div className="col-sm text-center">
+            <h2>Main Course</h2>
+            <div className="row">
+              {Array.from({ length: 1 }).map((_, index) => (
+                <div className="col-md-6" key={index} style={{ marginTop: '15px' }}>
+                  <div className="card">
+                    <div className="card-body d-flex">
+                      <img src="../assets/functionhall.jpg" alt="Room1" style={{ width: '50%', borderRadius: '10px', marginRight: '15px' }} />
+                      <div className="d-flex flex-column justify-content-between" style={{ width: '100%' }}>
+                        <div style={{ textAlign: "start" }}>
+                          <h3 style={{ marginBottom: 'auto' }}>Main Course {index + 1}</h3>
+                        </div>
+                        <button className="btn btn-warning">
+                    <i className="fas fa-edit"></i> Update
+                </button>
+                <button className="btn btn-danger">
+                    <i className="fas fa-trash"></i> Delete
+                </button> 
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <h2>Side Dish</h2>
+            <div className="row">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <div className="col-md-6" key={index} style={{ marginTop: '15px' }}>
+                  <div className="card">
+                    <div className="card-body d-flex">
+                      <img src="../assets/functionhall.jpg" alt="Room1" style={{ width: '50%', borderRadius: '10px', marginRight: '15px' }} />
+                      <div className="d-flex flex-column justify-content-between" style={{ width: '100%' }}>
+                        <div style={{ textAlign: "start" }}>
+                          <h3 style={{ marginBottom: 'auto' }}>Side Dish {index + 1}</h3>
+                        </div>
+                        <button className="btn btn-warning">
+                    <i className="fas fa-edit"></i> Update
+                </button>
+                <button className="btn btn-danger">
+                    <i className="fas fa-trash"></i> Delete
+                </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <h2>Dessert</h2>
+                <div className="row">
+                {Array.from({ length: 1 }).map((_, index) => (
+                    <div className="col-md-6" key={index} style={{ marginTop: '15px' }}>
+                    <div className="card">
+                        <div className="card-body d-flex">
+                        <img src="../assets/functionhall.jpg" alt="Room1" style={{ width: '50%', borderRadius: '10px', marginRight: '15px' }} />
+                        <div className="d-flex flex-column justify-content-between" style={{ width: '100%' }}>
+                            <div style={{ textAlign: "start" }}>
+                            <h3 style={{ marginBottom: 'auto' }}>Dessert {index + 1}</h3>
+                            </div>
+                            <div className="d-flex justify-content-between">
                 <button className="btn btn-warning">
                     <i className="fas fa-edit"></i> Update
                 </button>
@@ -99,11 +154,17 @@ function EmpFunctionHall() {
                     <i className="fas fa-trash"></i> Delete
                 </button>
             </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                ))}
+                </div>
+          </div>
         </div>
-    </div>
-        </div>
+      </div>
         </div>
     );
 }
 
-export default EmpFunctionHall;
+export default EmpFoodcatering;

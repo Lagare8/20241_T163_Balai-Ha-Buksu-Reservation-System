@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true }, // This field is required
     password: { type: String, required: true },
-    userType: { type: String, enum: ['User', 'Employee', 'Admin'], default: 'User' },
 }, { timestamps: true });
 
 
@@ -26,5 +25,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Create and export the User model
 const User = mongoose.model('User', userSchema);
+const Employee = mongoose.model('Employee', userSchema);
+const Admin = mongoose.model('Admin', userSchema);
 
-export default User;
+export { User, Employee, Admin };

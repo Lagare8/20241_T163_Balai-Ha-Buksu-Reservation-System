@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 
+app.use(express.json()); 
+
 const authMiddleware = (req, res, next) => {
     // Get the token from the Authorization header
     const token = req.header('Authorization')?.replace('Bearer ', '');

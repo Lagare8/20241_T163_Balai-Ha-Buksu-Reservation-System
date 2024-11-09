@@ -4,6 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faBell } from '@fortawesome/free-solid-svg-icons';
 import '../index.css';
+import { Link } from 'react-router-dom';
 
 function EmpRoom() {
     return (
@@ -49,8 +50,8 @@ function EmpRoom() {
                     </form>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
-                            <li className="nav-item">
-                                <a className="nav-link" href="#">Home</a>
+                        <li className="nav-item">
+                                <Link className="nav-link" to="/employeeDashboard">Home</Link>
                             </li>
                             <li className="nav-item dropdown">
                                 <a
@@ -64,9 +65,9 @@ function EmpRoom() {
                                     Update Offers
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a className="dropdown-item" href="#">Rooms</a></li>
-                                    <li><a className="dropdown-item" href="#">Function Hall</a></li>
-                                    <li><a className="dropdown-item" href="#">Food Catering</a></li>
+                                    <li><Link className="dropdown-item" to="/Emprooms">Rooms</Link></li>
+                                    <li><Link className="dropdown-item" to="/Empfunction-hall">Function Hall</Link></li>
+                                    <li><Link className="dropdown-item" to="/Empfood-catering">Food Catering</Link></li>
                                 </ul>
                             </li>
                             <li>

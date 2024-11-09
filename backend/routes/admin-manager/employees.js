@@ -16,4 +16,5 @@ router.put("/:id", putEmployee); //  method for put
 // Delete employee details
 router.delete('/:id', deleteEmployee); //  method for delete
 
+
 export default router; // Use export statement for router
