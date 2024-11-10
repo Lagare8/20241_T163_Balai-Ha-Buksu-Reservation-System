@@ -55,7 +55,8 @@ const postHallReservation = async (req, res) => {
 };
 
 const postCateringReservation = async (req, res) => {
-    const { userId, date, cateringOptions } = req.body;
+    const { date, cateringOptions } = req.body;
+    const userId = req.userId;
     try {
         const reservation = new Reservation({
             userId,
@@ -63,7 +64,7 @@ const postCateringReservation = async (req, res) => {
             date,
             cateringOptions,
         });
-        await reservation.save();
+        await reservation.save(); 
         res.status(201).json({ message: 'Catering reservation successfully', reservation});
     }catch (error){
         console.error('Error creating Catering reservation', error);

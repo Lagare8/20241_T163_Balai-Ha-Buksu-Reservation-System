@@ -3,7 +3,7 @@ import { getBookingHistory, deleteReservation, postReservation } from "../../con
 const router = express.Router();
 
 // View booking history
-router.get("/", getBookingHistory);
+router.get("/bookings", getBookingHistory);
 
 // Cancel a reservation
 router.delete('/cancel/reservations/:id', deleteReservation)

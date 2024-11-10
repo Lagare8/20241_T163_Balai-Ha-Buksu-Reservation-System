@@ -13,7 +13,7 @@ function RoomCalendar(){
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
 
-    const {  setToken} = useAuth();
+    const { setToken} = useAuth();
 
     useEffect(() => {
     const storedToken = localStorage.getItem('token');

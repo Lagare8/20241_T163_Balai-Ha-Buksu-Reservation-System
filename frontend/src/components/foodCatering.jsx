@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+import DatePicker from 'react-datepicker';
 
 const Catering = () => {
+  const [ selectedDate, setSelectedDate] = useState(null);
+  const [ showDatePicker, setShowDatepicker] = useState(false);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    setShowDatepicker(false);
+  };
+
   return (
     <div
       style={{
@@ -101,7 +110,9 @@ const Catering = () => {
                         <div style={{ textAlign: "start" }}>
                           <h3 style={{ marginBottom: 'auto' }}>Main Course {index + 1}</h3>
                         </div>
-                        <a href="#" className="btn btn-primary" style={{ alignSelf: 'flex-end' }}>Reserve &gt;</a>
+                        <button className='btn btn-primary' style={{alignSelf: 'flex-end'}} onClick={() => setShowDatepicker(true)}>
+                          Reserve &gt;
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -144,6 +155,18 @@ const Catering = () => {
                     </div>
                 ))}
                 </div>
+                {showDatePicker && (
+                  
+                  <div className='datepicker-container' style={{marginTop: '20px'}}>
+                    <h3>Select Date for Reservation</h3>
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={handleDateChange}
+                      dateFormat="MMMM d, yyyy"
+                      inline
+                    />
+                  </div>
+                )}
           </div>
         </div>
       </div>

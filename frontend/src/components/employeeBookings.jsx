@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
@@ -6,7 +6,30 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 const EmployeeBookings = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false); // State to control modal visibility
+    const [bookings, setBookings] = useState([]);
     const toggleModal = () => setShowModal(!showModal);
+
+    const fetchAllBookings = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/employee/reservation/bookings');  // Adjusted path
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            setBookings(data);  // Assuming you are updating state with fetched data
+        } catch (error) {
+            console.error('Error fetching bookings:', error.message);
+            // Optionally, you could set an error state here to display in the UI
+        }
+    };
+    
+    // In your `useEffect`, you can call this function:
+    useEffect(() => {
+        fetchAllBookings();
+    }, []);
+    useEffect(() => {
+        console.log('Updated bookings:', bookings);
+      }, [bookings]);
 
     const renderContent = () => {
         switch (activeTab) {
@@ -25,15 +48,21 @@ const EmployeeBookings = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Maria Dela Cruz</td>
-                                    <td>Room 1</td>
-                                    <td>October 20, 2025</td>
-                                    <td style={statusCellStyle}>
-                                        <button type='button' className='btn btn-success' style={{margin:'5px'}}>Confirm</button>
-                                        <button type="button" className='btn btn-danger'>Cancel</button>
-                                    </td>
-                                </tr>
+                                {bookings.map((booking, index) => (
+                                    <tr key={index}>
+                                        <td>{booking.userId.username}</td>
+                                        <td>{booking.reserveType}</td>
+                                        <td>{booking.date}</td>
+                                        <td style={statusCellStyle}>
+                                            <button type="button" className='btn btn-success' style={{maring: '5px'}}> 
+                                                Confirm
+                                            </button>
+                                            <button type="button" className='btn btn-danger'>
+                                                Cancel
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                         </div>

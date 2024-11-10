@@ -6,6 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 function FunctionCalendar(){
     const [selectedDate, setSelectedDate] = useState(null);

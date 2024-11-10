@@ -7,8 +7,8 @@ let reservations = [];
 
 // 1. Reserve a room
 router.post('/reserve/room', authMiddleware, postRoomReservation);
-router.post('/reserve/hall', postHallReservation);
-router.post('/reserve/catering', postCateringReservation);
+router.post('/reserve/hall', authMiddleware, postHallReservation);
+router.post('/reserve/catering', authMiddleware, postCateringReservation);
 // View user's booking history
 router.get('/booking-history/:userId', getUserBookingHistory);
 
