@@ -3,12 +3,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
-<<<<<<< HEAD
 import reservationRoutes from './routes/reservationRoutes.js';
 import userRoutes from './routes/user-manager/userReservation.js'
-=======
-
->>>>>>> 29cbbe6d3581f6f4289fb5b013c9ed89cb8fdbb6
 dotenv.config();
 
 const app = express();
