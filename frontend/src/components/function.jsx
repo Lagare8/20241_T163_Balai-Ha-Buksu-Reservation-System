@@ -2,6 +2,26 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useState } from 'react';
+
+const ReserveButton = ({ onDateSelect }) => {
+  const [startDate, setStartDate] = useState(null);
+
+  return (
+    <div>
+      <DatePicker 
+        selected={startDate} 
+        onChange={(date) => {
+          setStartDate(date);
+          onDateSelect(date); // Send selected date to the parent component or API
+        }} 
+        inline 
+      />
+    </div>
+  );
+};
 
 const Function = () => {
   return (
