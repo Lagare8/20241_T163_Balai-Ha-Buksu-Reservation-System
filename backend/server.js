@@ -3,8 +3,12 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
+<<<<<<< HEAD
 import reservationRoutes from './routes/reservationRoutes.js';
 import userRoutes from './routes/user-manager/userReservation.js'
+=======
+
+>>>>>>> 29cbbe6d3581f6f4289fb5b013c9ed89cb8fdbb6
 dotenv.config();
 
 const app = express();
@@ -48,13 +52,8 @@ app.use('/employee/rooms', employeeRoomsRouter);
 import userRouter from './routes/user-manager/userReservation.js';
 app.use('/user', userRouter);
 
-
-// reservation routes
-
-app.use('/api/reservations', reservationRoutes);
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server started on port: ${PORT}`);
 });
-

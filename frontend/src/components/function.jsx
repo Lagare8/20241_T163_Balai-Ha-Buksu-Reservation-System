@@ -1,27 +1,9 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { useState } from 'react';
-
-const ReserveButton = ({ onDateSelect }) => {
-  const [startDate, setStartDate] = useState(null);
-
-  return (
-    <div>
-      <DatePicker 
-        selected={startDate} 
-        onChange={(date) => {
-          setStartDate(date);
-          onDateSelect(date); // Send selected date to the parent component or API
-        }} 
-        inline 
-      />
-    </div>
-  );
-};
 
 const Function = () => {
   return (
@@ -74,16 +56,26 @@ const Function = () => {
                     </form>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <a className="nav-link" href="#">
-                  Home
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">
-                  View Offers
-                </a>
-              </li>
+            <li className="nav-item">
+                                <Link className="nav-link" to="/userDashboard">Home</Link>
+                            </li>
+              <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle text-white"
+                                    href="#"
+                                    id="navbarDropdown"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    View Offers
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><Link className="dropdown-item" to="/rooms">Rooms</Link></li>
+                                    <li><Link className="dropdown-item" to="/function">Function Hall</Link></li>
+                                    <li><Link className="dropdown-item" to="/catering">Food Catering</Link></li>
+                                </ul>
+                            </li>
               <li className="nav-item">
                 <a className="nav-link" href="#">
                   <FontAwesomeIcon icon={faBell} />
