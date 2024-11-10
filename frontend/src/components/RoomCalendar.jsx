@@ -5,7 +5,7 @@ import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link} from "react-router-dom";
 function RoomCalendar(){
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
@@ -48,28 +48,55 @@ function RoomCalendar(){
             {/* Navbar */}
             <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#1b1f3b' }}>
                 <div className="container">
-                    <a className="navbar-brand" href="#">
-                        <img src="logo.png" alt="Logo" style={{ height: '40px' }} />
-                    </a>
+                <a className="navbar-brand d-flex align-items-center" href="#">
+                          <img 
+                              src="/assets/Shield_logo_of_Bukidnon_State_University.png" 
+                              alt="BUKSU Logo" 
+                              style={{ height: '50px',marginRight: '10px' }}
+                          />
+                          <img 
+                              src="/assets/lgo.png" 
+                              alt="BUKSU Hotel Logo" 
+                              style={{ height: '80px', width: '100px' }}
+                          />
+                      </a>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    <input
-                        type="text"
-                        placeholder="Search...."
-                        style={{ borderRadius: '50px', padding: '10px', margin: '5px' }}
-                    />
+                    <form className="form-inline my-2 my-lg-0 ml-auto">
+                        <div className="d-flex align-items-center">
+                            <input
+                                className="form-control mr-2"
+                                type="search"
+                                placeholder="Search"
+                                aria-label="Search"
+                            />
+                            <button className="btn btn-outline-light" type="submit">
+                                <i className="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
-                            <li className="nav-item">
-                                <a className="nav-link" href="#">
-                                    Home
-                                </a>
+                        <li className="nav-item">
+                                <Link className="nav-link" to="/userDashboard">Home</Link>
                             </li>
-                            <li className="nav-item">
-                                <a className="nav-link" href="#">
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle text-white"
+                                    href="#"
+                                    id="navbarDropdown"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
                                     View Offers
                                 </a>
+                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                      <li><Link className="dropdown-item" to="/roomCalendar">Rooms</Link></li>
+                                      <li><Link className="dropdown-item" to="/functionCalendar">Function Hall</Link></li>
+                                      <li><Link className="dropdown-item" to="/catering">Food Catering</Link></li>
+                                  </ul>
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link" href="#">
