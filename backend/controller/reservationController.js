@@ -1,4 +1,4 @@
-import Reservation from '../models/Reservation.js';
+import Reservation from '../models/users/Reservation.js';
 
 // Create a reservation
 export const createReservation = async (req, res) => {

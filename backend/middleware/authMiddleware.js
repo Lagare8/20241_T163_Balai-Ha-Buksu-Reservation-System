@@ -1,35 +1,19 @@
 import jwt from 'jsonwebtoken';
 
-app.use(express.json()); 
-
 const authMiddleware = (req, res, next) => {
-    // Get the token from the Authorization header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const token = req.headers['authorization']?.split(' ')[1]; // Bearer <token>
 
     if (!token) {
-        return res.status(401).json({ message: 'Access denied. No token provided.' });
+        return res.status(403).json({ message: 'Access denied' });
     }
 
     try {
-        // Verify the token using the secret key
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Attach the user info to the request object
-        req.user = decoded;
-        next();  // Proceed to the next middleware or route handler
+        req.userId = decoded.id; // Ensure `id` is correctly set in the request
+        next();
     } catch (error) {
-        res.status(400).json({ message: 'Invalid token' });
+        return res.status(400).json({ message: 'Invalid token' });
     }
 };
-/*
-Use this middleware in any route that needs to be protected.
-
-import authMiddleware from './middleware/authMiddleware.js';
-
-// Protected route example
-app.get('/user/dashboard', authMiddleware, (req, res) => {
-    res.send('This is the User Dashboard');
-});
-*/
 
 export default authMiddleware;

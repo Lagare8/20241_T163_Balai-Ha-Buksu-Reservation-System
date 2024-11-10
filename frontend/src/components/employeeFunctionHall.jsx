@@ -75,7 +75,7 @@ function EmpFunctionHall() {
                                 </ul>
                             </li>
                             <li>
-                                     <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
+                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>

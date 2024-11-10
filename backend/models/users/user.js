@@ -23,6 +23,9 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password); // Compare entered password with the stored hashed password
 };
 
+//reservation Schema
+
+
 // Create and export the User model
 const User = mongoose.model('User', userSchema);
 const Employee = mongoose.model('Employee', userSchema);

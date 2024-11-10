@@ -108,7 +108,6 @@ function EmpDashboard() {
                                         <ul className="list-group">
                                             <li className="list-group-item">Profile Info</li>
                                             <li className="list-group-item">Settings</li>
-                                           
                                             <li>
                                             <Link className="list-group-item" to="/">Logout</Link>
                                             </li>

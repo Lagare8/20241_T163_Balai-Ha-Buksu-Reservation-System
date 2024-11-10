@@ -1,14 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from 'axios';
 
 const Rooms = () => {
   const [startDate, setStartDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [roomAvailability, setRoomsAvailability] = useState([true, true, true, true, true, true]);
+
+  const userToken = localStorage.getItem('userToken');
+  const token = localStorage.getItem('userToken');
+  
+  useEffect(() => {
+    if(startDate){
+      checkRoomAvailability();
+    }
+  }, [startDate]);
+
+  const checkRoomAvailability = async () => {
+    try {
+        for (let i = 0 ; i < 6; i++) {
+            const response = await axios.get('http://localhost:5000/api/user/check-availability', {
+                params: {
+                    reserveType: 'Room',
+                    reserve: 1,
+                    date: startDate.toISOString().split('T')[0], // Format date correctly
+                },
+            });
+            setRoomsAvailability((prevAvailability) => {
+                const updated = [ ...prevAvailability];
+                updated[i] = response.data.available;
+                return updated;
+            });
+            await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+    } catch (error) {
+        console.error('Error checking availability', error);
+        alert('An error occurred while checking availability.');
+    }
+};
 
   const handleDateSelect = (date) => {
     setStartDate(date);
@@ -19,12 +53,46 @@ const Rooms = () => {
     setShowDatePicker(true); // Show the date picker when the Reserve button is clicked
   };
 
-  const handleConfirmReservation = () => {
-    if (startDate) {
-      alert(`Room ${selectedRoom + 1} reserved for ${startDate.toLocaleDateString()}`);
-      setShowDatePicker(false); // Close the calendar popup
+  const handleConfirmReservation = async () => {
+    const token = localStorage.getItem('token'); 
+    if (startDate && selectedRoom !== null) {
+      if (!roomAvailability[selectedRoom]) {
+        alert('Selected room is unavailable on this date.');
+        return;
+      }
+  
+      try {
+        const token = localStorage.getItem('userToken'); 
+  
+        const reservationData = {
+          roomNumber: selectedRoom + 1,
+          date: startDate.toISOString().split('T')[0], // Format the date correctly
+        };
+  
+        const response = await axios.post(
+          'http://localhost:5000/api/user/reserve/room',
+          reservationData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        alert(`Room ${selectedRoom + 1} reserved for ${startDate.toLocaleDateString()}`);
+        console.log(response.data);
+        setShowDatePicker(false); 
+      } catch (error) {
+        if (error.response) {
+          console.error('Error reserving the room: ', error.response.data);
+          alert(`Error: ${error.response.data.message || 'An error occurred while making the reservation'}`);
+        } else {
+          console.error('Error reserving the room: ', error.message);
+          alert('An error occurred while making the reservation');
+        }
+      }
     } else {
-      alert("Please select a date.");
+      alert('Please select a room and a date');
     }
   };
 
@@ -118,7 +186,7 @@ const Rooms = () => {
                   <div className="d-flex flex-column justify-content-between" style={{ width: '100%' }}>
                     <div style={{ textAlign: 'start' }}>
                       <h3 style={{ marginBottom: 'auto' }}>Room {index + 1}</h3>
-                      <h6 style={{ marginBottom: 'auto' }}>Status: Occupied</h6>
+                      <h6 style={{ marginBottom: 'auto' }}>Status: {roomAvailability[index] ? 'Available' : 'Occupied'}</h6>
                     </div>
                     <button
                       className="btn btn-primary"
@@ -144,12 +212,13 @@ const Rooms = () => {
                   <div className="d-flex flex-column justify-content-between" style={{ width: '100%' }}>
                     <div style={{ textAlign: 'start' }}>
                       <h3 style={{ marginBottom: 'auto' }}>Room {index + 4}</h3>
-                      <h6 style={{ marginBottom: 'auto' }}>Status: Occupied</h6>
+                      <h6 style={{ marginBottom: 'auto' }}>Status: {roomAvailability[index] ? 'Available' : 'Occupied'}</h6>
                     </div>
                     <button
                       className="btn btn-primary"
                       style={{ alignSelf: 'flex-end' }}
                       onClick={() => handleReserveClick(index + 3)}
+                      disabled={!roomAvailability[index]}
                     >
                       Reserve &gt;
                     </button>

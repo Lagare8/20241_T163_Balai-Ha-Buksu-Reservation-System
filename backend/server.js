@@ -4,6 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
 import reservationRoutes from './routes/reservationRoutes.js';
+import userRoutes from './routes/user-manager/userReservation.js'
 dotenv.config();
 
 const app = express();
@@ -12,7 +13,8 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
 }));
 
 // Connect to MongoDB
@@ -25,6 +27,8 @@ mongoose.connect(process.env.MONGO_CONNECT, {
 
 // Routes
 app.use('/api/auth', authRouter);
+// Use the user routes
+app.use('/api/user', userRoutes);
 
 // Admin routes
 import employeesRouter from './routes/admin-manager/employees.js';

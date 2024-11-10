@@ -1,41 +1,54 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const UserBookings = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false); // State to control modal visibility
     const toggleModal = () => setShowModal(!showModal);
+    const navigate = useNavigate();
 
+    const handleAddEvent = () => {
+        navigate('/userReserve')
+    }
     const renderContent = () => {
         switch (activeTab) {
-            case 'employees':
+            case 'bookings':
                 return (
                     <div style={contentCardStyle}>
-                        <h2>Employees</h2>
+                        <h2>Bookings</h2>
                         <div style={contentCardStyle}>
                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <button type="button" className="btn btn-primary" onClick={toggleModal}>Add Employee</button>
+                                <button type="button" className="btn btn-primary" onClick={handleAddEvent}>Reserve</button>
                             </div>
                             <table style={tableStyle}>
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Area</th>
+                                    <th>Reservation</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Maria Dela Cruz</td>
-                                    <td>Front Desk</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <button type="button" className='btn btn-danger'>Cancel</button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                         </div>
                     </div>
                 );
-            case 'bookings':
+            case 'bookingss':
                 return (
                         <div style={contentCardStyle}>
                         <h2>Pending Bookings</h2>
@@ -107,44 +120,37 @@ const UserBookings = () => {
     return (
         <div>
             {/* Navbar */}
-            <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#1b1f3b' }}>
-                <div className="container">
-                <a className="navbar-brand" href="#">
-                  <img src="../assets/Shield_logo_of_Bukidnon_State_University.png" alt="Logo" style={{ height: '80px', width: '80px'}} />
-                  </a>
-                <a className="navbar-brand" href="#">
-                  <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
-                  </a>
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <input
-                        type="text"
-                        placeholder="Search...."
-                        style={{ borderRadius: '50px', padding: '10px', margin: '5px' }}
-                    />
-                    <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav ms-auto">
-                            <li className="nav-item">
+            <nav className="navbar navbar-expand-lg navbar-dark" style={navbarStyle}>
+                    <div className="container-fluid">
+                    <a className="navbar-brand" href="#">
+                    <img src="../assets/Shield_logo_of_Bukidnon_State_University.png" alt="Logo" style={{ height: '80px', width: '80px'}} />
+                    </a>
+                    <a className="navbar-brand" href="#">
+                    <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
+                    </a>
+                        <div className="navbar-brand">Admin</div>
+                        <input type="text" placeholder="Search..." className="form-control rounded-pill mx-3" style={{ maxWidth: '200px' }} />
+                        <ul className="navbar-nav ms-auto align-items-center">
+                            <li className="nav-item me-3">
                                 <a className="nav-link" href="#">Home</a>
                             </li>
-                            <li className="nav-item">
+                            <li className="nav-item me-3">
                                 <a className="nav-link" href="#">View Offers</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#">
-                                    <FontAwesomeIcon icon={faBell} />
-                                </a>
+                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
+                            </li>
+                            <li className="nav-item">
+                                    <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>
                             </li>
                         </ul>
                     </div>
-                </div>
-            </nav>
+                </nav>
 
             <div style={mainCardStyle}>
                 <div style={menuStyle}>
-                    <button onClick={() => setActiveTab('employees')} style={{ ...buttonStyle, backgroundColor: '#1abc9c' }}>Employees</button>
-                    <button onClick={() => setActiveTab('bookings')} style={{ ...buttonStyle, backgroundColor: '#f1c40f' }}>Bookings</button>
+                    <button onClick={() => setActiveTab('bookings')} style={{ ...buttonStyle, backgroundColor: '#1abc9c' }}>Bookings</button>
+                    <button onClick={() => setActiveTab('bookingss')} style={{ ...buttonStyle, backgroundColor: '#f1c40f' }}>Bookingss</button>
                     <button onClick={() => setActiveTab('confirmed')} style={{ ...buttonStyle, backgroundColor: '#16a085' }}>Confirmed Booking</button>
                     <button onClick={() => setActiveTab('history')} style={{ ...buttonStyle, backgroundColor: '#e74c3c' }}>History</button>
                 </div>
@@ -204,6 +210,10 @@ const UserBookings = () => {
             )}
         </div>
     );
+};
+const navbarStyle = {
+    backgroundColor: '#1b1f3b',
+    color: '#fff',
 };
 
 const mainCardStyle = {
