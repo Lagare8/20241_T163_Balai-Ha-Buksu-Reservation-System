@@ -25,7 +25,7 @@ import UserBookings from './components/userBooking.jsx';
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="YOUR_CLIENT_ID_HERE">
+    <GoogleOAuthProvider clientId="338786715312-pobde68fle4vr3se6lpe12ldvg5fq8s3.apps.googleusercontent.com">
       <BrowserRouter>
         <Routes>
           {/* Default Route */}

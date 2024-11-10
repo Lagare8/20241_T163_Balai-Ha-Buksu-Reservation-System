@@ -6,7 +6,6 @@ import '../index.css';
 import ReCAPTCHA from "react-google-recaptcha";
 
 function Login() {
-
     const [userType, setUserType] = useState('User');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -14,10 +13,11 @@ function Login() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isSignup, setIsSignup] = useState(false);
+    const [isCaptchaVerified, setIsCaptchaVerified] = useState(false); // State to check if CAPTCHA is verified
     const navigate = useNavigate();
-    const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+
     const onChange = () => {
-        setIsCaptchaVerified(true);
+        setIsCaptchaVerified(true); // Set CAPTCHA as verified when completed
     };
 
     // Validate email domain (@buksu.edu.ph) with optional subdomain (e.g., student.buksu.edu.ph)
@@ -47,22 +47,26 @@ function Login() {
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        
+
+        // Ensure reCAPTCHA is verified
+        if (!isCaptchaVerified) {
+            setErrorMessage('Please complete the reCAPTCHA to continue.');
+            return;
+        }
+
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
             return;
         }
-    
+
         try {
-            console.log('Entered email', email);
-            console.log('passowrd: ', password)
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
                 password,
             });
-    
+
             localStorage.setItem('token', response.data.token);
-    
+
             // Navigate to the appropriate dashboard based on the user role
             const { userType } = response.data;
             if (userType === 'User') {
@@ -76,58 +80,53 @@ function Login() {
             setErrorMessage(error.response?.data?.message || 'Login failed');
         }
     };
-    
-    
-
-    
 
     // Handle signup form submission
-const handleSignupSubmit = async (e) => {
-    e.preventDefault();
+    const handleSignupSubmit = async (e) => {
+        e.preventDefault();
 
-    // Validate email
-    if (!validateEmail(email)) {
-        setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
-        return;
-    }
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-        setErrorMessage('Passwords do not match!');
-        return;
-    }
-
-    // Check if all fields are filled
-    if (!username || !email || !password || !userType) {
-        setErrorMessage('All fields are required!');
-        return;
-    }
-
-    try {
-        // Send the signup data with userType included in the request body
-        const response = await axios.post('http://localhost:5000/api/auth/signup', {
-            username,
-            email,
-            password,
-            userType,  // Include userType here
-        });
-
-        // Set the token in localStorage after successful signup
-        localStorage.setItem('token', response.data.token);
-
-        // Navigate to the appropriate dashboard based on userType
-        if (response.data.userType === 'User') {
-            navigate('/userDashboard');
-        } else if (response.data.userType === 'Employee') {
-            navigate('/employeeDashboard');
-        } else if (response.data.userType === 'Admin') {
-            navigate('/adminDashboard');
+        // Validate email
+        if (!validateEmail(email)) {
+            setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
+            return;
         }
-    } catch (error) {
-        setErrorMessage(error.response?.data?.message || 'Signup failed');
-    }
-};
 
+        // Check if passwords match
+        if (password !== confirmPassword) {
+            setErrorMessage('Passwords do not match!');
+            return;
+        }
+
+        // Check if all fields are filled
+        if (!username || !email || !password || !userType) {
+            setErrorMessage('All fields are required!');
+            return;
+        }
+
+        try {
+            // Send the signup data with userType included in the request body
+            const response = await axios.post('http://localhost:5000/api/auth/signup', {
+                username,
+                email,
+                password,
+                userType,  // Include userType here
+            });
+
+            // Set the token in localStorage after successful signup
+            localStorage.setItem('token', response.data.token);
+
+            // Navigate to the appropriate dashboard based on userType
+            if (response.data.userType === 'User') {
+                navigate('/userDashboard');
+            } else if (response.data.userType === 'Employee') {
+                navigate('/employeeDashboard');
+            } else if (response.data.userType === 'Admin') {
+                navigate('/adminDashboard');
+            }
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || 'Signup failed');
+        }
+    };
 
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
@@ -204,12 +203,17 @@ const handleSignupSubmit = async (e) => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
+                            {/* reCAPTCHA */}
                             <ReCAPTCHA
                                 sitekey="6LcwhXkqAAAAAAjVneJCT6pcdpIZ1OlQpQ_scY8g"
-                                onChange={onChange}
+                                onChange={onChange} // When CAPTCHA is solved, call the onChange method
                                 required
                             />
-                            <button className="btn btn-primary mb-3" type="submit">
+                            <button
+                                className="btn btn-primary mb-3"
+                                type="submit"
+                                disabled={!isCaptchaVerified} // Disable the submit button until CAPTCHA is verified
+                            >
                                 Log In
                             </button>
                         </form>

@@ -19,7 +19,6 @@ function EmpDashboard() {
         setShowProfile(!showProfile);
     };
 
-
     return (
         <div>
             {/* Navbar */}
@@ -145,8 +144,10 @@ function EmpDashboard() {
                 }}>
                     <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>Welcome to Balai ha BukSU</h1>
                     <p style={{ fontSize: '1.5rem', marginBottom: '20px' }}>Where Comfort Meets Culture</p>
-                    <a href="#" className="btn btn-lg" style={{ backgroundColor: '#007bff', color: 'white' }}>
-                        View Bookings <FontAwesomeIcon icon={faCalendarDays} style={{ marginLeft: '10px' }} />
+                    <a>
+                            <Link to="/employeeBookings" className="btn btn-lg" style={{ backgroundColor: '#007bff', color: 'white' }}>
+                              View Bookings <FontAwesomeIcon icon={faCalendarDays} style={{ marginLeft: '10px' }} />
+                          </Link>
                     </a>
                 </div>
             </div>
