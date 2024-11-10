@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import Fullcalendar from "@fullcalendar/react";
@@ -6,10 +6,27 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useNavigate, Link} from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+
 function RoomCalendar(){
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
 
+    const {  setToken} = useAuth();
+
+    useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+        setToken(storedToken); // Set token in context
+        console.log("Token in Dashboard:", storedToken); // Debugging the token
+        // setLoading(false); // Token found, stop loading
+    } else {
+        console.log("No token found, redirecting to login");
+        navigate('/'); // Redirect to login if no token
+    }
+    }, [navigate, setToken]);
+    
     const handleAddEvent = () => {
         // Function to handle adding an event
         alert(`Event added for ${selectedDate}`);

@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 
 const UserReserve = () => {
+  const navigate = useNavigate();
 
+  const {  setToken} = useAuth();
+
+  useEffect(() => {
+  const storedToken = localStorage.getItem('token');
+  if (storedToken) {
+      setToken(storedToken); // Set token in context
+      console.log("Token in Dashboard:", storedToken); // Debugging the token
+      // setLoading(false); // Token found, stop loading
+  } else {
+      console.log("No token found, redirecting to login");
+      navigate('/'); // Redirect to login if no token
+  }
+  }, [navigate, setToken]);
   return (
     <div style={{backgroundColor: 'gray', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', minHeight:'100vh'}}>
       {/* Navbar */}

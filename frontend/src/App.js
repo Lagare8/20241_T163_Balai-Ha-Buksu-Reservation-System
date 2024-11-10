@@ -22,39 +22,43 @@ import EmployeeBookings from './components/employeeBookings.jsx';
 import EmpFoodcatering from './components/employeeCatering.jsx';
 import UserBookings from './components/userBooking.jsx';
 
+//Import AuthContext
+import { AuthProvider } from './context/AuthContext.js';
 
 function App() {
   return (
     <GoogleOAuthProvider clientId="YOUR_CLIENT_ID_HERE">
-      <BrowserRouter>
-        <Routes>
-          {/* Default Route */}
-          <Route index element={<Login />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Default Route */}
+            <Route index element={<Login />} />
 
-          {/* User Routes */}
-          <Route path="/userDashboard" element={<UserDashboard />} />
-          <Route path="/userReserve" element={<UserReserve />} />
-          <Route path="/userBookings" element={<UserBookings/>}/>
+            {/* User Routes */}
+            <Route path="/userDashboard" element={<UserDashboard />} />
+            <Route path="/userReserve" element={<UserReserve />} />
+            <Route path="/userBookings" element={<UserBookings/>}/>
 
-          {/* Employee Routes */}
-          <Route path="/employeeDashboard" element={<EmpDashboard />} />
-          <Route path="/Emprooms" element={<EmpRoom />} />
-          <Route path="/Empfunction-hall" element={<EmpFunctionHall />} />
-          <Route path="/Empfood-catering" element={<EmpFoodcatering />} />
-          <Route path="/employeeBookings" element={<EmployeeBookings />} />
+            {/* Employee Routes */}
+            <Route path="/employeeDashboard" element={<EmpDashboard />} />
+            <Route path="/Emprooms" element={<EmpRoom />} />
+            <Route path="/Empfunction-hall" element={<EmpFunctionHall />} />
+            <Route path="/Empfood-catering" element={<EmpFoodcatering />} />
+            <Route path="/employeeBookings" element={<EmployeeBookings />} />
 
-          {/* Admin Routes */}
-          <Route path="/adminDashboard" element={<AdminDashboard />} />
-          <Route path="/adminBookings" element={<AdminBookings />} />
+            {/* Admin Routes */}
+            <Route path="/adminDashboard" element={<AdminDashboard />} />
+            <Route path="/adminBookings" element={<AdminBookings />} />
 
-          {/* General Routes */}
-          <Route path="/rooms" element={<Rooms />} />
-          <Route path="/function" element={<Function />} />
-          <Route path="/catering" element={<Catering />} />
-          <Route path="/roomCalendar" element={<RoomCalendar />} />
-          <Route path="/functionCalendar" element={<FunctionCalendar />} />
-        </Routes>
-      </BrowserRouter>
+            {/* General Routes */}
+            <Route path="/rooms" element={<Rooms />} />
+            <Route path="/function" element={<Function />} />
+            <Route path="/catering" element={<Catering />} />
+            <Route path="/roomCalendar" element={<RoomCalendar />} />
+            <Route path="/functionCalendar" element={<FunctionCalendar />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </GoogleOAuthProvider>
   );
 }

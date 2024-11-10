@@ -16,6 +16,7 @@ function Login() {
     const [isSignup, setIsSignup] = useState(false);
     const navigate = useNavigate();
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const onChange = () => {
         setIsCaptchaVerified(true);
     };
@@ -47,9 +48,11 @@ function Login() {
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        
+        setIsSubmitting(true);
+
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
+            setIsSubmitting(false);
             return;
         }
     
@@ -60,9 +63,10 @@ function Login() {
                 email,
                 password,
             });
-    
+            const token = response.data.token; 
             localStorage.setItem('token', response.data.token);
-    
+            console.log('Token from localStorage:', token); 
+
             // Navigate to the appropriate dashboard based on the user role
             const { userType } = response.data;
             if (userType === 'User') {
@@ -74,6 +78,8 @@ function Login() {
             }
         } catch (error) {
             setErrorMessage(error.response?.data?.message || 'Login failed');
+        } finally {
+            setIsSubmitting(false);
         }
     };
     

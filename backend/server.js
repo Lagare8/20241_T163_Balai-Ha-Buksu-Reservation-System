@@ -4,7 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
 import reservationRoutes from './routes/reservationRoutes.js';
-import userRoutes from './routes/user-manager/userReservation.js'
+import userRoutes from './routes/user-manager/userReservation.js'; // Ensure this is correctly imported
 dotenv.config();
 
 const app = express();
@@ -28,11 +28,10 @@ mongoose.connect(process.env.MONGO_CONNECT, {
 // Routes
 app.use('/api/auth', authRouter);
 // Use the user routes
-app.use('/api/user', userRoutes);
+app.use('/api/user', userRoutes);  // Correct route for user
 
 // Admin routes
 import employeesRouter from './routes/admin-manager/employees.js';
-app.use('/api/admin/employees', employeesRouter);
 app.use('/api/admin/employees', employeesRouter);
 import adminRoomsRouter from './routes/admin-manager/RoomRoutes.js';
 app.use('/admin/rooms', adminRoomsRouter);
@@ -43,10 +42,6 @@ app.use('/employee/reservations', reservationsRouter);
 
 import employeeRoomsRouter from './routes/employee-manager/RoomRoutes.js';
 app.use('/employee/rooms', employeeRoomsRouter);
-
-// User routes
-import userRouter from './routes/user-manager/userReservation.js';
-app.use('/user', userRouter);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -11,15 +11,13 @@ const generateToken = (user) => {
 };
 
 const postRoomReservation = async (req, res) => {
-    console.log('Request body:', req.body);//DEBUG
-    const {  roomNumber, date } = req.body;
-    const userId = req.userId;
-    console.log('Extracted data:', { userId, date });//DEBUG
-    console.log('Request body:', req.body);  // Check the body
-    console.log('User ID from token:', req.userId);
-    if (!roomNumber || !date) {
-        return res.status(400).json({ message: 'Missing room number or date' });
+    const { roomNumber, date } = req.body;
+    const userId = req.userId;  // Extract user ID from token
+
+    if (!userId || !roomNumber || !date) {
+        return res.status(400).json({ message: 'Missing user ID, room number, or date' });
     }
+
     try {
         const reservation = new Reservation({
             userId,
@@ -28,13 +26,13 @@ const postRoomReservation = async (req, res) => {
             date,
         });
         await reservation.save();
-        console.log('Saved reservation:', reservation); 
-        res.status(201).json({ message: 'Room reservation successfully!', reservation});
-    } catch(error){
-        console.error('Error creating reservation: ', error);
-        res.status(500).json({ message: 'Failed to create room reservation', error: error.message});
+        res.status(201).json({ message: 'Room reserved successfully!', reservation });
+    } catch (error) {
+        console.error('Error creating reservation:', error);
+        res.status(500).json({ message: 'Failed to create room reservation' });
     }
-}
+};
+
 
 const postHallReservation = async (req, res) => {
     const { userId, date } = req.body;
@@ -102,7 +100,7 @@ const getUserBookingHistory = async (req, res) => {
 const checkAvailability = async (req, res) => {
     const { reserveType, reserve, date } = req.query;
     const parsedDate = new Date(date);
-    
+
     if (isNaN(parsedDate)) {
         return res.status(400).json({ message: 'Invalid date format' });
     }
@@ -118,7 +116,7 @@ const checkAvailability = async (req, res) => {
             query.reserveType = 'Function Hall';
         } else if (reserveType === 'Room') {
             query.reserveType = 'Room';
-            query.reserve = reserve;
+            query['reservationDetails.roomNumber'] = reserve;  // Check for specific room number
         } else if (reserveType === 'Catering' && reserve) {
             query.reserveType = 'Catering';
             query.reserve = reserve;
@@ -133,6 +131,7 @@ const checkAvailability = async (req, res) => {
         res.status(500).json({ message: 'Failed to check availability' });
     }
 };
+
 
 const cancelReservation = async (req, res) => {
     const { id } = req.params;
