@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -237,10 +235,7 @@ const Rooms = () => {
                       <h6 style={{ marginBottom: 'auto' }}>Status: {roomAvailability[index] ? 'Available' : 'Occupied'}</h6>
                     </div>
                     <button
-                      className="btn btn-primary"
-                      style={{ alignSelf: 'flex-end' }}
-                      onClick={() => handleReserveClick(index + 3)}
-                      disabled={!roomAvailability[index]}
+                     
                     >
                       Reserve &gt;
                     </button>
@@ -251,39 +246,6 @@ const Rooms = () => {
           </div>
         </div>
       </div>
-
-      {/* Date Picker Popup */}
-      {showDatePicker && (
-        <div
-          className="date-picker-popup"
-          style={{
-            position: 'absolute',
-            zIndex: '10',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'white',
-            padding: '20px',
-            borderRadius: '10px',
-            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-          }}
-        >
-          <h4>Select a Date for Reservation</h4>
-          <DatePicker selected={startDate} onChange={handleDateSelect} inline />
-          <div style={{ marginTop: '10px' }}>
-            <button className="btn btn-primary" onClick={handleConfirmReservation}>
-              Confirm Reservation
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={handleCancelReservation}
-              style={{ marginLeft: '10px' }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

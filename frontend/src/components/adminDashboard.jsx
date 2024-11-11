@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
+import DataTable from 'react-data-table-component';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
@@ -71,75 +72,88 @@ const AdminDashboard = () => {
             case 'employees':
                 return (
                     <div style={contentCardStyle}>
-                        <h2>Employees</h2>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                            <button type="button" className="btn btn-primary" onClick={toggleModal}>Add Employee</button>
+                        <h3>Employees</h3>
+                        <div className="d-flex justify-content-end mb-3">
+                        <button
+                            onClick={toggleModal}
+                            className="btn btn-success"
+                        >
+                            Add Employee
+                        </button>
                         </div>
-                        <table style={tableStyle}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Array.isArray(employees) ? employees.map((employee, index) => (
-                                    <tr key={index}>
-                                        <td>{employee.username}</td>
-                                        <td>{employee.email}</td>
-                                        <td>{employee.role}</td>
-                                    </tr>
-                                )) : <tr><td colSpan="3">No employees found</td></tr>}
-                            </tbody>
-                        </table>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Email',
+                                    selector: row => row.email,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Action',
+                                    cell: row => (
+                                        <div>
+                                            <button
+                                                onClick={() => handleViewEmployee(row)}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faEye} />
+                                            </button>
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={employees}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
                     </div>
                 );
             case 'bookings':
-                return (
-                    <div style={contentCardStyle}>
-                        <h2>Pending Bookings</h2>
-                        <table style={tableStyle}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Booking</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Maria Dela Cruz</td>
-                                    <td>Room 1</td>
-                                    <td>October 20, 2025</td>
-                                    <td>
-                                        <button type='button' className='btn btn-success' style={{ margin: '5px' }}>Confirm</button>
-                                        <button type="button" className='btn btn-danger'>Cancel</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                );
+                // Existing code for 'bookings' tab
+                break;
             case 'confirmed':
-                return (
-                    <div style={contentCardStyle}>
-                        <h2>Booking has been confirmed! Send details to the customer</h2>
-                        <button type="button" className="btn btn-primary mt-3">Send to Email</button>
-                    </div>
-                );
+                // Existing code for 'confirmed' tab
+                break;
             case 'history':
-                return (
-                    <div style={contentCardStyle}>
-                        <h2>History</h2>
-                        <p>History of bookings and actions goes here.</p>
-                    </div>
-                );
+                // Existing code for 'history' tab
+                break;
             default:
                 return null;
         }
     };
+    
+    // Edit employee handler
+    const handleViewEmployee = (employee) => {
+        // Set the employee details in the modal or a dedicated area for viewing
+        
+    };
+    
+    // Delete employee handler
+    const handleDeleteEmployee = async (employeeId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/admin/employees/${employeeId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                setEmployees((prevEmployees) => prevEmployees.filter(emp => emp._id !== employeeId));
+            } else {
+                console.error('Error deleting employee');
+            }
+        } catch (error) {
+            console.error('Error deleting employee', error);
+        }
+    };
+    
 
     return (
         <div>

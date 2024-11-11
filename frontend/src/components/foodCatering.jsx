@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
-import DatePicker from 'react-datepicker';
 
 const Catering = () => {
   const [ selectedDate, setSelectedDate] = useState(null);
@@ -155,18 +154,6 @@ const Catering = () => {
                     </div>
                 ))}
                 </div>
-                {showDatePicker && (
-                  
-                  <div className='datepicker-container' style={{marginTop: '20px'}}>
-                    <h3>Select Date for Reservation</h3>
-                    <DatePicker
-                      selected={selectedDate}
-                      onChange={handleDateChange}
-                      dateFormat="MMMM d, yyyy"
-                      inline
-                    />
-                  </div>
-                )}
           </div>
         </div>
       </div>

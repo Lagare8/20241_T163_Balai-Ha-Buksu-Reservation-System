@@ -34,6 +34,7 @@ const postRoomReservation = async (req, res) => {
 };
 
 
+
 const postHallReservation = async (req, res) => {
     const { userId, date } = req.body;
     try {
@@ -113,14 +114,9 @@ const checkAvailability = async (req, res) => {
     try {
         let query = { date };
 
-        if (reserveType === 'Function Hall') {
-            query.reserveType = 'Function Hall';
-        } else if (reserveType === 'Room') {
+        if (reserveType === 'Room') {
             query.reserveType = 'Room';
             query['reservationDetails.roomNumber'] = reserve;  // Check for specific room number
-        } else if (reserveType === 'Catering' && reserve) {
-            query.reserveType = 'Catering';
-            query.reserve = reserve;
         } else {
             return res.status(400).json({ message: 'Invalid reservation type' });
         }
@@ -132,7 +128,6 @@ const checkAvailability = async (req, res) => {
         res.status(500).json({ message: 'Failed to check availability' });
     }
 };
-
 
 const cancelReservation = async (req, res) => {
     const { id } = req.params;
