@@ -14,4 +14,6 @@ const reservationSchema = new mongoose.Schema({
   date: { type: Date, required: true },
 });
 
+
+// Specify the collection name explicitly, if needed
 export default mongoose.model('Reservation', reservationSchema);

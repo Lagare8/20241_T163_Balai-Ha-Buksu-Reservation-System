@@ -28,6 +28,7 @@ const EmployeeBookings = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
+            console.log("Fetched data:", data);
             setBookings(data);  // Assuming you are updating state with fetched data
         } catch (error) {
             console.error('Error fetching bookings:', error.message);
@@ -41,7 +42,7 @@ const EmployeeBookings = () => {
     }, []);
     useEffect(() => {
         console.log('Updated bookings:', bookings);
-      }, [bookings]);
+    }, [bookings]);
 
     const renderContent = () => {
         switch (activeTab) {

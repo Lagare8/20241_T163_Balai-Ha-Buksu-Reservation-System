@@ -1,5 +1,6 @@
 
 import Employee from '../models/users/employee.js'; // Adjust path as needed
+import Reservation from '../models/users/Reservation.js';
 
 const postEmployee = async (req, res) => {
     try {
@@ -15,7 +16,6 @@ const postEmployee = async (req, res) => {
 const getEmployee = async (req, res) => {
     try {
         const employees = await Employee.find();
-        console.log("Employees fetched from database:", employees);
         res.status(200).json(employees);
     } catch (error) {
         console.error("Error fetching employees:", error);
@@ -25,6 +25,23 @@ const getEmployee = async (req, res) => {
 const putEmployee = async (req, res) => {
 
 }
+
+const getAllReservations = async (req, res) => {
+    try {
+        const bookings = await Reservation.find()  // Fetch all reservations
+            .populate('userId', 'username email')  // Populate user info (optional, if needed)
+            .exec();
+
+        if (bookings.length === 0) {
+            return res.status(404).json({ message: 'No bookings found' });
+        }
+
+        return res.status(200).json(bookings);  // Send the bookings as response
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'An error occurred while fetching bookings' });
+    }
+};
 
 const deleteEmployee = async (req, res) => {
 
@@ -46,4 +63,4 @@ const getRoomById =async (req, res) => {
 
 }
 
-export {postEmployee, getEmployee, putEmployee, deleteEmployee,getEmployeeById, getRoomById, getRooms, putRooms}
+export {postEmployee, getEmployee, putEmployee, deleteEmployee,getEmployeeById, getRoomById, getRooms, putRooms, getAllReservations}

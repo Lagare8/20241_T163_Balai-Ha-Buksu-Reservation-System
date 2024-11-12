@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUsers, faCalendarAlt, faTrash, faCheck, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
 import { Link, useNavigate } from 'react-router-dom';
 const AdminDashboard = () => {
@@ -17,6 +17,7 @@ const AdminDashboard = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const navigate = useNavigate(); // Initialize useNavigate
+    const [bookings, setBookings] = useState([]);
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -77,6 +78,36 @@ const AdminDashboard = () => {
         console.log(employees);
     }, [employees])
     
+    //Fetching from dbs
+    const fetchAllBookings = async () => {
+        try{
+            const response = await fetch('http://localhost:5000/admin/reserve/res');
+            if(!response.ok){
+                throw new Error (`Http error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log("Fetched employees data:", data);
+            setBookings(data);
+        }catch (error){
+            console.error('Error fetching bookings: ', error.messsage);
+        }
+    }
+    useEffect(() => {
+        fetchAllBookings();
+    }, []);
+    console.log(bookings);
+    useEffect(() => {
+        console.log('Updated bookings: ', bookings);
+    }, [bookings]);
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
+
     const toggleModal = () => setShowModal(!showModal);
 
     const renderContent = () => {
@@ -131,7 +162,52 @@ const AdminDashboard = () => {
                     </div>
                 );
             case 'bookings':
-                // Existing code for 'bookings' tab
+                return (
+                    <div style={contentCardStyle}>
+                        <h3>Pending Bookings</h3>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.userId.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Date',
+                                    selector: row => formatDate(row.date),
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Action',
+                                    cell: row => (
+                                        <div>
+                                            <button
+                                                onClick={() => handleConfirmBooking(row)}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faCheck} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleCancelBooking(row)}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={bookings}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
+                    </div>
+                );
                 break;
             case 'confirmed':
                 // Existing code for 'confirmed' tab
@@ -149,6 +225,14 @@ const AdminDashboard = () => {
         // Set the employee details in the modal or a dedicated area for viewing
         
     };
+
+    const handleConfirmBooking = (reservation) => {
+
+    }
+
+    const handleCancelBooking = (reservation) => {
+
+    }
     
     // Delete employee handler
     const handleDeleteEmployee = async (employeeId) => {

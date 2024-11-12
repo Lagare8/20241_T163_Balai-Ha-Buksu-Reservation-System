@@ -35,6 +35,8 @@ import employeesRouter from './routes/admin-manager/employees.js';
 app.use('/api/admin/employees', employeesRouter);
 import adminRoomsRouter from './routes/admin-manager/RoomRoutes.js';
 app.use('/admin/rooms', adminRoomsRouter);
+import adminReservationsRouter from './routes/admin-manager/reservations.js';
+app.use('/admin/reserve', adminReservationsRouter);
 
 // Employee routes
 import reservationsRouter from './routes/employee-manager/reservation.js';
@@ -42,6 +44,8 @@ app.use('/employee/reservation', reservationsRouter);
 
 import employeeRoomsRouter from './routes/employee-manager/RoomRoutes.js';
 app.use('/employee/rooms', employeeRoomsRouter);
+
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;
