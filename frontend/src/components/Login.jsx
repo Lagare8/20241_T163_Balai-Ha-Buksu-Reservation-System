@@ -6,7 +6,6 @@ import '../index.css';
 import ReCAPTCHA from "react-google-recaptcha";
 
 function Login() {
-
     const [userType, setUserType] = useState('User');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -17,29 +16,25 @@ function Login() {
     const navigate = useNavigate();
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
     const onChange = () => {
         setIsCaptchaVerified(true);
     };
 
-    // Validate email domain (@buksu.edu.ph) with optional subdomain (e.g., student.buksu.edu.ph)
     const validateEmail = (email) => {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@(?:student\.)?buksu\.edu\.ph$/;
         return emailRegex.test(email);
     };
 
-    // Handle Google login success and populate form
     const handleLoginSuccess = async (credentialResponse) => {
         console.log('Google Login successful', credentialResponse);
         const decoded = credentialResponse.credential;
 
-        // Parse the JWT response from Google
-        const userProfile = JSON.parse(atob(decoded.split('.')[1])); // Decode the Google JWT token
+        const userProfile = JSON.parse(atob(decoded.split('.')[1]));
         setEmail(userProfile.email);
-        setUsername(userProfile.name); // You can set the username to the user's Google name, or leave it for the user to change
-
-        // Optionally, set a default password or let the user choose one
-        setPassword("temporaryPassword123"); // This is just a placeholder, change according to your logic.
-        setConfirmPassword("temporaryPassword123"); // Same as above
+        setUsername(userProfile.name);
+        setPassword("temporaryPassword123");
+        setConfirmPassword("temporaryPassword123");
     };
 
     const handleLoginError = () => {
@@ -50,6 +45,12 @@ function Login() {
         e.preventDefault();
         setIsSubmitting(true);
 
+        if (!isCaptchaVerified) {
+            setErrorMessage("Please complete the CAPTCHA verification.");
+            setIsSubmitting(false);
+            return;
+        }
+
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
             setIsSubmitting(false);
@@ -57,17 +58,13 @@ function Login() {
         }
     
         try {
-            console.log('Entered email', email);
-            console.log('passowrd: ', password)
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
                 password,
             });
             const token = response.data.token; 
             localStorage.setItem('token', response.data.token);
-            console.log('Token from localStorage:', token); 
 
-            // Navigate to the appropriate dashboard based on the user role
             const { userType } = response.data;
             if (userType === 'User') {
                 navigate('/userDashboard');
@@ -82,58 +79,46 @@ function Login() {
             setIsSubmitting(false);
         }
     };
-    
-    
 
-    
+    const handleSignupSubmit = async (e) => {
+        e.preventDefault();
 
-    // Handle signup form submission
-const handleSignupSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validate email
-    if (!validateEmail(email)) {
-        setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
-        return;
-    }
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-        setErrorMessage('Passwords do not match!');
-        return;
-    }
-
-    // Check if all fields are filled
-    if (!username || !email || !password || !userType) {
-        setErrorMessage('All fields are required!');
-        return;
-    }
-
-    try {
-        // Send the signup data with userType included in the request body
-        const response = await axios.post('http://localhost:5000/api/auth/signup', {
-            username,
-            email,
-            password,
-            userType,  // Include userType here
-        });
-
-        // Set the token in localStorage after successful signup
-        localStorage.setItem('token', response.data.token);
-
-        // Navigate to the appropriate dashboard based on userType
-        if (response.data.userType === 'User') {
-            navigate('/userDashboard');
-        } else if (response.data.userType === 'Employee') {
-            navigate('/employeeDashboard');
-        } else if (response.data.userType === 'Admin') {
-            navigate('/adminDashboard');
+        if (!validateEmail(email)) {
+            setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
+            return;
         }
-    } catch (error) {
-        setErrorMessage(error.response?.data?.message || 'Signup failed');
-    }
-};
 
+        if (password !== confirmPassword) {
+            setErrorMessage('Passwords do not match!');
+            return;
+        }
+
+        if (!username || !email || !password || !userType) {
+            setErrorMessage('All fields are required!');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/auth/signup', {
+                username,
+                email,
+                password,
+                userType,
+            });
+
+            localStorage.setItem('token', response.data.token);
+
+            if (response.data.userType === 'User') {
+                navigate('/userDashboard');
+            } else if (response.data.userType === 'Employee') {
+                navigate('/employeeDashboard');
+            } else if (response.data.userType === 'Admin') {
+                navigate('/adminDashboard');
+            }
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || 'Signup failed');
+        }
+    };
 
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
@@ -146,18 +131,6 @@ const handleSignupSubmit = async (e) => {
                         style={{ maxHeight: '150px', marginLeft: '110px', marginTop: '40px' }}
                     />
                     <h2 className="text-center mb-3">Welcome to BUKSU Hotel</h2>
-
-                    <select
-                        className="form-select mb-3"
-                        value={userType}
-                        onChange={(e) => setUserType(e.target.value)}
-                    >
-                        <option value="User">User</option>
-                        <option value="Employee">Employee</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-
-                    {/* Toggle between Login and Signup Form */}
                     {isSignup ? (
                         <form onSubmit={handleSignupSubmit}>
                             <input
@@ -199,7 +172,7 @@ const handleSignupSubmit = async (e) => {
                                 placeholder="Email"
                                 className="form-control mb-3"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)} // Ensure email value is correctly bound
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
                             <input

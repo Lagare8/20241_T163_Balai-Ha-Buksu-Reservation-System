@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
-
+import { Link, useNavigate } from 'react-router-dom';
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false);
@@ -14,6 +14,18 @@ const AdminDashboard = () => {
         password: '',
         role: 'employee',
     });
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const toggleNotifications = () => {
+        setShowNotifications(!showNotifications);
+    };
+
+    const toggleProfile = () => {
+        setShowProfile(!showProfile);
+    };
+
     // fetching employee
     const fetchEmployees = async () => {
         try{
@@ -158,30 +170,100 @@ const AdminDashboard = () => {
     return (
         <div>
             {/* Navbar */}
-            <nav className="navbar navbar-expand-lg navbar-dark" style={navbarStyle}>
-                <div className="container-fluid">
-                <a className="navbar-brand" href="#">
-                <img src="../assets/Shield_logo_of_Bukidnon_State_University.png" alt="Logo" style={{ height: '80px', width: '80px'}} />
-                </a>
-                <a className="navbar-brand" href="#">
-                <img src="../assets/lgo.png" alt="Logo" style={{ height: '100px', width: '100px'}} />
-                </a>
-                    <div className="navbar-brand">Admin</div>
-                    <input type="text" placeholder="Search..." className="form-control rounded-pill mx-3" style={{ maxWidth: '200px' }} />
-                    <ul className="navbar-nav ms-auto align-items-center">
-                        <li className="nav-item me-3">
-                            <a className="nav-link" href="#">Home</a>
-                        </li>
-                        <li className="nav-item me-3">
-                            <a className="nav-link" href="#">View Offers</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
-                        </li>
-                        <li className="nav-item">
-                                <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>
-                        </li>
-                    </ul>
+            <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#283555', height: '70px' }}>
+                <div className="container d-flex align-items-center">
+                    <a className="navbar-brand d-flex align-items-center" href="#">
+                        <img 
+                            src="/assets/Shield_logo_of_Bukidnon_State_University.png" 
+                            alt="BUKSU Logo" 
+                            style={{ height: '50px', marginRight: '10px' }}
+                        />
+                        <img 
+                            src="/assets/lgo.png" 
+                            alt="BUKSU Hotel Logo" 
+                            style={{ height: '80px', width: '120px' }}
+                        />
+                    </a>
+                    <button
+                        className="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
+                        aria-controls="navbarNav"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation"
+                    >
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+                    
+                    <form className="form-inline my-2 my-lg-0 ml-auto">
+                        <div className="d-flex align-items-center">
+                            <input
+                                className="form-control mr-2"
+                                type="search"
+                                placeholder="Search"
+                                aria-label="Search"
+                            />
+                            <button className="btn btn-outline-light" type="submit">
+                                <i className="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav ms-auto">
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/employeeDashboard">Home</Link>
+                            </li>
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle text-white"
+                                    href="#"
+                                    id="navbarDropdown"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                 View Offers
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><Link className="dropdown-item" to="#">#</Link></li>
+                                    <li><Link className="dropdown-item" to="#">#</Link></li>
+                                    <li><Link className="dropdown-item" to="#">#</Link></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a className="nav-link" href="#" onClick={toggleNotifications}>
+                                    <FontAwesomeIcon icon={faBell} />
+                                </a>
+                                {showNotifications && (
+                                    <div className="notification-dropdown">
+                                        <ul className="list-group">
+                                            <li className="list-group-item">Notification 1</li>
+                                            <li className="list-group-item">Notification 2</li>
+                                            <li className="list-group-item">Notification 3</li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                    <FontAwesomeIcon icon={faUserCircle} />
+                                </a>
+                                {showProfile && (
+                                    <div className="profile-dropdown">
+                                        <ul className="list-group">
+                                            <li className="list-group-item">Profile Info</li>
+                                            <li className="list-group-item">Settings</li>
+                                            <li>
+                                            <Link className="list-group-item" to="/">Logout</Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
 
