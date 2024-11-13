@@ -37,6 +37,10 @@ import adminRoomsRouter from './routes/admin-manager/RoomRoutes.js';
 app.use('/admin/rooms', adminRoomsRouter);
 import adminReservationsRouter from './routes/admin-manager/reservations.js';
 app.use('/admin/reserve', adminReservationsRouter);
+import adminConfirmReservationRouter from './routes/admin-manager/reservations.js';
+app.use('/admin/reserve', adminConfirmReservationRouter);
+import adminCancelReservationRouter from './routes/admin-manager/reservations.js';
+app.use('/admin/reserve', adminCancelReservationRouter);
 
 // Employee routes
 import reservationsRouter from './routes/employee-manager/reservation.js';

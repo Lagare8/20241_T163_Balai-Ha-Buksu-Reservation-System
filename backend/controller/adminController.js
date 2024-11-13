@@ -43,6 +43,48 @@ const getAllReservations = async (req, res) => {
     }
 };
 
+const confirmReservation = async (req, res) => {
+    try {
+        const reservationId = req.params.id;
+
+        const updatedReservation = await Reservation.findByIdAndUpdate(
+            reservationId,
+            {status: 'confirmed'},
+            {new : true}
+        );
+        if (!updatedReservation){
+            return res.status(404).json({message: 'Reservation not found'});
+        }
+
+        updatedReservation.history.push({status: 'confirmed'});
+        await updatedReservation.save();
+        
+        return res.status(200).json({message: 'Reservation confirmed', reservation: updatedReservation});
+    }catch (error){
+        console.error('Error confirming reservation', error);
+        return res.status(500).json({message: 'An occured while fetching the reservation'});
+    }
+}
+
+const cancelReservation = async (req, res) => {
+    const {reservationId} = req.params.id;
+    try{
+        const canceledReservation = await Reservation.findByIdAndDelete(reservationId);
+
+        if (!cancelReservation) {
+            return res.status(404).json({message: 'Booking not found or already canceled'});
+        }
+
+        canceledReservation.history.push({status: 'canceled'});
+        await cancelReservation.save();
+
+        return res.status(200).json({message: 'Booking canceled successfully'});
+    }catch (error){
+        console.error('Error canceling booking', error);
+        return res.status(500).json({message: 'An occured while cancelling the booking'});
+    }
+}
+
 const deleteEmployee = async (req, res) => {
 
 }
@@ -63,4 +105,4 @@ const getRoomById =async (req, res) => {
 
 }
 
-export {postEmployee, getEmployee, putEmployee, deleteEmployee,getEmployeeById, getRoomById, getRooms, putRooms, getAllReservations}
+export {postEmployee, getEmployee, putEmployee, deleteEmployee,getEmployeeById, getRoomById, getRooms, putRooms, getAllReservations, confirmReservation, cancelReservation}

@@ -176,6 +176,11 @@ const AdminDashboard = () => {
                                     sortable: true,
                                 },
                                 {
+                                    name: 'Type',
+                                    selector: row => row.reserveType,
+                                    sortable: true,
+                                },
+                                {
                                     name: 'Date',
                                     selector: row => formatDate(row.date),
                                     sortable: true,
@@ -185,13 +190,21 @@ const AdminDashboard = () => {
                                     cell: row => (
                                         <div>
                                             <button
-                                                onClick={() => handleConfirmBooking(row)}
+                                                onClick={() => {
+                                                    if(window.confirm("Are you sure want to confirm this booking?")){
+                                                        handleConfirmBooking(row);
+                                                    }
+                                                }}
                                                 className="btn btn-warning btn-sm me-2"
                                             >
                                                 <FontAwesomeIcon icon={faCheck} />
                                             </button>
                                             <button
-                                                onClick={() => handleCancelBooking(row)}
+                                                onClick={() => {
+                                                    if(window.confirm("Are you sure want to cancel this booking?")){
+                                                        handleCancelBooking(row);
+                                                    }
+                                                }}
                                                 className="btn btn-warning btn-sm me-2"
                                             >
                                                 <FontAwesomeIcon icon={faTrash} />
@@ -208,9 +221,47 @@ const AdminDashboard = () => {
                         />
                     </div>
                 );
-                break;
             case 'confirmed':
-                // Existing code for 'confirmed' tab
+                return (
+                    <div style={contentCardStyle}>
+                        <h3>Confirmed Bookings</h3>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.userId.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Type',
+                                    selector: row => row.reserveType,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Date',
+                                    selector: row => formatDate(row.date),
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Status',
+                                    cell: row => (
+                                        <div>
+                                            CONFIRMED
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={bookings.filter(booking => booking.status === 'confirmed')}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
+                    </div>
+                );
                 break;
             case 'history':
                 // Existing code for 'history' tab
@@ -226,13 +277,50 @@ const AdminDashboard = () => {
         
     };
 
-    const handleConfirmBooking = (reservation) => {
-
+    const handleConfirmBooking = async (reservation) => {
+        try{
+            const response = await fetch(`http://localhost:5000/admin/reserve/confirm/${reservation._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({status: 'confirmed'})
+            });
+            if (!response.ok){
+                setBookings((prevBookings) => {
+                    const updatedBookings = prevBookings.map((booking) =>
+                        booking._id == reservation._id ? { ...booking, status: 'confirmed'} : booking
+                    );
+                    return updatedBookings;
+                });
+            } else {
+                console.error("Error confirm bookings");
+            }
+        }catch(error){
+            console.error("Error confirming bookings", error);
+        }
     }
 
-    const handleCancelBooking = (reservation) => {
-
-    }
+    const handleCancelBooking = async (reservation) => {
+        try{
+            const response = await fetch(`http://localhost:5000/admin/reserve/cancel/${reservation._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({status: 'confirmed'})
+            });
+            if (!response.ok){
+                setBookings((prevBookings) => prevBookings.filter(booking => booking._id !== reservation._id));
+                console.log("Booking Cancelled Successfully");
+                } else {
+                    console.error("Error cancelling booking: ", response.statusText);
+                }
+            }catch(error ){
+                console.error("Error Canceling bookings", error);
+            }
+        }
+    
     
     // Delete employee handler
     const handleDeleteEmployee = async (employeeId) => {

@@ -12,8 +12,22 @@ const reservationSchema = new mongoose.Schema({
     cateringOptions: { type: Array, required: false },
   },
   date: { type: Date, required: true },
-});
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'canceled'],  
+    default: 'pending',                          
+  },
+}, {
+  timestamps: true,  
+}, {
+  date: {type: Date, required: true},
+  history: [
+    {
+      status: {type: String, enum: ['confirmed', 'pending'], required: true},
+      changedAt: {type: Date, default: Date.now},
+    }
+  ]
+}
+);
 
-
-// Specify the collection name explicitly, if needed
 export default mongoose.model('Reservation', reservationSchema);
