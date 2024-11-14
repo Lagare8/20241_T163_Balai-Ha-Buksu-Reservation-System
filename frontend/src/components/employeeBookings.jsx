@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUsers, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 const EmployeeBookings = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false); // State to control modal visibility
@@ -11,7 +11,6 @@ const EmployeeBookings = () => {
     const toggleModal = () => setShowModal(!showModal);
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-    const navigate = useNavigate(); // Initialize useNavigate
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -156,7 +155,6 @@ const EmployeeBookings = () => {
                         />
                     </div>
                 );
-                break;
             case 'history':
                 return (
                     <div style={contentCardStyle}>
@@ -198,7 +196,6 @@ const EmployeeBookings = () => {
                         />
                     </div>
                 );
-                break;
             default:
                 return null;
         }
@@ -215,7 +212,7 @@ const EmployeeBookings = () => {
             if (!response.ok){
                 setBookings((prevBookings) => {
                     const updatedBookings = prevBookings.map((booking) =>
-                        booking._id == reservation._id ? { ...booking, status: 'confirmed'} : booking
+                        booking._id === reservation._id ? { ...booking, status: 'confirmed'} : booking
                     );
                     return updatedBookings;
                 });
@@ -387,11 +384,6 @@ const EmployeeBookings = () => {
 };
 
 // Styles
-const navbarStyle = {
-    backgroundColor: '#1b1f3b',
-    color: '#fff',
-};
-
 const mainContainerStyle = {
     backgroundColor: '#2d2f3b',
     padding: '20px',
@@ -432,10 +424,6 @@ const contentCardStyle = {
     textAlign: 'center',
 };
 
-const tableStyle = {
-    width: '100%',
-    borderCollapse: 'collapse',
-};
 
 const profileIconStyle = {
     width: '35px',

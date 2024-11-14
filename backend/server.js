@@ -41,6 +41,8 @@ import adminConfirmReservationRouter from './routes/admin-manager/reservations.j
 app.use('/admin/reserve', adminConfirmReservationRouter);
 import adminCancelReservationRouter from './routes/admin-manager/reservations.js';
 app.use('/admin/reserve', adminCancelReservationRouter);
+import adminSendEmail from './routes/admin-manager/employees.js';
+app.use('/api/admin/employees', adminSendEmail);
 
 // Employee routes
 import reservationsRouter from './routes/employee-manager/reservation.js';

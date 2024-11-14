@@ -46,10 +46,18 @@ const AdminDashboard = () => {
         const { name, value } = e.target;
         setNewEmployee({ ...newEmployee, [name]: value });
     }
-
+    //Add employee
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Form submitted");
+
+        const generatedPassword = Math.random().toString(36).slice(-8);
+
+        const newEmployeeData = {
+            ...newEmployee,
+            password: generatedPassword
+        };
+
         try{
             const response = await fetch("http://localhost:5000/api/admin/employees", {
                 method: 'POST',
@@ -59,14 +67,25 @@ const AdminDashboard = () => {
                 body: JSON.stringify(newEmployee),
             });
             if(response.ok){
-                const errorData = await response.json();
-                console.error("Error adding employee", errorData);
-                return;
+                await fetch('http://localhost:5000/api/admin/employees/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type' : 'application/json'
+                    },
+                    body:JSON.stringify({
+                        email: newEmployee.email,
+                        password: generatedPassword
+                    })
+                });
+
+                setEmployees((prevEmployees) => [...prevEmployees, newEmployeeData]);
+                //NOTIFY
+                alert("Employee added and email sent");
+                toggleModal();
+            }else {
+                alert("Failed to add employee");
             }
-            const addedEmployee = await response.json();
-            console.log("Added Employee", addedEmployee);
-            setEmployees((prevEmployees) => [ ...prevEmployees, addedEmployee])
-            setShowModal(false);
+            
         } catch (error){
             console.error("Error adding employee", error);
         }
@@ -107,6 +126,7 @@ const AdminDashboard = () => {
         const year = date.getFullYear();
         return `${month}/${day}/${year}`;
     };
+
 
     const toggleModal = () => setShowModal(!showModal);
 
@@ -328,7 +348,7 @@ const AdminDashboard = () => {
             if (!response.ok){
                 setBookings((prevBookings) => {
                     const updatedBookings = prevBookings.map((booking) =>
-                        booking._id == reservation._id ? { ...booking, status: 'confirmed'} : booking
+                        booking._id === reservation._id ? { ...booking, status: 'confirmed'} : booking
                     );
                     return updatedBookings;
                 });
@@ -539,19 +559,6 @@ const AdminDashboard = () => {
                                                 required
                                             />
                                         </div>
-                                        <div className="form-group">
-                                            <label htmlFor="password">Password</label>
-                                            <input
-                                                type="password"
-                                                className="form-control"
-                                                id="area"
-                                                placeholder="Password"
-                                                name="password"
-                                                value={newEmployee.password}
-                                                onChange={handleInputChange}
-                                                required
-                                            />
-                                        </div>
                                         <div className="modal-footer">
                                             <button type="button" className="btn btn-secondary" onClick={toggleModal}>
                                                 Close
@@ -570,10 +577,6 @@ const AdminDashboard = () => {
 };
 
 // Styles
-const navbarStyle = {
-    backgroundColor: '#1b1f3b',
-    color: '#fff',
-};
 
 const mainContainerStyle = {
     backgroundColor: '#2d2f3b',
@@ -615,15 +618,5 @@ const contentCardStyle = {
     textAlign: 'center',
 };
 
-const tableStyle = {
-    width: '100%',
-    borderCollapse: 'collapse',
-};
-
-const profileIconStyle = {
-    width: '35px',
-    height: '35px',
-    borderRadius: '50%',
-};
 
 export default AdminDashboard;
