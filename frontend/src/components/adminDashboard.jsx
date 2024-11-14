@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUsers, faCalendarAlt, faTrash, faCheck, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUsers, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
 import { Link, useNavigate } from 'react-router-dom';
 const AdminDashboard = () => {
@@ -207,14 +207,14 @@ const AdminDashboard = () => {
                                                 }}
                                                 className="btn btn-warning btn-sm me-2"
                                             >
-                                                <FontAwesomeIcon icon={faTrash} />
+                                                <FontAwesomeIcon icon={faX} />
                                             </button>
                                         </div>
                                     ),
                                     button: true,  // Makes the column button-style
                                 }
                             ]}
-                            data={bookings}
+                            data={bookings.filter((booking) => booking.status === 'pending')}
                             pagination
                             highlightOnHover
                             responsive
@@ -264,7 +264,46 @@ const AdminDashboard = () => {
                 );
                 break;
             case 'history':
-                // Existing code for 'history' tab
+                return (
+                    <div style={contentCardStyle}>
+                        <h3>Booking History</h3>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.userId.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Type',
+                                    selector: row => row.reserveType,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Date',
+                                    selector: row => formatDate(row.date),
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Status',
+                                    cell: (row) => (
+                                        <div>
+                                            {row.status === 'confirmed' ? 'CONFIRMED' : 'CANCELED'}
+                                        </div>
+                                    ),
+                                    button: true,
+                                }
+                            ]}
+                            data={bookings.filter(booking => booking.status === 'confirmed' || booking.status === 'canceled')}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
+                    </div>
+                );
                 break;
             default:
                 return null;
@@ -293,6 +332,8 @@ const AdminDashboard = () => {
                     );
                     return updatedBookings;
                 });
+
+                console.log('Booking confirmed successfully!');
             } else {
                 console.error("Error confirm bookings");
             }
@@ -302,13 +343,14 @@ const AdminDashboard = () => {
     }
 
     const handleCancelBooking = async (reservation) => {
+        console.log("Canceling reservation", reservation);
         try{
+            console.log("Sending request to cancel booking with ID:", reservation._id); 
             const response = await fetch(`http://localhost:5000/admin/reserve/cancel/${reservation._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({status: 'confirmed'})
             });
             if (!response.ok){
                 setBookings((prevBookings) => prevBookings.filter(booking => booking._id !== reservation._id));
@@ -337,7 +379,7 @@ const AdminDashboard = () => {
             console.error('Error deleting employee', error);
         }
     };
-    
+
 
     return (
         <div>

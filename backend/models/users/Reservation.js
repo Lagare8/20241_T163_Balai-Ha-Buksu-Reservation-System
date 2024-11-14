@@ -18,6 +18,14 @@ const reservationSchema = new mongoose.Schema({
     default: 'pending',                          
   },
 }, {
+history: [
+  {
+    status: { type: String, enum: ['confirmed', 'pending', 'canceled'], required: true },
+    changedAt: { type: Date, default: Date.now },
+  }
+],
+},
+{
   timestamps: true,  
 }, {
   date: {type: Date, required: true},
@@ -27,7 +35,8 @@ const reservationSchema = new mongoose.Schema({
       changedAt: {type: Date, default: Date.now},
     }
   ]
-}
+},
+
 );
 
 export default mongoose.model('Reservation', reservationSchema);

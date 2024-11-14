@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUsers, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import DataTable from 'react-data-table-component';
 import { Link, useNavigate } from 'react-router-dom';
 const EmployeeBookings = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
@@ -18,6 +19,14 @@ const EmployeeBookings = () => {
 
     const toggleProfile = () => {
         setShowProfile(!showProfile);
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
     };
 
     // fetch from dbs
@@ -48,79 +57,198 @@ const EmployeeBookings = () => {
         switch (activeTab) {
             case 'bookings':
                 return (
-                        <div style={contentCardStyle}>
-                        <h2>Pending Bookings</h2>
-                        <div style={contentCardStyle}>
-                        <table style={tableStyle}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Booking</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bookings.map((booking, index) => (
-                                    <tr key={index}>
-                                        <td>{booking.userId.username}</td>
-                                        <td>{booking.reserveType}</td>
-                                        <td>{booking.date}</td>
-                                        <td style={statusCellStyle}>
-                                            <button type="button" className='btn btn-success' style={{maring: '5px'}}> 
-                                                Confirm
-                                            </button>
-                                            <button type="button" className='btn btn-danger'>
-                                                Cancel
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div style={contentCardStyle}>
+                        <h3>Pending Bookings</h3>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
                         </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.userId.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Type',
+                                    selector: row => row.reserveType,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Date',
+                                    selector: row => formatDate(row.date),
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Action',
+                                    cell: row => (
+                                        <div>
+                                            <button
+                                                onClick={() => {
+                                                    if(window.confirm("Are you sure want to confirm this booking?")){
+                                                        handleConfirmBooking(row);
+                                                    }
+                                                }}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faCheck} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if(window.confirm("Are you sure want to cancel this booking?")){
+                                                        handleCancelBooking(row);
+                                                    }
+                                                }}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faX} />
+                                            </button>
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={bookings.filter((booking) => booking.status === 'pending')}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
                     </div>
                 );
             case 'confirmed':
                 return (
                     <div style={contentCardStyle}>
-                        <h2>Confirmed Bookings</h2>
-                        <div style={contentCardStyle}>
-                        <table style={tableStyle}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Booking</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Maria Dela Cruz</td>
-                                    <td>Room 1</td>
-                                    <td>October 20, 2025</td>
-                                    <td style={statusCellStyle}>
-                                        <span style={confirmedStatusStyle}>Confirmed</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <h3>Confirmed Bookings</h3>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
                         </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.userId.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Type',
+                                    selector: row => row.reserveType,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Date',
+                                    selector: row => formatDate(row.date),
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Status',
+                                    cell: row => (
+                                        <div>
+                                            CONFIRMED
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={bookings.filter(booking => booking.status === 'confirmed')}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
                     </div>
                 );
+                break;
             case 'history':
                 return (
                     <div style={contentCardStyle}>
-                        <h2>History</h2>
-                        <p>History of bookings and actions goes here.</p>
+                        <h3>Booking History</h3>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.userId.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Type',
+                                    selector: row => row.reserveType,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Date',
+                                    selector: row => formatDate(row.date),
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Status',
+                                    cell: (row) => (
+                                        <div>
+                                            {row.status === 'confirmed' ? 'CONFIRMED' : 'CANCELED'}
+                                        </div>
+                                    ),
+                                    button: true,
+                                }
+                            ]}
+                            data={bookings.filter(booking => booking.status === 'confirmed' || booking.status === 'canceled')}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
                     </div>
                 );
+                break;
             default:
                 return null;
         }
     };
+    const handleConfirmBooking = async (reservation) => {
+        try{
+            const response = await fetch(`http://localhost:5000/employee/reserve/confirm/${reservation._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({status: 'confirmed'})
+            });
+            if (!response.ok){
+                setBookings((prevBookings) => {
+                    const updatedBookings = prevBookings.map((booking) =>
+                        booking._id == reservation._id ? { ...booking, status: 'confirmed'} : booking
+                    );
+                    return updatedBookings;
+                });
 
+                console.log('Booking confirmed successfully!');
+            } else {
+                console.error("Error confirm bookings");
+            }
+        }catch(error){
+            console.error("Error confirming bookings", error);
+        }
+    }
+
+    const handleCancelBooking = async (reservation) => {
+        console.log("Canceling reservation", reservation);
+        try{
+            console.log("Sending request to cancel booking with ID:", reservation._id); 
+            const response = await fetch(`http://localhost:5000/employee/reserve/cancel/${reservation._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok){
+                setBookings((prevBookings) => prevBookings.filter(booking => booking._id !== reservation._id));
+                console.log("Booking Cancelled Successfully");
+                } else {
+                    console.error("Error cancelling booking: ", response.statusText);
+                }
+            }catch(error ){
+                console.error("Error Canceling bookings", error);
+            }
+        }
     return (
         <div>
             {/* Navbar */}
@@ -221,91 +349,62 @@ const EmployeeBookings = () => {
                 </div>
             </nav>
 
-            <div style={mainCardStyle}>
-                <div style={menuStyle}>
-                    <button onClick={() => setActiveTab('bookings')} style={{ ...buttonStyle, backgroundColor: '#f1c40f' }}>Bookings</button>
-                    <button onClick={() => setActiveTab('confirmed')} style={{ ...buttonStyle, backgroundColor: '#16a085' }}>Confirmed Booking</button>
-                    <button onClick={() => setActiveTab('history')} style={{ ...buttonStyle, backgroundColor: '#e74c3c' }}>History</button>
+          {/* Main Content */}
+          <div style={mainContainerStyle}>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => setActiveTab('bookings')} style={{ ...tabButtonStyle, backgroundColor: '#f1c40f' }}>
+                        Bookings <FontAwesomeIcon icon={faCalendarAlt} />
+                    </button>
+                    <button onClick={() => setActiveTab('confirmed')} style={{ ...tabButtonStyle, backgroundColor: '#16a085' }}>
+                        Confirmed Booking <FontAwesomeIcon icon={faCalendarCheck} />
+                    </button>
+                    <button onClick={() => setActiveTab('history')} style={{ ...tabButtonStyle, backgroundColor: '#e74c3c' }}>
+                        History <FontAwesomeIcon icon={faHistory} />
+                    </button>
                 </div>
 
-                <section style={contentContainerStyle}>
+                <div style={contentContainerStyle}>
                     {renderContent()}
-                </section>
-            </div>
+                </div>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="modal show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
-                    <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Add New Employee</h5>
-                                <button
-                                    type="button"
-                                    className="close"
-                                    data-dismiss="modal"
-                                    aria-label="Close"
-                                    onClick={toggleModal} // Close modal when clicked
-                                >
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div className="modal-body">
-                                {/* Modal body content */}
-                                <form>
-                                    <div className='form-row'>
-                                        <div className='form-group co'>
-                                            <label for="inputName">Firstname</label>
-                                            <input type="text" className='form-control' id="name" placeholder='Name'/>
-                                        </div>
-                                        <div className='form-group col'>
-                                            <label for="area">Area</label>
-                                            <input type='text' className='form-control' id="area" placeholder='Area'/>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={toggleModal} // Close modal
-                                >
-                                    Close
-                                </button>
-                                <button type="button" className="btn btn-primary">
-                                    Save changes
-                                </button>
+                {/* Modal */}
+                {showModal && (
+                    <div className={`modal fade ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Add New Employee</h5>
+                                    <button type="button" className="close" onClick={toggleModal}>&times;</button>
+                                </div>
+                               
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };
 
-const mainCardStyle = {
-    width: '100vw',  // Ensures the card spans the full width of the viewport
-    height: '100vh',  // Ensures the card spans the full height of the viewport
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    margin: '20px 0',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-    overflowX: 'hidden',  // Prevents horizontal overflow if any content is too wide
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between', // Ensures the content is spread within the full height
+// Styles
+const navbarStyle = {
+    backgroundColor: '#1b1f3b',
+    color: '#fff',
 };
 
-const menuStyle = {
+const mainContainerStyle = {
+    backgroundColor: '#2d2f3b',
+    padding: '20px',
+    minHeight: '100vh',
+};
+
+const buttonContainerStyle = {
     display: 'flex',
     justifyContent: 'space-around',
     marginBottom: '20px',
 };
 
-const buttonStyle = {
+const tabButtonStyle = {
     padding: '10px 20px',
     border: 'none',
     borderRadius: '4px',
@@ -313,18 +412,24 @@ const buttonStyle = {
     cursor: 'pointer',
     flex: 1,
     margin: '0 5px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
 };
 
 const contentContainerStyle = {
-    paddingTop: '20px',
-    flex: 1,  // Ensures content takes available space
-    overflowY: 'auto',  // Prevents content from overflowing vertically
-};
-
-const contentCardStyle = {
     backgroundColor: '#f9f9f9',
     padding: '20px',
     borderRadius: '8px',
+    minHeight: '300px',
+};
+
+const contentCardStyle = {
+    backgroundColor: '#ececec',
+    padding: '30px',
+    borderRadius: '10px',
+    textAlign: 'center',
 };
 
 const tableStyle = {
@@ -332,23 +437,10 @@ const tableStyle = {
     borderCollapse: 'collapse',
 };
 
-const statusCellStyle = {
-    display: 'flex',
-    alignItems: 'center',
-};
-
-const confirmedStatusStyle = {
-    color: '#16a085',
-    marginRight: '10px',
-};
-
-const cancelButtonStyle = {
-    padding: '5px',
-    backgroundColor: '#e74c3c',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+const profileIconStyle = {
+    width: '35px',
+    height: '35px',
+    borderRadius: '50%',
 };
 
 export default EmployeeBookings;

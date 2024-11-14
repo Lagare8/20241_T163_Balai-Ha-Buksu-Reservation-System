@@ -67,21 +67,42 @@ const confirmReservation = async (req, res) => {
 }
 
 const cancelReservation = async (req, res) => {
-    const {reservationId} = req.params.id;
+const reservationId = req.params.id;
+console.log('Reservation ID:', reservationId); 
     try{
         const canceledReservation = await Reservation.findByIdAndDelete(reservationId);
 
-        if (!cancelReservation) {
+        if (!canceledReservation) {
             return res.status(404).json({message: 'Booking not found or already canceled'});
         }
-
+        // Ensure the history array exists before pushing
+        if (!canceledReservation.history) {
+            canceledReservation.history = [];
+        }
+        canceledReservation.status = 'canceled';
         canceledReservation.history.push({status: 'canceled'});
-        await cancelReservation.save();
+
+        await canceledReservation.save();
 
         return res.status(200).json({message: 'Booking canceled successfully'});
     }catch (error){
         console.error('Error canceling booking', error);
         return res.status(500).json({message: 'An occured while cancelling the booking'});
+    }
+}
+
+const getBookingHistory = async (req, res) => {
+    const {reservationId} = req.params;
+
+    try{
+        const reservation = await Reservation.findById(reservationId);
+        if(!reservation){
+            return res.status(404).json({message: 'Booking not found'});
+        }
+        return res.status(200).json(reservation.history);
+    }catch(error){
+        console.error('Error fetching booking history');
+        return res.status(500).json({messsage: 'An error occured while fetching the booking history'});
     }
 }
 
