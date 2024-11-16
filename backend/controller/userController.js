@@ -13,9 +13,15 @@ const generateToken = (user) => {
 const postRoomReservation = async (req, res) => {
     const { roomNumber, date } = req.body;
     const userId = req.userId;  // Extract user ID from token
+    
+    if (!roomNumber || !date) {
+        return res.status(400).json({ message: 'Room number and date are required.' });
+    }
 
-    if (!userId || !roomNumber || !date) {
-        return res.status(400).json({ message: 'Missing user ID, room number, or date' });
+    // Ensure the date is valid
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate)) {
+        return res.status(400).json({ message: 'Invalid date format.' });
     }
 
     try {
@@ -28,7 +34,7 @@ const postRoomReservation = async (req, res) => {
         await reservation.save();
         res.status(201).json({ message: 'Room reserved successfully!', reservation });
     } catch (error) {
-        console.error('Error creating reservation:', error);
+        console.error('Error creating room reservation:', error);
         res.status(500).json({ message: 'Failed to create room reservation' });
     }
 };
@@ -101,33 +107,47 @@ const getUserBookingHistory = async (req, res) => {
 
 const checkAvailability = async (req, res) => {
     const { reserveType, reserve, date } = req.query;
-    const parsedDate = new Date(date);
+    
+    // Validate required parameters
+    if (!reserveType || !reserve || !date) {
+        return res.status(400).json({ message: 'Missing required parameters' });
+    }
 
+    // Validate the date format
+    const parsedDate = new Date(date);
     if (isNaN(parsedDate)) {
         return res.status(400).json({ message: 'Invalid date format' });
     }
 
-    if (!reserveType || !date) {
-        return res.status(400).json({ message: 'Missing required parameters' });
+    // Ensure reserve is a valid room number (parse it as integer)
+    const roomNumber = parseInt(reserve);
+    if (isNaN(roomNumber)) {
+        return res.status(400).json({ message: 'Invalid room number' });
     }
 
+    // Build the query
     try {
-        let query = { date };
+        let query = { date: parsedDate };
 
+        // Check reservation type and handle accordingly
         if (reserveType === 'Room') {
             query.reserveType = 'Room';
-            query['reservationDetails.roomNumber'] = reserve;  // Check for specific room number
+            query['reservationDetails.roomNumber'] = roomNumber;  // Query for specific room
         } else {
             return res.status(400).json({ message: 'Invalid reservation type' });
         }
 
+        // Check if reservation exists for the given room and date
         const reservationExists = await Reservation.findOne(query);
+
+        // Return availability status (true = available, false = occupied)
         res.status(200).json({ available: !reservationExists });
     } catch (error) {
         console.error("Error checking availability", error);
         res.status(500).json({ message: 'Failed to check availability' });
     }
 };
+
 
 const cancelReservation = async (req, res) => {
     const { id } = req.params;
@@ -144,6 +164,7 @@ const cancelReservation = async (req, res) => {
         res.status(500).json({message: 'Failed to cancel reservation'});
     }
 }
+
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 

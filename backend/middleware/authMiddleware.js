@@ -9,14 +9,17 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
+        console.log("Token received:", token); // Log the received token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = decoded.id; // Set userId to be used in subsequent requests
+        console.log("Decoded token:", decoded); // Log the decoded token
+        req.userId = decoded.id;
         next();
     } catch (err) {
-        console.error(err);
+        console.error("Error verifying token:", err); // Log the error
         res.status(401).json({ message: "Token is not valid" });
     }
 };
+
 
 
 export default authMiddleware;

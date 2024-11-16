@@ -88,7 +88,7 @@ const UserReserve = () => {
                       <img src="../assets/room.png" alt="Rooms" className='img-fluid' style={{height: '650px', width: '100%', objectFit: 'cover'}} />
                     </div>
                   </div>
-                  <a href="/roomCalendar" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
+                  <a href="/Rooms" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
                 </div>
                 <div class="col-sm text-center">
                   Catering Services

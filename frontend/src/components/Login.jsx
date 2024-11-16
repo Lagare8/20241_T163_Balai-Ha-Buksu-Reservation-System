@@ -63,7 +63,7 @@ function Login() {
                 password,
             });
             const token = response.data.token; 
-            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('token', token);
 
             const { userType } = response.data;
             if (userType === 'User') {
