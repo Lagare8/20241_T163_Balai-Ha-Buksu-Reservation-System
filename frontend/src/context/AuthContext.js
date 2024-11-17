@@ -7,12 +7,16 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('userToken'));
+  const [token, setToken] = useState(() => localStorage.getItem('userToken')); // Lazy initialization
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
 
   useEffect(() => {
+    // Ensure the token is synced between localStorage and the context
     const storedToken = localStorage.getItem('userToken');
-    setToken(storedToken);
-  }, []);
+    if (storedToken !== token) {
+      setToken(storedToken); // Update state if token in localStorage changes
+    }
+  }, [token]); // Watch token for changes
 
   const login = (newToken) => {
     localStorage.setItem('userToken', newToken);
@@ -25,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, setToken, login, logout }}>
+    <AuthContext.Provider value={{ token, setToken, login, logout, userId, setUserId }}>
       {children}
     </AuthContext.Provider>
   );

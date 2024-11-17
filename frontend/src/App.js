@@ -48,7 +48,6 @@ function App() {
 
             {/* Admin Routes */}
             <Route path="/adminDashboard" element={<AdminDashboard />} />
-            <Route path=" " element={<AdminBookings />} />
 
             {/* General Routes */}
             <Route path="/rooms" element={<Rooms />} />
