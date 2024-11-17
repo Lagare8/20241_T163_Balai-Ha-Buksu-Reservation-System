@@ -5,14 +5,10 @@ import Reservation from "../models/users/Reservation.js"
 const generateToken = (user) => {
     return jwt.sign(
         { id: user._id, email: user.email, userType: user.constructor.modelName },
-        {
-            id: user._id,
-            role: user.role, // Ensure this is included
-        },
         process.env.JWT_SECRET,  // Ensure you have a secret in your environment variables
         { expiresIn: '1h' }      // Token expiration time
     );
-};  
+};
 
 const postRoomReservation = async (req, res) => {
     const { roomNumber, date } = req.body;
@@ -43,27 +39,46 @@ const postRoomReservation = async (req, res) => {
     }
 };
 
-
-
 const postHallReservation = async (req, res) => {
-    const { userId, date } = req.body;
+    const { date } = req.body; // Only need the date for Function Hall
+    const userId = req.userId; // Extract userId from the token middleware
+    
+    // Validate inputs
+    if (!date) {
+        return res.status(400).json({ message: 'Date is required for Function Hall reservations.' });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate)) {
+        return res.status(400).json({ message: 'Invalid date format.' });
+    }
+
     try {
-        const existingReversation = await Reservation.findOne({type: 'Function Hall', date});
-        if(existingReversation){
-            return res.status(409).json({message : 'Function hall is already reserved for this date'});
+        // Check if Function Hall is already reserved for the given date
+        const existingReservation = await Reservation.findOne({
+            reserveType: 'Function Hall',
+            date: parsedDate
+        });
+
+        if (existingReservation) {
+            return res.status(409).json({ message: 'Function Hall is already reserved for this date.' });
         }
+
+        // Create the new reservation
         const reservation = new Reservation({
             userId,
-            type: 'Function Hall',
-            date,
+            reserveType: 'Function Hall',
+            date: parsedDate,
         });
+
         await reservation.save();
-        res.status(201).json({ message: 'Function hall reserved successfully', reservation});
-    }catch (error){
-        console.error('Error creating function hall reservation: ', error);
-        res.status(500).json({ message: 'Failed to create '});
+        res.status(201).json({ message: 'Function Hall reserved successfully!', reservation });
+    } catch (error) {
+        console.error('Error creating Function Hall reservation:', error);
+        res.status(500).json({ message: 'Failed to create Function Hall reservation. Please try again later.' });
     }
 };
+
 
 const postCateringReservation = async (req, res) => {
     const { date, cateringOptions } = req.body;
