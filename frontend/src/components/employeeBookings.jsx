@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { Link, useNavigate } from 'react-router-dom';
-const EmployeeBookings = () => {
-    const [activeTab, setActiveTab] = useState('confirmed');
-    const [showModal, setShowModal] = useState(false); // State to control modal visibility
-    const [bookings, setBookings] = useState([]);
-    const toggleModal = () => setShowModal(!showModal);
+import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
+import DataTable from 'react-data-table-component';
+
+function EmpDashboard() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const navigate = useNavigate(); // Initialize useNavigate
@@ -20,105 +20,157 @@ const EmployeeBookings = () => {
         setShowProfile(!showProfile);
     };
 
-    // fetch from dbs
-    const fetchAllBookings = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/employee/reservation/bookings');  // Adjusted path
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+    
+    const [activeTab, setActiveTab] = useState('confirmed');
+    const [showModal, setShowModal] = useState(false);
+    const [employees, setEmployees] = useState([]);
+    const [newEmployee, setNewEmployee] = useState({
+        username:'',
+        email: '',
+        password: '',
+        role: 'employee',
+    });
+
+    // fetching employee
+    const fetchEmployees = async () => {
+        try{
+            const response = await fetch("http://localhost:5000/api/admin/employees");
+            if(!response.ok){
+                console.error("No internet connection");
             }
-            const data = await response.json();
-            setBookings(data);  // Assuming you are updating state with fetched data
-        } catch (error) {
-            console.error('Error fetching bookings:', error.message);
-            // Optionally, you could set an error state here to display in the UI
+            const data = await response.json()
+            console.log("Fetched employees data:", data);
+            setEmployees(data);
+        }catch(error){
+            console.error("Error fetching employees", error);
+        }
+    }
+    //add employee at adminDashboard
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewEmployee({ ...newEmployee, [name]: value });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("Form submitted");
+        try{
+            const response = await fetch("http://localhost:5000/api/admin/employees", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newEmployee),
+            });
+            if(response.ok){
+                const errorData = await response.json();
+                console.error("Error adding employee", errorData);
+                return;
+            }
+            const addedEmployee = await response.json();
+            console.log("Added Employee", addedEmployee);
+            setEmployees((prevEmployees) => [ ...prevEmployees, addedEmployee])
+            setShowModal(false);
+        } catch (error){
+            console.error("Error adding employee", error);
         }
     };
+    useEffect(() => {
+        fetchEmployees()
+    }, [])
+    useEffect(() => {
+        console.log(employees);
+    }, [employees])
     
-    // In your `useEffect`, you can call this function:
-    useEffect(() => {
-        fetchAllBookings();
-    }, []);
-    useEffect(() => {
-        console.log('Updated bookings:', bookings);
-      }, [bookings]);
+    const toggleModal = () => setShowModal(!showModal);
 
     const renderContent = () => {
         switch (activeTab) {
+            case 'employees':
+                return (
+                    <div style={contentCardStyle}>
+                        <h3>Employees</h3>
+                        <div className="d-flex justify-content-end mb-3">
+                        <button
+                            onClick={toggleModal}
+                            className="btn btn-success"
+                        >
+                            Add Employee
+                        </button>
+                        </div>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Email',
+                                    selector: row => row.email,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Action',
+                                    cell: row => (
+                                        <div>
+                                            <button
+                                                onClick={() => handleViewEmployee(row)}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faEye} />
+                                            </button>
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={employees}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
+                    </div>
+                );
             case 'bookings':
-                return (
-                        <div style={contentCardStyle}>
-                        <h2>Pending Bookings</h2>
-                        <div style={contentCardStyle}>
-                        <table style={tableStyle}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Booking</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bookings.map((booking, index) => (
-                                    <tr key={index}>
-                                        <td>{booking.userId.username}</td>
-                                        <td>{booking.reserveType}</td>
-                                        <td>{booking.date}</td>
-                                        <td style={statusCellStyle}>
-                                            <button type="button" className='btn btn-success' style={{maring: '5px'}}> 
-                                                Confirm
-                                            </button>
-                                            <button type="button" className='btn btn-danger'>
-                                                Cancel
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        </div>
-                    </div>
-                );
+                // Existing code for 'bookings' tab
+                break;
             case 'confirmed':
-                return (
-                    <div style={contentCardStyle}>
-                        <h2>Confirmed Bookings</h2>
-                        <div style={contentCardStyle}>
-                        <table style={tableStyle}>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Booking</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Maria Dela Cruz</td>
-                                    <td>Room 1</td>
-                                    <td>October 20, 2025</td>
-                                    <td style={statusCellStyle}>
-                                        <span style={confirmedStatusStyle}>Confirmed</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        </div>
-                    </div>
-                );
+                // Existing code for 'confirmed' tab
+                break;
             case 'history':
-                return (
-                    <div style={contentCardStyle}>
-                        <h2>History</h2>
-                        <p>History of bookings and actions goes here.</p>
-                    </div>
-                );
+                // Existing code for 'history' tab
+                break;
             default:
                 return null;
         }
     };
+    
+    // Edit employee handler
+    const handleViewEmployee = (employee) => {
+        // Set the employee details in the modal or a dedicated area for viewing
+        
+    };
+    
+    // Delete employee handler
+    const handleDeleteEmployee = async (employeeId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/admin/employees/${employeeId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                setEmployees((prevEmployees) => prevEmployees.filter(emp => emp._id !== employeeId));
+            } else {
+                console.error('Error deleting employee');
+            }
+        } catch (error) {
+            console.error('Error deleting employee', error);
+        }
+    };
+    
 
     return (
         <div>
@@ -220,91 +272,47 @@ const EmployeeBookings = () => {
                 </div>
             </nav>
 
-            <div style={mainCardStyle}>
-                <div style={menuStyle}>
-                    <button onClick={() => setActiveTab('bookings')} style={{ ...buttonStyle, backgroundColor: '#f1c40f' }}>Bookings</button>
-                    <button onClick={() => setActiveTab('confirmed')} style={{ ...buttonStyle, backgroundColor: '#16a085' }}>Confirmed Booking</button>
-                    <button onClick={() => setActiveTab('history')} style={{ ...buttonStyle, backgroundColor: '#e74c3c' }}>History</button>
+            {/* Main Content */}
+            <div style={mainContainerStyle}>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => setActiveTab('bookings')} style={{ ...tabButtonStyle, backgroundColor: '#f1c40f' }}>
+                        Bookings <FontAwesomeIcon icon={faCalendarAlt} />
+                    </button>
+                    <button onClick={() => setActiveTab('confirmed')} style={{ ...tabButtonStyle, backgroundColor: '#16a085' }}>
+                        Confirmed Booking <FontAwesomeIcon icon={faCalendarCheck} />
+                    </button>
+                    <button onClick={() => setActiveTab('history')} style={{ ...tabButtonStyle, backgroundColor: '#e74c3c' }}>
+                        History <FontAwesomeIcon icon={faHistory} />
+                    </button>
                 </div>
 
-                <section style={contentContainerStyle}>
+                <div style={contentContainerStyle}>
                     {renderContent()}
-                </section>
-            </div>
-
-            {/* Modal */}
-            {showModal && (
-                <div className="modal show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
-                    <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Add New Employee</h5>
-                                <button
-                                    type="button"
-                                    className="close"
-                                    data-dismiss="modal"
-                                    aria-label="Close"
-                                    onClick={toggleModal} // Close modal when clicked
-                                >
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div className="modal-body">
-                                {/* Modal body content */}
-                                <form>
-                                    <div className='form-row'>
-                                        <div className='form-group co'>
-                                            <label for="inputName">Firstname</label>
-                                            <input type="text" className='form-control' id="name" placeholder='Name'/>
-                                        </div>
-                                        <div className='form-group col'>
-                                            <label for="area">Area</label>
-                                            <input type='text' className='form-control' id="area" placeholder='Area'/>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={toggleModal} // Close modal
-                                >
-                                    Close
-                                </button>
-                                <button type="button" className="btn btn-primary">
-                                    Save changes
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
+}
+
+// Styles
+const navbarStyle = {
+    backgroundColor: '#1b1f3b',
+    color: '#fff',
 };
 
-const mainCardStyle = {
-    width: '100vw',  // Ensures the card spans the full width of the viewport
-    height: '100vh',  // Ensures the card spans the full height of the viewport
-    backgroundColor: '#fff',
+const mainContainerStyle = {
+    backgroundColor: '#2d2f3b',
     padding: '20px',
-    borderRadius: '8px',
-    margin: '20px 0',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-    overflowX: 'hidden',  // Prevents horizontal overflow if any content is too wide
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between', // Ensures the content is spread within the full height
+    minHeight: '100vh',
 };
 
-const menuStyle = {
+const buttonContainerStyle = {
     display: 'flex',
     justifyContent: 'space-around',
     marginBottom: '20px',
 };
 
-const buttonStyle = {
+const tabButtonStyle = {
     padding: '10px 20px',
     border: 'none',
     borderRadius: '4px',
@@ -312,18 +320,24 @@ const buttonStyle = {
     cursor: 'pointer',
     flex: 1,
     margin: '0 5px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
 };
 
 const contentContainerStyle = {
-    paddingTop: '20px',
-    flex: 1,  // Ensures content takes available space
-    overflowY: 'auto',  // Prevents content from overflowing vertically
-};
-
-const contentCardStyle = {
     backgroundColor: '#f9f9f9',
     padding: '20px',
     borderRadius: '8px',
+    minHeight: '300px',
+};
+
+const contentCardStyle = {
+    backgroundColor: '#ececec',
+    padding: '30px',
+    borderRadius: '10px',
+    textAlign: 'center',
 };
 
 const tableStyle = {
@@ -331,23 +345,10 @@ const tableStyle = {
     borderCollapse: 'collapse',
 };
 
-const statusCellStyle = {
-    display: 'flex',
-    alignItems: 'center',
+const profileIconStyle = {
+    width: '35px',
+    height: '35px',
+    borderRadius: '50%',
 };
 
-const confirmedStatusStyle = {
-    color: '#16a085',
-    marginRight: '10px',
-};
-
-const cancelButtonStyle = {
-    padding: '5px',
-    backgroundColor: '#e74c3c',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-};
-
-export default EmployeeBookings;
+export default EmpDashboard;

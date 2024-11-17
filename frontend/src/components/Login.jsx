@@ -6,7 +6,7 @@ import '../index.css';
 import ReCAPTCHA from "react-google-recaptcha";
 
 function Login() {
-    const [userType, setUserType] = useState('User');
+    const [userType] = useState('User');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
