@@ -46,10 +46,9 @@
               <Route path="/Empfood-catering" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><EmpFoodcatering /></ProtectedRoute>}/>
               <Route path="/employeeBookings" element={<ProtectedRoute allowedRoles={['employee', 'admin']}><EmployeeBookings /></ProtectedRoute>} />
 
-              {/* Admin Routes */}
-              <Route path="/adminDashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/adminDashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminBookings /></ProtectedRoute>} />
-
+            {/* Admin Routes */}
+            <Route path="/adminDashboard" element={<AdminDashboard />} />
+            <Route path=" " element={<AdminBookings />} />
 
               {/* General Routes */}
               <Route path="/rooms" element={<Rooms />} />

@@ -18,7 +18,7 @@ function RoomCalendar() {
     const calendarRef = useRef(null);
 
     useEffect(() => {
-        console.log("Token in RoomsCalendar.jsx:", token);
+        //console.log("Token in RoomsCalendar.jsx:", token);
         // If you need to use the token to fetch data or make requests, do so here
     }, [token]);
     useEffect(() => {
@@ -33,43 +33,57 @@ function RoomCalendar() {
     }
     }, [navigate, setToken]);
 
-    useEffect(() => {
-        const storedToken = localStorage.getItem("token");
-        if (storedToken) {
-            setToken(storedToken);
-        } else {
-            navigate("/");
-        }
-    }, [navigate, setToken]);   
-
     const location = useLocation();
     const roomNumber = location.state ? location.state.roomNumber : null;
 
     // Fetch availability data for a room based on the room number
     useEffect(() => {
-        console.log("Room number:", roomNumber);
+        if (!roomNumber) {
+            console.warn("Room number is not defined. Skipping fetchRoomAvailability.");
+            return;
+        }
+    
+        console.log("Fetching availability for Room number:", roomNumber);
         fetchRoomAvailability();
     }, [roomNumber]);
 
     const fetchRoomAvailability = async () => {
         try {
-            const date = new Date().toISOString().split('T')[0]; // Get today's date in 'YYYY-MM-DD' format
-            console.log("Current Date with Time:", date.toString());  // Local time with date and time
+            const date = new Date().toISOString().split('T')[0];
+            console.log("Fetching availability for room:", roomNumber, "on date:", date);
             const response = await axios.get('http://localhost:5000/api/user/check-availability', {
                 params: {
                     reserveType: "Room",
                     reserve: roomNumber,
                     date: date,
-                }
+                },
             });
     
             console.log("Room availability response:", response.data);
-            setRoomAvailability(response.data); // Update state with availability data
+    
+            // Check if the response contains the expected data structure
+            if (response.data && response.data.available !== undefined) {
+                console.log("Room Availability fetched:", response.data);
+                setRoomAvailability((prev) => ({
+                    ...prev,
+                    [`${roomNumber}-${date}`]: response.data.available,
+                }));
+            } else {
+                console.warn("No 'available' field in the response data.");
+            }
         } catch (error) {
-            console.error('Error fetching availability:', error.message);
+            console.error("Error fetching availability:", error.message);
         }
     };
     
+
+    useEffect(() => {
+    if (roomNumber) {
+        console.log("Fetching availability for Room number:", roomNumber);
+        fetchRoomAvailability();
+    }
+    }, [roomNumber]);  // Trigger when roomNumber changes
+
     const handleReserveRoom = async (roomId, date) => {
         try {
             if (!date) {
@@ -102,21 +116,14 @@ function RoomCalendar() {
     
     // Render button inside each day cell
     const renderDayCell = (info) => {
-        const dateObj = info.date;  // This is the date object of the clicked cell
-        const dateStr = dateObj
-            ? `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
-            : undefined;  // Convert to 'YYYY-MM-DD' in local time
+        const dateObj = info.date;
+        const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        const availability = roomAvailability[`${roomNumber}-${dateStr}`];
+        console.log("Checking availability:", availability);
+        console.log("Rendering day cell for", `${roomNumber}-${dateStr}`, "availability:", availability);
+        
+        console.log("Checking availability for:", `${roomNumber}-${dateStr}`, "=>", availability);
     
-        console.log("Formatted dateStr:", dateStr);  // Check if the date is correct
-        console.log('Info Date', info.date);
-    
-        if (!dateStr) {
-            console.error("Date is missing or invalid!");
-            return; // If date is invalid, stop further execution
-        }
-    
-        const roomNumber = 1; // Assuming we're working with room 1 for now (use dynamic logic if needed)
-        const availability = roomAvailability[`${roomNumber}-${dateStr}`]; // Check if the room is available
         const isAvailable = availability !== undefined ? availability : true;
     
         const button = document.createElement("button");
@@ -131,18 +138,41 @@ function RoomCalendar() {
         button.style.marginTop = "4px";
         button.style.width = "100%";
     
-        // Add event listener for handling room reservation
-        button.addEventListener("click", () => {
-            console.log("Reserving room:", roomNumber, "on date:", dateStr); // Log to verify the date
-            handleReserveRoom(roomNumber, dateStr);  // Pass the correct date (dateStr) for reservation
-        });
+        if (isAvailable) {
+            button.addEventListener("click", () => handleReserveRoom(roomNumber, dateStr));
+        }
     
         info.el.appendChild(button);
     };
     
+
+
+    useEffect(() => {
+    if (roomNumber) { // Only fetch if roomNumber is valid
+        console.log("Fetching availability for Room number:", roomNumber);
+        fetchRoomAvailability();
+    }
+}, [roomNumber]); // Dependency is only `roomNumber`
+
+    
+    useEffect(() => {
+        if (calendarRef.current) {
+            calendarRef.current.getApi().render();
+        }
+    }, [roomAvailability]);
+    
+    const handleViewChange = async () => {
+        const visibleDates = calendarRef.current.getApi().getDates();
+        for (const dateObj of visibleDates) {
+            const dateStr = dateObj.toISOString().split('T')[0];
+            await fetchRoomAvailability(dateStr);
+        }
+    };
+    
+    
     // Get today's date for initialDate
     const today = new Date().toISOString().split('T')[0];
-
+    
     
     useEffect(() => {
         if (calendarRef.current) {

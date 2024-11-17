@@ -3,21 +3,28 @@ import React, { createContext, useContext, useState } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // Replace with actual authentication logic
+  const [token, setToken] = useState(localStorage.getItem('userToken'));
 
-    // Mock user data for testing
-    const mockUser = { id: 1, role: 'admin', name: 'John Doe' };
+  useEffect(() => {
+    const storedToken = localStorage.getItem('userToken');
+    setToken(storedToken);
+  }, []);
 
-    // Simulate login
-    React.useEffect(() => {
-        setUser(mockUser);
-    }, []);
+  const login = (newToken) => {
+    localStorage.setItem('userToken', newToken);
+    setToken(newToken);
+  };
 
-    return (
-        <AuthContext.Provider value={{ user }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  const logout = () => {
+    localStorage.removeItem('userToken');
+    setToken(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ token, setToken, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
