@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useNavigate } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Import Bootstrap JS
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +9,17 @@ import { Link } from 'react-router-dom';
 
 
 function EmpFunctionHall() {
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const toggleNotifications = () => {
+        setShowNotifications(!showNotifications);
+    };
+
+    const toggleProfile = () => {
+        setShowProfile(!showProfile);
+    };
     return (
         <div style={{backgroundColor: 'gray', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', minHeight:'100vh'}}>
             {/* Navbar */}
@@ -37,26 +48,26 @@ function EmpFunctionHall() {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                             <form className="form-inline my-2 my-lg-0 ml-auto">
-                                <div className="d-flex align-items-center">
-                                    <input
-                                        className="form-control mr-2"
-                                        type="search"
-                                        placeholder="Search"
-                                        aria-label="Search"
-                                    />
-                                    <button className="btn btn-outline-light" type="submit">
-                                        <i className="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
+                    
+                    <form className="form-inline my-2 my-lg-0 ml-auto">
+                        <div className="d-flex align-items-center">
+                            <input
+                                className="form-control mr-2"
+                                type="search"
+                                placeholder="Search"
+                                aria-label="Search"
+                            />
+                            <button className="btn btn-outline-light" type="submit">
+                                <i className="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                     
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
+                            <li className="nav-item">
                                 <Link className="nav-link" to="/employeeDashboard">Home</Link>
                             </li>
-                            {/* Dropdown Menu */}
                             <li className="nav-item dropdown">
                                 <a
                                     className="nav-link dropdown-toggle text-white"
@@ -75,10 +86,34 @@ function EmpFunctionHall() {
                                 </ul>
                             </li>
                             <li>
-                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
+                                <a className="nav-link" href="#" onClick={toggleNotifications}>
+                                    <FontAwesomeIcon icon={faBell} />
+                                </a>
+                                {showNotifications && (
+                                    <div className="notification-dropdown">
+                                        <ul className="list-group">
+                                            <li className="list-group-item">Notification 1</li>
+                                            <li className="list-group-item">Notification 2</li>
+                                            <li className="list-group-item">Notification 3</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link text-white" href="#"><FontAwesomeIcon icon={faUserCircle} /></a>
+                                <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                    <FontAwesomeIcon icon={faUserCircle} />
+                                </a>
+                                {showProfile && (
+                                    <div className="profile-dropdown">
+                                        <ul className="list-group">
+                                            <li className="list-group-item">Profile Info</li>
+                                            <li className="list-group-item">Settings</li>
+                                            <li>
+                                            <Link className="list-group-item" to="/">Logout</Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                             </li>
                         </ul>
                     </div>

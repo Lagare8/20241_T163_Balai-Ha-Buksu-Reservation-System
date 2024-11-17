@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
-import reservationRoutes from './routes/reservationRoutes.js';
 import userRoutes from './routes/user-manager/userReservation.js'; // Ensure this is correctly imported
 dotenv.config();
 
@@ -19,10 +18,7 @@ app.use(cors({
 }));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_CONNECT, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_CONNECT)
 .then(() => console.log('DB connected'))
 .catch((error) => console.log('DB connection error:', error));
 

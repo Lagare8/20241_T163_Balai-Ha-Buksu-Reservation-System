@@ -35,12 +35,12 @@ function EmpFoodcatering() {
                         <img 
                             src="/assets/Shield_logo_of_Bukidnon_State_University.png" 
                             alt="BUKSU Logo" 
-                            style={{ height: '50px', marginRight: '10px' }} 
+                            style={{ height: '50px', marginRight: '10px' }}
                         />
                         <img 
                             src="/assets/lgo.png" 
                             alt="BUKSU Hotel Logo" 
-                            style={{ height: '80px', width: '120px' }} 
+                            style={{ height: '80px', width: '120px' }}
                         />
                     </a>
                     <button
@@ -54,6 +54,7 @@ function EmpFoodcatering() {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
+                    
                     <form className="form-inline my-2 my-lg-0 ml-auto">
                         <div className="d-flex align-items-center">
                             <input
@@ -67,12 +68,12 @@ function EmpFoodcatering() {
                             </button>
                         </div>
                     </form>
+                    
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
                                 <Link className="nav-link" to="/employeeDashboard">Home</Link>
                             </li>
-                            {/* Dropdown Menu */}
                             <li className="nav-item dropdown">
                                 <a
                                     className="nav-link dropdown-toggle text-white"
@@ -113,7 +114,6 @@ function EmpFoodcatering() {
                                         <ul className="list-group">
                                             <li className="list-group-item">Profile Info</li>
                                             <li className="list-group-item">Settings</li>
-                                           
                                             <li>
                                             <Link className="list-group-item" to="/">Logout</Link>
                                             </li>
@@ -125,7 +125,6 @@ function EmpFoodcatering() {
                     </div>
                 </div>
             </nav>
-  
             {/* Main Content */}
             <div className="container">
                 <h1 style={{ marginTop: '25px', textAlign: 'center' }}>Food Catering</h1>
