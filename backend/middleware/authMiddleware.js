@@ -1,26 +1,20 @@
-const authMiddleware = (allowedRoles) => {
-    return (req, res, next) => {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+import jwt from 'jsonwebtoken';
 
-        if (!token) {
-            return res.status(401).json({ message: "No token, authorization denied" });
-        }
+const authenticate = async (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
 
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.userId = decoded.id;
-            req.userRole = decoded.role; // Add role to the request object
-            
-            if (allowedRoles && !allowedRoles.includes(decoded.role)) {
-                return res.status(403).json({ message: "Access denied" });
-            }
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
 
-            next();
-        } catch (err) {
-            console.error("Error verifying token:", err); // Log the error
-            res.status(401).json({ message: "Token is not valid" });
-        }
-    };
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decoded.id;
+        next();
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        res.status(401).json({ message: 'Token is invalid or expired' });
+    }
 };
 
-export default authMiddleware;
+export default authenticate;

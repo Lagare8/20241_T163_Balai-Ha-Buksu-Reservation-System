@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory,faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
+
 const EmployeeBookings = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false); // State to control modal visibility
-    const [bookings, setBookings] = useState([]);
+    const [bookings, setBookings] = useState([]); // State to store bookings
     const toggleModal = () => setShowModal(!showModal);
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
@@ -28,29 +29,29 @@ const EmployeeBookings = () => {
         return `${month}/${day}/${year}`;
     };
 
-    // fetch from dbs
+    // Fetch data from database
     const fetchAllBookings = async () => {
         try {
-            const response = await fetch('http://localhost:5000/employee/reservation/bookings');  // Adjusted path
+            const response = await fetch('http://localhost:5000/employee/reservation/bookings');  // Adjusted API path
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
             console.log("Fetched data:", data);
-            setBookings(data);  // Assuming you are updating state with fetched data
+            setBookings(data);  // Update the state with the fetched data
         } catch (error) {
             console.error('Error fetching bookings:', error.message);
-            // Optionally, you could set an error state here to display in the UI
         }
     };
-    
-    // In your `useEffect`, you can call this function:
+
+    // Fetch bookings when the component mounts
     useEffect(() => {
         fetchAllBookings();
-    }, []);
+    }, []); // Empty dependency array ensures the fetch is called only once when the component mounts
+
     useEffect(() => {
         console.log('Updated bookings:', bookings);
-    }, [bookings]);
+    }, [bookings]); // Log the bookings every time they update
 
     const renderContent = () => {
         switch (activeTab) {
@@ -59,7 +60,7 @@ const EmployeeBookings = () => {
                     <div style={contentCardStyle}>
                         <h3>Pending Bookings</h3>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}} />
                         </div>
                         <DataTable
                             columns={[
@@ -119,7 +120,7 @@ const EmployeeBookings = () => {
                     <div style={contentCardStyle}>
                         <h3>Confirmed Bookings</h3>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}} />
                         </div>
                         <DataTable
                             columns={[
@@ -160,7 +161,7 @@ const EmployeeBookings = () => {
                     <div style={contentCardStyle}>
                         <h3>Booking History</h3>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}} />
                         </div>
                         <DataTable
                             columns={[
@@ -200,52 +201,53 @@ const EmployeeBookings = () => {
                 return null;
         }
     };
+
     const handleConfirmBooking = async (reservation) => {
-        try{
+        try {
             const response = await fetch(`http://localhost:5000/employee/reserve/confirm/${reservation._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({status: 'confirmed'})
+                body: JSON.stringify({ status: 'confirmed' })
             });
-            if (!response.ok){
+            if (!response.ok) {
                 setBookings((prevBookings) => {
                     const updatedBookings = prevBookings.map((booking) =>
-                        booking._id === reservation._id ? { ...booking, status: 'confirmed'} : booking
+                        booking._id === reservation._id ? { ...booking, status: 'confirmed' } : booking
                     );
                     return updatedBookings;
                 });
-
                 console.log('Booking confirmed successfully!');
             } else {
-                console.error("Error confirm bookings");
+                console.error("Error confirming bookings");
             }
-        }catch(error){
+        } catch (error) {
             console.error("Error confirming bookings", error);
         }
-    }
+    };
 
     const handleCancelBooking = async (reservation) => {
         console.log("Canceling reservation", reservation);
-        try{
-            console.log("Sending request to cancel booking with ID:", reservation._id); 
+        try {
+            console.log("Sending request to cancel booking with ID:", reservation._id);
             const response = await fetch(`http://localhost:5000/employee/reserve/cancel/${reservation._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-            if (!response.ok){
+            if (!response.ok) {
                 setBookings((prevBookings) => prevBookings.filter(booking => booking._id !== reservation._id));
                 console.log("Booking Cancelled Successfully");
-                } else {
-                    console.error("Error cancelling booking: ", response.statusText);
-                }
-            }catch(error ){
-                console.error("Error Canceling bookings", error);
+            } else {
+                console.error("Error cancelling booking: ", response.statusText);
             }
+        } catch (error) {
+            console.error("Error Canceling bookings", error);
         }
+    };
+
     return (
         <div>
             {/* Navbar */}
@@ -274,7 +276,7 @@ const EmployeeBookings = () => {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    
+
                     <form className="form-inline my-2 my-lg-0 ml-auto">
                         <div className="d-flex align-items-center">
                             <input
@@ -283,152 +285,54 @@ const EmployeeBookings = () => {
                                 placeholder="Search"
                                 aria-label="Search"
                             />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
+                            <button className="btn btn-outline-light my-2 my-sm-0" type="submit">
+                                <FontAwesomeIcon icon={faBell} />
+                            </button>
+                            <button className="btn btn-outline-light my-2 my-sm-0 ms-2" onClick={toggleProfile}>
+                                <FontAwesomeIcon icon={faUserCircle} />
                             </button>
                         </div>
                     </form>
-                    
-                    <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav ms-auto">
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/employeeDashboard">Home</Link>
-                            </li>
-                            <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-white"
-                                    href="#"
-                                    id="navbarDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Update Offers
-                                </a>
-                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><Link className="dropdown-item" to="/Emprooms">Rooms</Link></li>
-                                    <li><Link className="dropdown-item" to="/Empfunction-hall">Function Hall</Link></li>
-                                    <li><Link className="dropdown-item" to="/Empfood-catering">Food Catering</Link></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a className="nav-link" href="#" onClick={toggleNotifications}>
-                                    <FontAwesomeIcon icon={faBell} />
-                                </a>
-                                {showNotifications && (
-                                    <div className="notification-dropdown">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">Notification 1</li>
-                                            <li className="list-group-item">Notification 2</li>
-                                            <li className="list-group-item">Notification 3</li>
-                                        </ul>
-                                    </div>
-                                )}
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link text-white" href="#" onClick={toggleProfile}>
-                                    <FontAwesomeIcon icon={faUserCircle} />
-                                </a>
-                                {showProfile && (
-                                    <div className="profile-dropdown">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">Profile Info</li>
-                                            <li className="list-group-item">Settings</li>
-                                            <li>
-                                            <Link className="list-group-item" to="/">Logout</Link>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                )}
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </nav>
-
-          {/* Main Content */}
-          <div style={mainContainerStyle}>
-                <div style={buttonContainerStyle}>
-                    <button onClick={() => setActiveTab('bookings')} style={{ ...tabButtonStyle, backgroundColor: '#f1c40f' }}>
-                        Bookings <FontAwesomeIcon icon={faCalendarAlt} />
-                    </button>
-                    <button onClick={() => setActiveTab('confirmed')} style={{ ...tabButtonStyle, backgroundColor: '#16a085' }}>
-                        Confirmed Booking <FontAwesomeIcon icon={faCalendarCheck} />
-                    </button>
-                    <button onClick={() => setActiveTab('history')} style={{ ...tabButtonStyle, backgroundColor: '#e74c3c' }}>
-                        History <FontAwesomeIcon icon={faHistory} />
-                    </button>
-                </div>
-
-                <div style={contentContainerStyle}>
-                    {renderContent()}
-                </div>
-
-                {/* Modal */}
-                {showModal && (
-                    <div className={`modal fade ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title">Add New Employee</h5>
-                                    <button type="button" className="close" onClick={toggleModal}>&times;</button>
-                                </div>
-                               
-                            </div>
-                        </div>
-                    </div>
-                )}
+            <div className="container mt-4">
+                <ul className="nav nav-tabs">
+                    <li className="nav-item">
+                        <button
+                            className={`nav-link ${activeTab === 'bookings' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('bookings')}
+                        >
+                            Pending Bookings
+                        </button>
+                    </li>
+                    <li className="nav-item">
+                        <button
+                            className={`nav-link ${activeTab === 'confirmed' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('confirmed')}
+                        >
+                            Confirmed Bookings
+                        </button>
+                    </li>
+                    <li className="nav-item">
+                        <button
+                            className={`nav-link ${activeTab === 'history' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('history')}
+                        >
+                            Booking History
+                        </button>
+                    </li>
+                </ul>
+                {renderContent()}
             </div>
         </div>
     );
 };
 
-// Styles
-const mainContainerStyle = {
-    backgroundColor: '#2d2f3b',
-    padding: '20px',
-    minHeight: '100vh',
-};
-
-const buttonContainerStyle = {
-    display: 'flex',
-    justifyContent: 'space-around',
-    marginBottom: '20px',
-};
-
-const tabButtonStyle = {
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '4px',
-    color: '#fff',
-    cursor: 'pointer',
-    flex: 1,
-    margin: '0 5px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-};
-
-const contentContainerStyle = {
-    backgroundColor: '#f9f9f9',
-    padding: '20px',
-    borderRadius: '8px',
-    minHeight: '300px',
-};
-
 const contentCardStyle = {
-    backgroundColor: '#ececec',
-    padding: '30px',
-    borderRadius: '10px',
-    textAlign: 'center',
-};
-
-
-const profileIconStyle = {
-    width: '35px',
-    height: '35px',
-    borderRadius: '50%',
+    background: '#fff',
+    borderRadius: '5px',
+    padding: '20px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
 };
 
 export default EmployeeBookings;

@@ -3,13 +3,12 @@ import { User, Employee, Admin } from '../models/users/user.js'; // Import model
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-
 const router = express.Router();
 
 // Generate JWT token
 const generateToken = (user) => {
     return jwt.sign(
-        { id: user._id, email: user.email, userType: user.constructor.modelName },
+        { id: user._id, email: user.email, userType: user.constructor.modelName, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
@@ -19,101 +18,58 @@ const generateToken = (user) => {
 router.post('/signup', async (req, res) => {
     const { username, email, password, userType } = req.body;
 
-    // Check if all fields are provided
     if (!username || !email || !password || !userType) {
         return res.status(400).json({ message: 'All fields are required!' });
     }
 
-    // Check if the user already exists in the relevant collection
+    const normalizedEmail = email.trim().toLowerCase();
+
     let existingUser;
     if (userType === 'User') {
-        existingUser = await User.findOne({ email });
+        existingUser = await User.findOne({ email: normalizedEmail });
     } else if (userType === 'Employee') {
-        existingUser = await Employee.findOne({ email });
+        existingUser = await Employee.findOne({ email: normalizedEmail });
     } else if (userType === 'Admin') {
-        existingUser = await Admin.findOne({ email });
+        existingUser = await Admin.findOne({ email: normalizedEmail });
     }
 
     if (existingUser) {
         return res.status(400).json({ message: 'User already exists!' });
     }
 
-    // Create a new user based on the userType
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     let newUser;
     if (userType === 'User') {
-        newUser = new User({ username, email, password });
+        newUser = new User({ username, email: normalizedEmail, password: hashedPassword });
     } else if (userType === 'Employee') {
-        newUser = new Employee({ username, email, password, role: 'Staff' }); // Default to "Staff" role
+        newUser = new Employee({ username, email: normalizedEmail, password: hashedPassword });
     } else if (userType === 'Admin') {
-        newUser = new Admin({ username, email, password, permissions: ['manage_users', 'view_reports'] });
+        newUser = new Admin({ username, email: normalizedEmail, password: hashedPassword });
     }
 
-    // Save the new user to the appropriate collection
-    try {
-        await newUser.save();
-        res.status(201).json({
-            message: `${userType} created successfully!`,
-            userType,
-            token: generateToken(newUser)  // Send JWT token
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error while creating user!' });
-    }
+    await newUser.save();
+
+    const token = generateToken(newUser);
+    res.status(201).json({ message: 'Signup successful', token, userType: newUser.constructor.modelName });
 });
 
 // Login route
 router.post('/login', async (req, res) => {
-    console.log('Login route hit'); 
-    console.log('Request body:', req.body); // Log the entire request body
-
     const { email, password } = req.body;
 
-    console.log('Login attempt with email:', email); // Log the email you're attempting to login with
-    
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required!' });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail })
+        || await Employee.findOne({ email: normalizedEmail })
+        || await Admin.findOne({ email: normalizedEmail });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Normalize email (trim spaces, lower case) for comparison
-    const normalizedEmail = email.trim().toLowerCase();  // Use email here instead of username
-
-    let user;
-    try {
-        // Search for user by email in the User collection
-        user = await User.findOne({ email: normalizedEmail });
-        
-        if (!user) {
-            // If not found, check Employee collection
-            user = await Employee.findOne({ email: normalizedEmail });
-        }
-
-        if (!user) {
-            // If still not found, check Admin collection
-            user = await Admin.findOne({ email: normalizedEmail });
-        }
-
-        if (!user) {
-            return res.status(400).json({ message: 'User not found!' });
-        }
-
-        console.log('User found:', user);
-
-        // Check if the password matches
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        if (!isPasswordCorrect) {
-            return res.status(400).json({ message: 'Invalid credentials!' });
-        }
-
-        // Successfully logged in, return a token
-        res.status(200).json({
-            message: 'Login successful!',
-            userType: user.constructor.modelName, // User type (User, Employee, Admin)
-            token: generateToken(user)
-        });
-    } catch (error) {
-        console.log('Error while searching for user:', error);
-        return res.status(500).json({ message: 'Error while searching for user!' });
-    }
+    const token = generateToken(user);
+    res.json({ message: 'Login successful', token, userType: user.constructor.modelName });
 });
 
 export default router;
