@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../index.css';
+import { useAuth } from '../context/AuthContext';  // Import useAuth to access setToken
 import ReCAPTCHA from "react-google-recaptcha";
 
 function Login() {
@@ -16,6 +16,7 @@ function Login() {
     const navigate = useNavigate();
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { setToken } = useAuth();  // Use setToken from AuthContext
 
     const onChange = () => {
         setIsCaptchaVerified(true);
@@ -64,8 +65,9 @@ function Login() {
             });
             const token = response.data.token; 
             localStorage.setItem('token', token);
+            setToken(token);  // Store the token using setToken from AuthContext
 
-            const { userType } = response.data;
+            const { userType } = response.data; 
             if (userType === 'User') {
                 navigate('/userDashboard');
             } else if (userType === 'Employee') {
@@ -188,7 +190,7 @@ function Login() {
                                 onChange={onChange}
                                 required
                             />
-                            <button className="btn btn-primary mb-3" type="submit">
+                            <button className="btn btn-primary mb-3" type="submit" disabled={isSubmitting}>
                                 Log In
                             </button>
                         </form>

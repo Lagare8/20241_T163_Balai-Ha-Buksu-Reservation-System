@@ -5,14 +5,10 @@ import Reservation from "../models/users/Reservation.js"
 const generateToken = (user) => {
     return jwt.sign(
         { id: user._id, email: user.email, userType: user.constructor.modelName },
-        {
-            id: user._id,
-            role: user.role, // Ensure this is included
-        },
         process.env.JWT_SECRET,  // Ensure you have a secret in your environment variables
         { expiresIn: '1h' }      // Token expiration time
     );
-};  
+};
 
 const postRoomReservation = async (req, res) => {
     const { roomNumber, date } = req.body;
