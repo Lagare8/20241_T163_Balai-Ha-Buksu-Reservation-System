@@ -11,7 +11,6 @@ const reservationSchema = new mongoose.Schema(
     reservationDetails: {
       roomNumber: { type: Number },
       cateringOptions: { type: Array },
-      functionHall: {type: Number},
     },
     date: { type: Date, required: true },
     status: {

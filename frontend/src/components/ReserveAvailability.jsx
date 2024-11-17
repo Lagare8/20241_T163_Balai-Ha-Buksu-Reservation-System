@@ -79,7 +79,7 @@ const UserReserve = () => {
                       <img src="../assets/function.jpg" alt="Function Hall" className="img-fluid" style={{ height:'650px', width: '100%', objectFit: 'cover' }}/>
                   </div>
                 </div>
-                <a href="/function" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
+                <a href="/functionCalendar" style={{textDecoration: 'none', color: 'black'}}>Check Availability</a>
               </div>
                 <div class="col-sm text-center">
                   Rooms

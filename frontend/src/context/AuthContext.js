@@ -11,6 +11,7 @@ export const useAuth = () => useContext(AuthContext);
 // AuthProvider component to wrap around the app
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('userToken'));
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -25,10 +26,31 @@ export const AuthProvider = ({ children }) => {
             }
         }
     }, []);
+  useEffect(() => {
+    const storedToken = localStorage.getItem('userToken');
+    setToken(storedToken);
+  }, []);
+
+  const login = (newToken) => {
+    localStorage.setItem('userToken', newToken);
+    setToken(newToken);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('userToken');
+    setToken(null);
+  };
 
     return (
         <AuthContext.Provider value={{ user, setUser }}>
             {children}
         </AuthContext.Provider>
     );
+  return (
+    <AuthContext.Provider value={{ token, setToken, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export default App;
