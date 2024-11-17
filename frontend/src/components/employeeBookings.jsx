@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import '../index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+<<<<<<< HEAD
 import { faBell, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
@@ -10,6 +14,12 @@ const EmployeeBookings = () => {
     const [showModal, setShowModal] = useState(false); // State to control modal visibility
     const [bookings, setBookings] = useState([]); // State to store bookings
     const toggleModal = () => setShowModal(!showModal);
+=======
+import { faBell, faUsers, faCalendarAlt, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
+import DataTable from 'react-data-table-component';
+
+function EmpDashboard() {
+>>>>>>> 096020cdb448bddc3f54b1119bd05804e86aa4d1
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
 
@@ -21,6 +31,7 @@ const EmployeeBookings = () => {
         setShowProfile(!showProfile);
     };
 
+<<<<<<< HEAD
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
@@ -52,10 +63,125 @@ const EmployeeBookings = () => {
     useEffect(() => {
         console.log('Updated bookings:', bookings);
     }, [bookings]); // Log the bookings every time they update
+=======
+    
+    const [activeTab, setActiveTab] = useState('confirmed');
+    const [showModal, setShowModal] = useState(false);
+    const [employees, setEmployees] = useState([]);
+    const [newEmployee, setNewEmployee] = useState({
+        username:'',
+        email: '',
+        password: '',
+        role: 'employee',
+    });
+
+    // fetching employee
+    const fetchEmployees = async () => {
+        try{
+            const response = await fetch("http://localhost:5000/api/admin/employees");
+            if(!response.ok){
+                console.error("No internet connection");
+            }
+            const data = await response.json()
+            console.log("Fetched employees data:", data);
+            setEmployees(data);
+        }catch(error){
+            console.error("Error fetching employees", error);
+        }
+    }
+    //add employee at adminDashboard
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewEmployee({ ...newEmployee, [name]: value });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("Form submitted");
+        try{
+            const response = await fetch("http://localhost:5000/api/admin/employees", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newEmployee),
+            });
+            if(response.ok){
+                const errorData = await response.json();
+                console.error("Error adding employee", errorData);
+                return;
+            }
+            const addedEmployee = await response.json();
+            console.log("Added Employee", addedEmployee);
+            setEmployees((prevEmployees) => [ ...prevEmployees, addedEmployee])
+            setShowModal(false);
+        } catch (error){
+            console.error("Error adding employee", error);
+        }
+    };
+    useEffect(() => {
+        fetchEmployees()
+    }, [])
+    useEffect(() => {
+        console.log(employees);
+    }, [employees])
+    
+    const toggleModal = () => setShowModal(!showModal);
+>>>>>>> 096020cdb448bddc3f54b1119bd05804e86aa4d1
 
     const renderContent = () => {
         switch (activeTab) {
+            case 'employees':
+                return (
+                    <div style={contentCardStyle}>
+                        <h3>Employees</h3>
+                        <div className="d-flex justify-content-end mb-3">
+                        <button
+                            onClick={toggleModal}
+                            className="btn btn-success"
+                        >
+                            Add Employee
+                        </button>
+                        </div>
+                        <div className='text-end'>
+                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        </div>
+                        <DataTable
+                            columns={[
+                                {
+                                    name: 'Name',
+                                    selector: row => row.username,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Email',
+                                    selector: row => row.email,
+                                    sortable: true,
+                                },
+                                {
+                                    name: 'Action',
+                                    cell: row => (
+                                        <div>
+                                            <button
+                                                onClick={() => handleViewEmployee(row)}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faEye} />
+                                            </button>
+                                        </div>
+                                    ),
+                                    button: true,  // Makes the column button-style
+                                }
+                            ]}
+                            data={employees}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
+                    </div>
+                );
             case 'bookings':
+<<<<<<< HEAD
                 return (
                     <div style={contentCardStyle}>
                         <h3>Pending Bookings</h3>
@@ -197,10 +323,43 @@ const EmployeeBookings = () => {
                         />
                     </div>
                 );
+=======
+                // Existing code for 'bookings' tab
+                break;
+            case 'confirmed':
+                // Existing code for 'confirmed' tab
+                break;
+            case 'history':
+                // Existing code for 'history' tab
+                break;
+>>>>>>> 096020cdb448bddc3f54b1119bd05804e86aa4d1
             default:
                 return null;
         }
     };
+    
+    // Edit employee handler
+    const handleViewEmployee = (employee) => {
+        // Set the employee details in the modal or a dedicated area for viewing
+        
+    };
+    
+    // Delete employee handler
+    const handleDeleteEmployee = async (employeeId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/admin/employees/${employeeId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                setEmployees((prevEmployees) => prevEmployees.filter(emp => emp._id !== employeeId));
+            } else {
+                console.error('Error deleting employee');
+            }
+        } catch (error) {
+            console.error('Error deleting employee', error);
+        }
+    };
+    
 
     const handleConfirmBooking = async (reservation) => {
         try {
@@ -295,6 +454,7 @@ const EmployeeBookings = () => {
                     </form>
                 </div>
             </nav>
+<<<<<<< HEAD
             <div className="container mt-4">
                 <ul className="nav nav-tabs">
                     <li className="nav-item">
@@ -323,11 +483,38 @@ const EmployeeBookings = () => {
                     </li>
                 </ul>
                 {renderContent()}
+=======
+
+            {/* Main Content */}
+            <div style={mainContainerStyle}>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => setActiveTab('bookings')} style={{ ...tabButtonStyle, backgroundColor: '#f1c40f' }}>
+                        Bookings <FontAwesomeIcon icon={faCalendarAlt} />
+                    </button>
+                    <button onClick={() => setActiveTab('confirmed')} style={{ ...tabButtonStyle, backgroundColor: '#16a085' }}>
+                        Confirmed Booking <FontAwesomeIcon icon={faCalendarCheck} />
+                    </button>
+                    <button onClick={() => setActiveTab('history')} style={{ ...tabButtonStyle, backgroundColor: '#e74c3c' }}>
+                        History <FontAwesomeIcon icon={faHistory} />
+                    </button>
+                </div>
+
+                <div style={contentContainerStyle}>
+                    {renderContent()}
+                </div>
+>>>>>>> 096020cdb448bddc3f54b1119bd05804e86aa4d1
             </div>
         </div>
     );
+}
+
+// Styles
+const navbarStyle = {
+    backgroundColor: '#1b1f3b',
+    color: '#fff',
 };
 
+<<<<<<< HEAD
 const contentCardStyle = {
     background: '#fff',
     borderRadius: '5px',
@@ -336,3 +523,57 @@ const contentCardStyle = {
 };
 
 export default EmployeeBookings;
+=======
+const mainContainerStyle = {
+    backgroundColor: '#2d2f3b',
+    padding: '20px',
+    minHeight: '100vh',
+};
+
+const buttonContainerStyle = {
+    display: 'flex',
+    justifyContent: 'space-around',
+    marginBottom: '20px',
+};
+
+const tabButtonStyle = {
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '4px',
+    color: '#fff',
+    cursor: 'pointer',
+    flex: 1,
+    margin: '0 5px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+};
+
+const contentContainerStyle = {
+    backgroundColor: '#f9f9f9',
+    padding: '20px',
+    borderRadius: '8px',
+    minHeight: '300px',
+};
+
+const contentCardStyle = {
+    backgroundColor: '#ececec',
+    padding: '30px',
+    borderRadius: '10px',
+    textAlign: 'center',
+};
+
+const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse',
+};
+
+const profileIconStyle = {
+    width: '35px',
+    height: '35px',
+    borderRadius: '50%',
+};
+
+export default EmpDashboard;
+>>>>>>> 096020cdb448bddc3f54b1119bd05804e86aa4d1
