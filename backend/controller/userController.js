@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import Reservation from "../models/users/Reservation.js";
 import Notification from "../models/users/Notification.js";
 import {User, Employee, Admin} from "../models/users/user.js";
+import bcrypt from 'bcryptjs';
 
 const generateToken = (user) => {
     return jwt.sign(
@@ -273,4 +274,20 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
-export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile}
+const changePassword = async (req, res) => {
+    try{
+        const { newPassword } = req.body;
+        const userId = req.userId;
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const updatedUser = await User.findByIdAndUpdate(userId, {password: hashedPassword}, {new: true});
+
+        if(!updatedUser){
+            return res.status(404).json({message: 'User not found'});
+        }
+        res.status(200).json({message: 'Password updated successfully'});
+    }catch(error){
+        res.status(500).json({message: 'Error updating password'});
+    }
+}
+export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile, changePassword}

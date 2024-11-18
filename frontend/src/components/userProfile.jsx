@@ -14,7 +14,8 @@ import {
     Nav,
     Container,
     Row,
-    Col
+    Col,
+    Modal
 } from "react-bootstrap";
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("view"); // State to track active tab
@@ -22,6 +23,9 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const { token } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -84,6 +88,35 @@ const UserProfile = () => {
   // Check if user is null before rendering profile data
   if (!user) {
     return <div>User profile not found.</div>;
+  }
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    if(newPassword !== confirmPassword){
+      alert("Password don't match");
+      return;
+    }
+
+    try{
+      const response = await fetch('http://localhost:5000/api/user/changepassword', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({newPassword}),
+      });
+      
+      if(!response.ok){
+        throw new Error('Failed to change password');
+      }
+
+      alert('Password changed successfully');
+      setShowModal(false);
+    }catch(err){
+      alert(err.message);
+    }
   }
   
   return (
@@ -180,6 +213,14 @@ const UserProfile = () => {
                       variant="primary"
                     >
                       Edit Profile
+                    </Button>
+                    {/* Add Change Password Button */}
+                    <Button
+                      onClick={() => setShowModal(true)}
+                      className="btn-fill mt-3 ms-2"
+                      variant="warning"
+                    >
+                      Change Password
                     </Button>
                   </div>
                 ) : (
@@ -306,6 +347,38 @@ const UserProfile = () => {
           </Col>
         </Row>
       </Container>
+      {/* Modal for changing password */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Change Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleChangePassword}>
+            <Form.Group>
+              <label>New Password</label>
+              <Form.Control
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Form.Group>
+                <label>Confirm New Password</label>
+                <Form.Control
+                  type='password'
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+            </Form.Group>
+            <Button type="submit" className='mt-3' variant="primary">
+                Change Password
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
     </div>
   );
 };
