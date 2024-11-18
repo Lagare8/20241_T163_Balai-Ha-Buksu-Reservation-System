@@ -24,6 +24,7 @@ import UserBookings from './components/userBooking';
 import ProtectedRoute from './components/protectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import Unauthorized from './components/Unauthorized';
+import UserProfile from './components/userProfile';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/userDashboard" element={<ProtectedRoute allowedRoles={['user']}><UserDashboard /></ProtectedRoute>} />
             <Route path="/userReserve" element={<ProtectedRoute allowedRoles={['user']}><UserReserve /></ProtectedRoute>} />
             <Route path="/userBookings" element={<ProtectedRoute allowedRoles={['user']}><UserBookings /></ProtectedRoute>} />
+            <Route path="/userProfile" element={<ProtectedRoute allowedRoles={['user']}><UserProfile/></ProtectedRoute>} />
 
             {/* Employee Routes */}
             <Route path="/employeeDashboard" element={<ProtectedRoute allowedRoles={['employee']}><EmpDashboard /></ProtectedRoute>} />

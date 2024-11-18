@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate} from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 
 
   const UserDashboard = () => {
     const navigate = useNavigate();
     const {  setToken} = useAuth();
+    const [showProfile, setShowProfile] = useState(false);
 
     useEffect(() => {
       const storedToken = localStorage.getItem('token');
@@ -23,6 +24,10 @@ import { useAuth } from '../context/AuthContext';
         navigate('/'); // Redirect to login if no token
       }
     }, [navigate, setToken]);
+    
+    const toggleProfile = () => {
+      setShowProfile(!showProfile);
+  };
 
     return (
       <div>
@@ -82,8 +87,23 @@ import { useAuth } from '../context/AuthContext';
                   <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="#"></a>
-                </li>
+                                <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                    <FontAwesomeIcon icon={faUserCircle} />
+                                </a>
+                                {showProfile && (
+                                    <div className="profile-dropdown">
+                                        <ul className="list-group">
+                                            <li>
+                                            <Link className="list-group-item" to="/userProfile">Profile Info</Link>
+                                            </li>
+                                            <li className="list-group-item">Settings</li>
+                                            <li>
+                                            <Link className="list-group-item" to="/">Logout</Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </li>
               </ul>
             </div>
           </div>

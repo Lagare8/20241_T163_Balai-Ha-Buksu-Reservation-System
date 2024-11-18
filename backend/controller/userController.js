@@ -1,7 +1,8 @@
-import User from "../routes/user-manager/userReservation.js"
+// import User from "../routes/user-manager/userReservation.js"
 import jwt from 'jsonwebtoken';
 import Reservation from "../models/users/Reservation.js";
 import Notification from "../models/users/Notification.js";
+import {User, Employee, Admin} from "../models/users/user.js";
 
 const generateToken = (user) => {
     return jwt.sign(
@@ -232,5 +233,44 @@ const loginUser = async (req, res) => {
     });
 };
 
+const getUserProfile = async (req,res) => {
 
-export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications}
+    try {
+        console.log('Request User:', req.userId); // Debug log
+
+        const user = await User.findById(req.userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        console.log('User data from DB:', user);
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error in getUserProfile:', error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.userId; // Ensure this is correct and `req.user` is populated
+        const updates = req.body;
+
+        // Fix the method name to 'findByIdAndUpdate'
+        const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+            new: true,
+            runValidators: true,
+        }).select('-password'); // Exclude password from response
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(updatedUser); // Send updated user data as response
+    } catch (error) {
+        console.error(error); // Log the error to the server console
+        res.status(500).json({ message: 'Server error' }); // Send a 500 error if there's an issue
+    }
+};
+
+export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile}
