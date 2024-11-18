@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
@@ -10,31 +9,35 @@ export const useAuth = () => useContext(AuthContext);
 
 // AuthProvider component to wrap around the app
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(localStorage.getItem('token') || null); // Initialize token from localStorage if available
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);  // Add state for token
 
     useEffect(() => {
-        if (token) {
+        const tokenFromLocalStorage = localStorage.getItem('token');
+        console.log("Token retrieved from localStorage:", tokenFromLocalStorage);
+
+        if (tokenFromLocalStorage) {
             try {
-                const decodedToken = jwtDecode(token);  // Decode the token to get user data
-                setUser({ ...decodedToken, token });   // Set user state based on decoded token
+                // Decode the token to get user data
+                console.log("Decoding token...");
+                const decodedToken = jwtDecode(tokenFromLocalStorage);
+                console.log("Decoded token:", decodedToken);
+
+                setUser({ ...decodedToken, token: tokenFromLocalStorage });  // Set user data from decoded token
+                setToken(tokenFromLocalStorage);  // Set token in context
             } catch (error) {
                 console.error("Error decoding token", error);
-                localStorage.removeItem('token'); // Remove invalid token from localStorage
-                setToken(null); // Clear token state
+                localStorage.removeItem('token'); // Clear invalid token from localStorage
             }
+        } else {
+            console.log("No token found in localStorage");
         }
-    }, [token]);
+    }, []);
 
-    // Logout function to clear the token and user data
-    const logout = () => {
-        localStorage.removeItem('token');  // Remove token from localStorage
-        setToken(null);  // Clear the token state
-        setUser(null);  // Clear the user state
-    };
+    console.log("User state after decoding:", user);  // Log the user state after decoding the token
 
     return (
-        <AuthContext.Provider value={{ user, setUser, token, setToken, logout }}>
+        <AuthContext.Provider value={{ user, setUser, token, setToken }}>
             {children}
         </AuthContext.Provider>
     );

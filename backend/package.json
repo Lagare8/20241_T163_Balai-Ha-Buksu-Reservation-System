@@ -17,6 +17,8 @@
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.1",
     "nodemailer": "^6.9.16",
+    "passport": "^0.7.0",
+    "passport-google-token": "^0.1.2",
     "react-google-recaptcha": "^3.1.0"
   },
   "devDependencies": {

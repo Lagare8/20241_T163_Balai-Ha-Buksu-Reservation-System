@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -36,9 +35,9 @@ function App() {
             <Route index element={<Login />} />
             {/* Unauthorized Page */}
             <Route path="/unauthorized" element={<Unauthorized />} />
-            
+
             {/* User Routes */}
-            <Route path="/userDashboard"  element={<ProtectedRoute allowedRoles={['user']}><UserDashboard /></ProtectedRoute>} />
+            <Route path="/userDashboard" element={<ProtectedRoute allowedRoles={['user']}><UserDashboard /></ProtectedRoute>} />
             <Route path="/userReserve" element={<ProtectedRoute allowedRoles={['user']}><UserReserve /></ProtectedRoute>} />
             <Route path="/userBookings" element={<ProtectedRoute allowedRoles={['user']}><UserBookings /></ProtectedRoute>} />
 
@@ -50,15 +49,15 @@ function App() {
             <Route path="/employeeBookings" element={<ProtectedRoute allowedRoles={['employee']}><EmployeeBookings /></ProtectedRoute>} />
 
             {/* Admin Routes */}
-            <Route path="/adminDashboard" element={<ProtectedRoute allowedRoles={['employee']}><AdminDashboard /></ProtectedRoute>}/>
-            <Route path="/adminBookings" element={<ProtectedRoute allowedRoles={['employee']}><AdminBookings /></ProtectedRoute>}/>
+            <Route path="/adminDashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/adminBookings" element={<ProtectedRoute allowedRoles={['admin']}><AdminBookings /></ProtectedRoute>} />
 
             {/* General Routes */}
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/function" element={<Function />} />
-            <Route path="/catering" element={<Catering />} />
-            <Route path="/roomCalendar" element={<RoomCalendar />} />
-            <Route path="/functionCalendar" element={<FunctionCalendar />} />
+            <Route path="/rooms" element={<ProtectedRoute allowedRoles={['user']}><Rooms /></ProtectedRoute>} />
+            <Route path="/function" element={<ProtectedRoute allowedRoles={['user']}><Function /></ProtectedRoute>} />
+            <Route path="/catering" element={<ProtectedRoute allowedRoles={['user']}><Catering /></ProtectedRoute>} />
+            <Route path="/roomCalendar" element={<ProtectedRoute allowedRoles={['user']}><RoomCalendar /></ProtectedRoute>} />
+            <Route path="/functionCalendar" element={<ProtectedRoute allowedRoles={['user']}><FunctionCalendar /></ProtectedRoute>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

@@ -48,8 +48,7 @@ app.use('/employee/reservation', reservationsRouter);
 import employeeRoomsRouter from './routes/employee-manager/RoomRoutes.js';
 app.use('/employee/rooms', employeeRoomsRouter);
 
-
-
+app.use('/api', authRouter);
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

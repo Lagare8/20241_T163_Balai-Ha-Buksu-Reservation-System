@@ -106,9 +106,7 @@ import { useAuth } from '../context/AuthContext';
             <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'black' }}>TESTWelcome to Balai ha BukSU</h1>
             <p style={{ fontSize: '1.5rem', color: 'black', marginBottom: '0' }}>Where Comfort Meets Culture</p>
             <div style={{ display: 'flex', justifyContent: 'end', width: '100%', marginTop: '10px', marginRight: '1050px' }}>
-            <a href="/userReserve" className="btn btn-lg" style={{ backgroundColor: '#007bff', color: 'black' }} >
-              Book Now< FontAwesomeIcon icon={faCalendarDays} style={{marginLeft: '20px'}} />
-            </a>
+            <a><Link className="btn btn-lg" to="/userBookings" style={{ backgroundColor: '#007bff', color: 'black' }}>Book Now< FontAwesomeIcon icon={faCalendarDays} style={{marginLeft: '20px'}} /></Link></a>
           </div>
         </div>
       </div>
