@@ -1,33 +1,44 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
-const AuthContext = createContext();
+// Create AuthContext
+export const AuthContext = createContext();
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// Custom hook to use AuthContext
+export const useAuth = () => useContext(AuthContext);
 
+// AuthProvider component to wrap around the app
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('userToken'));
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);  // Add state for token
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('userToken');
-    setToken(storedToken);
-  }, []);
+    useEffect(() => {
+        const tokenFromLocalStorage = localStorage.getItem('token');
+        console.log("Token retrieved from localStorage:", tokenFromLocalStorage);
 
-  const login = (newToken) => {
-    localStorage.setItem('userToken', newToken);
-    setToken(newToken);
-  };
+        if (tokenFromLocalStorage) {
+            try {
+                // Decode the token to get user data
+                console.log("Decoding token...");
+                const decodedToken = jwtDecode(tokenFromLocalStorage);
+                console.log("Decoded token:", decodedToken);
 
-  const logout = () => {
-    localStorage.removeItem('userToken');
-    setToken(null);
-  };
+                setUser({ ...decodedToken, token: tokenFromLocalStorage });  // Set user data from decoded token
+                setToken(tokenFromLocalStorage);  // Set token in context
+            } catch (error) {
+                console.error("Error decoding token", error);
+                localStorage.removeItem('token'); // Clear invalid token from localStorage
+            }
+        } else {
+            console.log("No token found in localStorage");
+        }
+    }, []);
 
-  return (
-    <AuthContext.Provider value={{ token, setToken, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    console.log("User state after decoding:", user);  // Log the user state after decoding the token
+
+    return (
+        <AuthContext.Provider value={{ user, setUser, token, setToken }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
-

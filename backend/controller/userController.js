@@ -1,6 +1,7 @@
 import User from "../routes/user-manager/userReservation.js"
 import jwt from 'jsonwebtoken';
-import Reservation from "../models/users/Reservation.js"
+import Reservation from "../models/users/Reservation.js";
+import Notification from "../models/users/Notification.js";
 
 const generateToken = (user) => {
     return jwt.sign(
@@ -97,6 +98,16 @@ const postCateringReservation = async (req, res) => {
         res.status(500).json({message: 'Failed to create a catering reservation'});
     }
 }
+
+const getNotifications = async (req, res) => {
+    try {
+        const notifications = await Notification.find({ userId: req.userId }); // Get notifications for the authenticated user
+        res.status(200).json(notifications);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Error fetching notifications' });
+    }
+};
 
 const getUserBookingHistory = async (req, res) => {
     const { userId } = req.params;
@@ -222,4 +233,4 @@ const loginUser = async (req, res) => {
 };
 
 
-export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser}
+export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications}

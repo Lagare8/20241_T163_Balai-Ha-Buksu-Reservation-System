@@ -85,24 +85,45 @@ const confirmReservation = async (req, res) => {
     try {
         const reservationId = req.params.id;
 
+        // Find the reservation and update its status to confirmed
         const updatedReservation = await Reservation.findByIdAndUpdate(
             reservationId,
-            {status: 'confirmed'},
-            {new : true}
+            { status: 'confirmed' },
+            { new: true }
         );
-        if (!updatedReservation){
-            return res.status(404).json({message: 'Reservation not found'});
+
+        if (!updatedReservation) {
+            return res.status(404).json({ message: 'Reservation not found' });
         }
 
-        updatedReservation.history.push({status: 'confirmed'});
+        // Push the confirmation status into the history
+        updatedReservation.history.push({ status: 'confirmed' });
         await updatedReservation.save();
+
+        // Create a notification for the user
+        const notificationMessage = `Your reservation for ${updatedReservation.roomNumber || 'a room'} has been confirmed.`;
         
-        return res.status(200).json({message: 'Reservation confirmed', reservation: updatedReservation});
-    }catch (error){
-        console.error('Error confirming reservation', error);
-        return res.status(500).json({message: 'An occured while fetching the reservation'});
+        const notification = new Notification({
+            userId: updatedReservation.userId,  // Assuming reservation has a userId field
+            message: notificationMessage,
+            type: 'reservation', // Add a type field
+            status: 'unread'      // Default status
+        });
+
+        // Save the notification to the database
+        await notification.save();
+        console.log('Notification saved:', notification); 
+
+        // Send response back with the updated reservation and confirmation message
+        return res.status(200).json({
+            message: 'Reservation confirmed and notification sent to the user',
+            reservation: updatedReservation
+        });
+    } catch (error) {
+        console.error('Error confirming reservation or saving notification', error);
+        return res.status(500).json({ message: 'An error occurred while confirming the reservation' });
     }
-}
+};
 
 const cancelReservation = async (req, res) => {
 const reservationId = req.params.id;

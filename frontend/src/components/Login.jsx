@@ -6,7 +6,7 @@ import '../index.css';
 import ReCAPTCHA from "react-google-recaptcha";
 
 function Login() {
-    const [userType] = useState('User');
+    const [userType, setUserType] = useState('User');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -48,35 +48,45 @@ function Login() {
         if (!isCaptchaVerified) {
             setErrorMessage("Please complete the CAPTCHA verification.");
             setIsSubmitting(false);
+            console.log("CAPTCHA not verified, submission halted"); // Trace CAPTCHA check
             return;
         }
 
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
             setIsSubmitting(false);
+            console.log("Invalid email format:", email); // Trace invalid email format
             return;
         }
-    
+
         try {
+            console.log('Sending login request...');
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
                 password,
             });
+            console.log("Login response:", response); // Trace login response
+
             const token = response.data.token; 
             localStorage.setItem('token', token);
 
             const { userType } = response.data;
             if (userType === 'User') {
+                console.log('Redirecting to user dashboard');
                 navigate('/userDashboard');
             } else if (userType === 'Employee') {
+                console.log('Redirecting to employee dashboard');
                 navigate('/employeeDashboard');
             } else if (userType === 'Admin') {
+                console.log('Redirecting to admin dashboard');
                 navigate('/adminDashboard');
             }
         } catch (error) {
+            console.error("Login error:", error);
             setErrorMessage(error.response?.data?.message || 'Login failed');
         } finally {
             setIsSubmitting(false);
+            console.log("Login process completed");
         }
     };
 
@@ -85,41 +95,49 @@ function Login() {
 
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
+            console.log("Invalid email format:", email); // Trace invalid email format
             return;
         }
 
         if (password !== confirmPassword) {
             setErrorMessage('Passwords do not match!');
+            console.log("Password mismatch"); // Trace password mismatch
             return;
         }
 
         if (!username || !email || !password || !userType) {
             setErrorMessage('All fields are required!');
+            console.log("Missing required fields"); // Trace missing fields
             return;
         }
 
         try {
+            console.log('Sending signup request...');
             const response = await axios.post('http://localhost:5000/api/auth/signup', {
                 username,
                 email,
                 password,
                 userType,
             });
+            console.log("Signup response:", response); // Trace signup response
 
             localStorage.setItem('token', response.data.token);
 
             if (response.data.userType === 'User') {
+                console.log('Redirecting to user dashboard');
                 navigate('/userDashboard');
             } else if (response.data.userType === 'Employee') {
+                console.log('Redirecting to employee dashboard');
                 navigate('/employeeDashboard');
             } else if (response.data.userType === 'Admin') {
+                console.log('Redirecting to admin dashboard');
                 navigate('/adminDashboard');
             }
         } catch (error) {
+            console.error("Signup error:", error);
             setErrorMessage(error.response?.data?.message || 'Signup failed');
         }
     };
-
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
             <div className="bg-white rounded-lg shadow-lg d-flex">

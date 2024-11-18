@@ -1,5 +1,5 @@
 import express from "express";
-import { postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser} from "../../controller/userController.js";
+import { postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications} from "../../controller/userController.js";
 import authMiddleware from "../../middleware/authMiddleware.js";
 const router = express.Router();
 // Simulated database using an array
@@ -13,6 +13,8 @@ router.post('/reserve/catering', authMiddleware, postCateringReservation);
 router.get('/booking-history/:userId', getUserBookingHistory);
 
 router.get("/check-availability", checkAvailability)
+
+router.get('/notifications', authMiddleware, getNotifications);
 
 // Cancel a reservation
 router.delete('/cancel/reservations/:id',  cancelReservation);

@@ -19,32 +19,36 @@ app.use(cors({
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_CONNECT)
-    .then(() => console.log('DB connected'))
-    .catch((error) => console.log('DB connection error:', error));
+.then(() => console.log('DB connected'))
+.catch((error) => console.log('DB connection error:', error));
 
 // Routes
-app.use('/api/auth', authRouter);  // Authentication routes
-app.use('/api/user', userRoutes);  // User reservation routes
+app.use('/api/auth', authRouter);
+// Use the user routes
+app.use('/api/user', userRoutes);  // Correct route for user
 
 // Admin routes
 import employeesRouter from './routes/admin-manager/employees.js';
-app.use('/api/admin/employees', employeesRouter); // Employee management routes
+app.use('/api/admin/employees', employeesRouter);
 import adminRoomsRouter from './routes/admin-manager/RoomRoutes.js';
-app.use('/api/admin/rooms', adminRoomsRouter);  // Admin room management routes
+app.use('/admin/rooms', adminRoomsRouter);
 import adminReservationsRouter from './routes/admin-manager/reservations.js';
-app.use('/api/admin/reservations', adminReservationsRouter);  // Admin reservation handling routes
+app.use('/admin/reserve', adminReservationsRouter);
 import adminConfirmReservationRouter from './routes/admin-manager/reservations.js';
-app.use('/api/admin/reservations/confirm', adminConfirmReservationRouter); // Separate confirm route
+app.use('/admin/reserve', adminConfirmReservationRouter);
 import adminCancelReservationRouter from './routes/admin-manager/reservations.js';
-app.use('/api/admin/reservations/cancel', adminCancelReservationRouter); // Separate cancel route
+app.use('/admin/reserve', adminCancelReservationRouter);
+import adminSendEmail from './routes/admin-manager/employees.js';
+app.use('/api/admin/employees', adminSendEmail);
 
 // Employee routes
 import reservationsRouter from './routes/employee-manager/reservation.js';
-app.use('/api/employee/reservation', reservationsRouter); // Employee reservation routes
+app.use('/employee/reservation', reservationsRouter);
 
 import employeeRoomsRouter from './routes/employee-manager/RoomRoutes.js';
-app.use('/api/employee/rooms', employeeRoomsRouter); // Employee room management routes
+app.use('/employee/rooms', employeeRoomsRouter);
 
+app.use('/api', authRouter);
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

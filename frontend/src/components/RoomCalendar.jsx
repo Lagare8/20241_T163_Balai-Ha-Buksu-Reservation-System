@@ -16,6 +16,8 @@ function RoomCalendar() {
     const { token} = useAuth();
     const [isAvailable, setIsAvailable] = useState(true);
     const calendarRef = useRef(null);
+    const [ notifications, setNotifications] = useState([]);
+    const [ showNotifications, setShowNotifications] = useState(false);
 
     useEffect(() => {
         console.log("Token in RoomsCalendar.jsx:", token);
@@ -94,11 +96,17 @@ function RoomCalendar() {
             );
     
             console.log('Room reserved successfully:', response.data);
+            alert(response.data.message || 'Reservation Successful');
+            //notificaitons
+            setNotifications(prev => [
+                ...prev,
+                console.log('Updating notifications:', prev),
+                `Reservation confirmed for Room ${roomId} on ${formattedDate}.`
+            ]);
         } catch (error) {
             console.error('Error reserving room:', error.response?.data || error.message);
         }
     };
-    
     
     // Render button inside each day cell
     const renderDayCell = (info) => {
@@ -150,6 +158,40 @@ function RoomCalendar() {
         }
     }, [today]);
     
+    useEffect(() => {
+        if (calendarRef.current) {
+             calendarRef.current.getApi().gotoDate(today); // Dynamically set the calendar's date to today
+        }
+    }, [today]);
+
+    const fetchNotifications = async () => {
+        try {
+            const token = localStorage.getItem('token'); // Make sure you have a valid token
+            const response = await axios.get('http://localhost:5000/api/user/notifications', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            setNotifications(response.data); // Assuming you're using React's state management
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    };
+    
+    useEffect(() => {
+        fetchNotifications();
+    }, []);
+
+    const toggleNotifications = () => {
+        setShowNotifications((prevState) => !prevState);
+    }
+    
+    const clearNotifications = () => {
+        setNotifications([]);
+        setShowNotifications(false);
+    }
+
     return (
         <div
             style={{
@@ -209,12 +251,103 @@ function RoomCalendar() {
                                 </ul>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
+                                <FontAwesomeIcon 
+                                icon={faBell} 
+                                size="lg" 
+                                style={{color:"white", cursor: "pointer", position: "relative"}} 
+                                onClick={toggleNotifications}
+                            />
+                            {notifications.length > 0 && (
+                                <span 
+                                    style={{
+                                        top: "-5px", 
+                                        right: "-10px", 
+                                        backgroundColor: "red", 
+                                        color: "white", 
+                                        borderRadius: "50%",
+                                        padding: "2px 6px", 
+                                        fontSize: "12px",
+                                        zIndex: 10
+                                    }}
+                                >
+                                    {notifications.filter(notification => notification.status === 'unread').length}
+                                </span>
+                            )}
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "70px",
+                        right: "20px",
+                        backgroundColor: "white",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                        borderRadius: "5px",
+                        width: "300px",
+                        zIndex: 1000,
+                    }}
+                >
+                    <div
+                        style={{
+                            padding: "10px",
+                            borderBottom: "1px solid #ddd",
+                            fontWeight: "bold",
+                            textAlign: "center",
+                        }}
+                    >
+                        Notifications
+                    </div>
+                    <div
+                        style={{
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                        }}
+                    >
+                        {notifications.length > 0 ? (
+                            notifications.map((notification, index) => (
+                                <div
+                                    key={index}
+                                    style={{
+                                        padding: "10px",
+                                        borderBottom: "1px solid #ddd",
+                                    }}
+                                >
+                                    {notification.message} - {notification.status || 'Unread'}
+                                </div>
+                            ))
+                        ) : (
+                            <div
+                                style={{
+                                    padding: "10px",
+                                    textAlign: "center",
+                                    color: "#999",
+                                }}
+                            >
+                                No notifications
+                            </div>
+                        )}
+                    </div>
+                    <div
+                        style={{
+                            padding: "10px",
+                            textAlign: "center",
+                        }}
+                    >
+                        <button
+                            className="btn btn-sm btn-danger"
+                            onClick={clearNotifications}
+                        >
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div
                 style={{
