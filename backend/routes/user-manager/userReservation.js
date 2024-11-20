@@ -10,7 +10,7 @@ router.post('/reserve/room', authMiddleware, postRoomReservation);
 router.post('/reserve/hall', authMiddleware, postHallReservation);
 router.post('/reserve/catering', authMiddleware, postCateringReservation);
 // View user's booking history
-router.get('/booking-history/:userId', getUserBookingHistory);
+router.get('/booking-history/:userId', authMiddleware, getUserBookingHistory);
 
 router.get("/check-availability", checkAvailability)
 

@@ -13,9 +13,11 @@ function Login() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isSignup, setIsSignup] = useState(false);
-    const navigate = useNavigate();
     const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
+
+    const navigate = useNavigate();
 
     const onChange = () => {
         setIsCaptchaVerified(true);
@@ -27,9 +29,7 @@ function Login() {
     };
 
     const handleLoginSuccess = async (credentialResponse) => {
-        console.log('Google Login successful', credentialResponse);
         const decoded = credentialResponse.credential;
-
         const userProfile = JSON.parse(atob(decoded.split('.')[1]));
         setEmail(userProfile.email);
         setUsername(userProfile.name);
@@ -48,96 +48,99 @@ function Login() {
         if (!isCaptchaVerified) {
             setErrorMessage("Please complete the CAPTCHA verification.");
             setIsSubmitting(false);
-            console.log("CAPTCHA not verified, submission halted"); // Trace CAPTCHA check
             return;
         }
 
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
             setIsSubmitting(false);
-            console.log("Invalid email format:", email); // Trace invalid email format
             return;
         }
 
         try {
-            console.log('Sending login request...');
-            const response = await axios.post('http://localhost:5000/api/auth/login', {
-                email,
-                password,
-            });
-            console.log("Login response:", response); // Trace login response
-
+            const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
             const token = response.data.token; 
             localStorage.setItem('token', token);
 
             const { userType } = response.data;
             if (userType === 'User') {
-                console.log('Redirecting to user dashboard');
                 navigate('/userDashboard');
             } else if (userType === 'Employee') {
-                console.log('Redirecting to employee dashboard');
                 navigate('/employeeDashboard');
             } else if (userType === 'Admin') {
-                console.log('Redirecting to admin dashboard');
                 navigate('/adminDashboard');
             }
         } catch (error) {
-            console.error("Login error:", error);
             setErrorMessage(error.response?.data?.message || 'Login failed');
         } finally {
             setIsSubmitting(false);
-            console.log("Login process completed");
         }
     };
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
-
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
-            console.log("Invalid email format:", email); // Trace invalid email format
             return;
         }
 
         if (password !== confirmPassword) {
             setErrorMessage('Passwords do not match!');
-            console.log("Password mismatch"); // Trace password mismatch
             return;
         }
 
         if (!username || !email || !password || !userType) {
             setErrorMessage('All fields are required!');
-            console.log("Missing required fields"); // Trace missing fields
             return;
         }
 
         try {
-            console.log('Sending signup request...');
             const response = await axios.post('http://localhost:5000/api/auth/signup', {
-                username,
-                email,
-                password,
-                userType,
+                username, email, password, userType
             });
-            console.log("Signup response:", response); // Trace signup response
 
             localStorage.setItem('token', response.data.token);
-
             if (response.data.userType === 'User') {
-                console.log('Redirecting to user dashboard');
                 navigate('/userDashboard');
             } else if (response.data.userType === 'Employee') {
-                console.log('Redirecting to employee dashboard');
                 navigate('/employeeDashboard');
             } else if (response.data.userType === 'Admin') {
-                console.log('Redirecting to admin dashboard');
                 navigate('/adminDashboard');
             }
         } catch (error) {
-            console.error("Signup error:", error);
             setErrorMessage(error.response?.data?.message || 'Signup failed');
         }
     };
+
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setErrorMessage(''); // Clear any previous error message on submit
+    
+        // Validate email format
+        if (!validateEmail(email)) {
+            setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph');
+            setIsSubmitting(false);
+            return;
+        }
+    
+        try {
+            const response = await axios.post('http://localhost:5000/api/auth/forgotPassword', { email });
+            // If the response is successful, you can also show a specific success message
+            setErrorMessage(response.data.message || 'Check your email for a password reset link');
+        } catch (error) {
+            // Handle different error responses
+            if (error.response) {
+                setErrorMessage(error.response?.data?.message || 'Password reset failed');
+            } else {
+                setErrorMessage('Network error. Please try again later.');
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    
+
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
             <div className="bg-white rounded-lg shadow-lg d-flex">
@@ -149,7 +152,22 @@ function Login() {
                         style={{ maxHeight: '150px', marginLeft: '110px', marginTop: '40px' }}
                     />
                     <h2 className="text-center mb-3">Welcome to BUKSU Hotel</h2>
-                    {isSignup ? (
+
+                    {isForgotPassword ? (
+                        <form onSubmit={handleForgotPassword}>
+                            <input
+                                type="email"
+                                placeholder="Enter your email"
+                                className="form-control mb-3"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <button className="btn btn-primary mb-3" type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+                            </button>
+                        </form>
+                    ) : isSignup ? (
                         <form onSubmit={handleSignupSubmit}>
                             <input
                                 type="text"
@@ -231,12 +249,26 @@ function Login() {
                         >
                             {isSignup ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
                         </button>
+                        <button
+                            className="btn btn-link"
+                            onClick={() => setIsForgotPassword(!isForgotPassword)}
+                        >
+                            Forgot Password?
+                        </button>
                     </div>
                 </div>
 
                 <div className="p-4 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
                     <div className="text-center">
-                        <img src="/assets/lgo.png" alt="BUKSU Hotel Logo" className="mb-3" />
+                    <img
+                        src="/assets/lgo.png"
+                        alt="BUKSU Hotel Logo"
+                        className="mb-3"
+                        style={{
+                            maxWidth: '100%',
+                            height: 'auto',
+                        }}
+                    />
                     </div>
                 </div>
             </div>

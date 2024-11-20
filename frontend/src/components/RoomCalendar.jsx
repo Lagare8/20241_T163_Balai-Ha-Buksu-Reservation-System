@@ -107,7 +107,7 @@ function RoomCalendar() {
             console.error('Error reserving room:', error.response?.data || error.message);
         }
     };
-    
+
     // Render button inside each day cell
     const renderDayCell = (info) => {
         const dateObj = info.date;  // This is the date object of the clicked cell
@@ -157,12 +157,6 @@ function RoomCalendar() {
              calendarRef.current.getApi().gotoDate(today); // Dynamically set the calendar's date to today
         }
     }, [today]);
-    
-    useEffect(() => {
-        if (calendarRef.current) {
-             calendarRef.current.getApi().gotoDate(today); // Dynamically set the calendar's date to today
-        }
-    }, [today]);
 
     const fetchNotifications = async () => {
         try {
@@ -182,7 +176,7 @@ function RoomCalendar() {
     useEffect(() => {
         fetchNotifications();
     }, []);
-
+    
     const toggleNotifications = () => {
         setShowNotifications((prevState) => !prevState);
     }
@@ -191,7 +185,8 @@ function RoomCalendar() {
         setNotifications([]);
         setShowNotifications(false);
     }
-
+    
+    
     return (
         <div
             style={{
@@ -251,7 +246,7 @@ function RoomCalendar() {
                                 </ul>
                             </li>
                             <li className="nav-item">
-                                <FontAwesomeIcon 
+                            <FontAwesomeIcon 
                                 icon={faBell} 
                                 size="lg" 
                                 style={{color:"white", cursor: "pointer", position: "relative"}} 
@@ -270,7 +265,7 @@ function RoomCalendar() {
                                         zIndex: 10
                                     }}
                                 >
-                                    {notifications.filter(notification => notification.status === 'unread').length}
+                                    {notifications.filter(notification => notification?.status === 'unread').length}
                                 </span>
                             )}
                             </li>
@@ -278,9 +273,8 @@ function RoomCalendar() {
                     </div>
                 </div>
             </nav>
-
-            {/* Notifications Dropdown */}
-            {showNotifications && (
+             {/* Notifications Dropdown */}
+             {showNotifications && (
                 <div
                     style={{
                         position: "absolute",
@@ -309,8 +303,13 @@ function RoomCalendar() {
                             overflowY: "auto",
                         }}
                     >
-                        {notifications.length > 0 ? (
-                            notifications.map((notification, index) => (
+                    {notifications.length > 0 ? (
+                        notifications.map((notification, index) => {
+                            if (!notification || !notification.message) {
+                                console.error("Invalid notification:", notification);
+                                return null; // Skip rendering this item
+                            }
+                            return (
                                 <div
                                     key={index}
                                     style={{
@@ -318,20 +317,21 @@ function RoomCalendar() {
                                         borderBottom: "1px solid #ddd",
                                     }}
                                 >
-                                    {notification.message} - {notification.status || 'Unread'}
+                                    {notification.message} - {notification.status || "Unread"}
                                 </div>
-                            ))
-                        ) : (
-                            <div
-                                style={{
-                                    padding: "10px",
-                                    textAlign: "center",
-                                    color: "#999",
-                                }}
-                            >
-                                No notifications
-                            </div>
-                        )}
+                            );
+                        })
+                    ) : (
+                        <div
+                            style={{
+                                padding: "10px",
+                                textAlign: "center",
+                                color: "#999",
+                            }}
+                        >
+                            No notifications
+                        </div>
+                    )}
                     </div>
                     <div
                         style={{

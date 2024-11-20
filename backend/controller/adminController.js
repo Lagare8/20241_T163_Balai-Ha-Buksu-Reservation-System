@@ -1,8 +1,8 @@
-
 import Employee from '../models/users/employee.js'; // Adjust path as needed
 import Reservation from '../models/users/Reservation.js';
 import nodeMailer from 'nodemailer';
 import bcrypt from 'bcryptjs';
+import Notification from '../models/users/Notification.js';
 
 const postEmployee = async (req, res) => {
     try {
@@ -184,5 +184,7 @@ const putRooms = async (req, res) => {
 const getRoomById =async (req, res) => {
 
 }
+
+
 
 export {postEmployee, getEmployee, putEmployee, deleteEmployee,getEmployeeById, getRoomById, getRooms, putRooms, getAllReservations, confirmReservation, cancelReservation, sendEmail}

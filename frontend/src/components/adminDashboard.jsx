@@ -81,12 +81,12 @@ const AdminDashboard = () => {
     //Fetching from dbs
     const fetchAllBookings = async () => {
         try{
-            const response = await fetch('http://localhost:5000/api/employee/reservation/bookings');
+            const response = await fetch('http://localhost:5000/admin/reserve/res');
             if(!response.ok){
                 throw new Error (`Http error! Status: ${response.status}`);
             }
             const data = await response.json();
-            console.log("Fetched employees data:", data);
+            console.log("Fetched bookings data:", data);
             setBookings(data);
         }catch (error){
             console.error('Error fetching bookings: ', error.messsage);
@@ -325,17 +325,16 @@ const AdminDashboard = () => {
                 },
                 body: JSON.stringify({status: 'confirmed'})
             });
-            if (!response.ok){
-                setBookings((prevBookings) => {
-                    const updatedBookings = prevBookings.map((booking) =>
-                        booking._id == reservation._id ? { ...booking, status: 'confirmed'} : booking
-                    );
-                    return updatedBookings;
-                });
-
+            if (response.ok) {
+                const data = await response.json();
+                setBookings((prevBookings) => 
+                    prevBookings.map((booking) =>
+                        booking._id === reservation._id ? { ...booking, status: 'confirmed' } : booking
+                    )
+                );
                 console.log('Booking confirmed successfully!');
             } else {
-                console.error("Error confirm bookings");
+                console.error('Error confirming bookings');
             }
         }catch(error){
             console.error("Error confirming bookings", error);

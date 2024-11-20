@@ -1,16 +1,38 @@
 import mongoose from 'mongoose';
 
-// Reservation Schema Definition
-const reservationSchema = new mongoose.Schema({
+const reservationSchema = new mongoose.Schema(
+  {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    reserveType: { type: String, required: true, enum: ['Room', 'Function Hall', 'Catering'] },
+    reserveType: {
+      type: String,
+      enum: ['Room', 'Function Hall', 'Catering'],
+      required: true,
+    },
     reservationDetails: {
-        roomNumber: { type: Number },
+      roomNumber: { type: Number },
+      cateringOptions: [
+        {
+          menuItem: { type: String, required: true },  // Menu item name
+          quantity: { type: Number, required: true },  // Quantity of the menu item
+        }
+      ],
     },
     date: { type: Date, required: true },
-    cateringOptions: { type: Array, default: [] },
-}, { timestamps: true });
+    status: {
+      type: String,
+      enum: ['pending', 'confirmed', 'canceled'],
+      default: 'pending',
+    },
+    history: [
+      {
+        status: { type: String, enum: ['confirmed', 'pending', 'canceled'], required: true },
+        changedAt: { type: Date, default: Date.now },
+      },
+    ],
+  },
+  {
+    timestamps: true, // Automatically adds `createdAt` and `updatedAt`
+  }
+);
 
-const Reservation = mongoose.model('Reservation', reservationSchema);
-
-export default Reservation;
+export default mongoose.model('Reservation', reservationSchema);

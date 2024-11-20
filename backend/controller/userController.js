@@ -85,21 +85,26 @@ const postHallReservation = async (req, res) => {
 
 const postCateringReservation = async (req, res) => {
     const { date, cateringOptions } = req.body;
-    const userId = req.userId;
+    const userId = req.userId; // Get user from JWT or session
     try {
-        const reservation = new Reservation({
-            userId,
-            type: 'Catering',
-            date,
-            cateringOptions,
-        });
-        await reservation.save(); 
-        res.status(201).json({ message: 'Catering reservation successfully', reservation});
-    }catch (error){
-        console.error('Error creating Catering reservation', error);
-        res.status(500).json({message: 'Failed to create a catering reservation'});
+      // Create the reservation object
+    const reservation = new Reservation({
+        userId,
+        reserveType: 'Catering',
+        reservationDetails: {
+          cateringOptions, // Array of menu items with quantity
+        },
+        date,
+    });
+
+      await reservation.save();  // Save the reservation to the database
+
+    res.status(201).json({ message: 'Catering reservation successfully created', reservation });
+    } catch (error) {
+    console.error('Error creating catering reservation:', error);
+    res.status(500).json({ message: 'Failed to create a catering reservation' });
     }
-}
+};
 
 const getNotifications = async (req, res) => {
     try {
@@ -112,30 +117,36 @@ const getNotifications = async (req, res) => {
 };
 
 const getUserBookingHistory = async (req, res) => {
-    const { userId } = req.params;
-    try{
-        const reservations = await Reservation.find({userId}).select('type date roomNumber cateringOptions');
-
-        const formattedHistory = reservations.map(reservations => {
+    const userId = req.user.id;  // Assuming JWT is used to authenticate the user
+    try {
+        // Fetch bookings for a user (not employee)
+        const reservations = await Reservation.find({ userId: userId }).select('type date roomNumber cateringOptions');
+        
+        // Format the booking history
+        const formattedHistory = reservations.map(reservation => {
             let details = {
                 reservationType: reservation.type,
-                date: reservation.date
+                date: reservation.date,
             };
-            if (reservation.type == 'Room'){
+            
+            // Add specific details based on the reservation type
+            if (reservation.type === 'Room') {
                 details.roomNumber = reservation.roomNumber;
-            }else if (reservation.type == 'Function Hall'){
+            } else if (reservation.type === 'Function Hall') {
                 details.functionHall = "Main Function Hall";
-            }else if (reservation.type == 'Catering'){
+            } else if (reservation.type === 'Catering') {
                 details.cateringOptions = reservation.cateringOptions;
             }
             return details;
         });
+        
         res.status(200).json(formattedHistory);
-    }catch(error){
+    } catch (error) {
         console.error("Error fetching booking history: ", error);
-        res.status(500).json({ message: 'Failed to fetch the booking history'});
+        res.status(500).json({ message: 'Failed to fetch the booking history' });
     }
 };
+
 
 const checkAvailability = async (req, res) => {
     const { reserveType, reserve, date } = req.query;
