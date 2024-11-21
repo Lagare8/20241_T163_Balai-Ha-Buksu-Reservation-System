@@ -6,21 +6,31 @@ import Notification from '../models/users/Notification.js';
 
 const postEmployee = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const { username, email } = req.body;
+
+        if (!username || !email) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const generatedPassword = Math.random().toString(36).slice(-8);  // Ensure password is generated
+
+        const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
         const newEmployee = new Employee({
             username,
             email,
             password: hashedPassword
         });
+
         await newEmployee.save();
-        res.status(201).json({message: 'Employee added successfully', employee: newEmployee});
+
+        res.status(201).json({ message: 'Employee added successfully', employee: newEmployee });
     } catch (error) {
-        res.status(400).json({ message: "Error adding employee", error });
+        console.error("Error adding employee:", error);  // Log the error for debugging
+        res.status(400).json({ message: "Error adding employee", error: error.message || error });
     }
 };
+
 
 const sendEmail = async (req, res) => {
     const {email, password} = req.body;

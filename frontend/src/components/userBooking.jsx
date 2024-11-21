@@ -32,22 +32,34 @@ const UserBookings = () => {
     // fetch from dbs
     const fetchAllBookings = async () => {
         try {
-            const token = localStorage.getItem("token"); // Get token from local storage
+            const token = localStorage.getItem("token");
             const userId = localStorage.getItem("userId");
+            
+            console.log("Token from localStorage:", localStorage.getItem("token"));
+            console.log("UserId from localStorage:", localStorage.getItem("userId"));
+            if (!token || !userId) {
+                console.error("Missing token or userId");
+                return;
+            }
+    
             const response = await fetch(`http://localhost:5000/api/user/booking-history/${userId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}` // Send the token in the header
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
             });
+    
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`Error ${response.status}: ${errorText}`);
             }
+    
             const data = await response.json();
-            console.log("Fetched data:", data);
+            console.log("Fetched bookings:", data);
             setBookings(data);
         } catch (error) {
-            console.error('Error fetching bookings:', error.message);
+            console.error("Error fetching bookings:", error.message);
         }
     };
     
@@ -56,10 +68,15 @@ const UserBookings = () => {
         fetchAllBookings();
     }, []);
     useEffect(() => {
-        console.log('View Offers:', bookings);
+        console.log("Fetched bookings:", bookings); 
+        // Log the statuses of the bookings to check what's being returned
+        console.log("Booking statuses:", bookings.map(booking => booking?.status));
+    
+        console.log("Bookings state updated:", bookings);
     }, [bookings]);
 
     const renderContent = () => {
+        console.log(bookings); 
         switch (activeTab) {
             case 'bookings':
                 return (
@@ -71,40 +88,23 @@ const UserBookings = () => {
                         <DataTable
                             columns={[
                                 {
-                                    name: 'Name',
-                                    selector: row => row.userId.username,
-                                    sortable: true,
-                                },
-                                {
                                     name: 'Type',
-                                    selector: row => row.reserveType,
+                                    selector: row => row.reservationType|| "No Type",
                                     sortable: true,
                                 },
                                 {
                                     name: 'Date',
-                                    selector: row => formatDate(row.date),
+                                    selector: row => row.date ? formatDate(row.date) : "No Date",
                                     sortable: true,
                                 },
                                 {
-                                    name: 'Action',
-                                    cell: row => (
-                                        <div>
-                                            <button
-                                                onClick={() => {
-                                                    if(window.confirm("Are you sure want to cancel this booking?")){
-                                                        handleCancelBooking(row);
-                                                    }
-                                                }}
-                                                className="btn btn-warning btn-sm me-2"
-                                            >
-                                                <FontAwesomeIcon icon={faX} />
-                                            </button>
-                                        </div>
-                                    ),
-                                    button: true,  // Makes the column button-style
-                                }
+                                    name: 'Status',
+                                    selector: row => row.status || "No Status", // Fallback in case status is missing
+                                    sortable: true,
+                                },
                             ]}
-                            data={bookings.filter((booking) => booking.status === 'pending')}
+                            data={bookings.filter(booking => booking.status === 'pending' || booking.status === undefined)}
+                            noDataComponent="No pending bookings found"
                             pagination
                             highlightOnHover
                             responsive
@@ -121,13 +121,8 @@ const UserBookings = () => {
                         <DataTable
                             columns={[
                                 {
-                                    name: 'Name',
-                                    selector: row => row.userId.username,
-                                    sortable: true,
-                                },
-                                {
                                     name: 'Type',
-                                    selector: row => row.reserveType,
+                                    selector: row => row.reservationType,
                                     sortable: true,
                                 },
                                 {
@@ -235,11 +230,11 @@ const UserBookings = () => {
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                 >
-                                    Update Offers
+                                    View Offers
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><Link className="dropdown-item" to="/Emprooms">Rooms</Link></li>
-                                    <li><Link className="dropdown-item" to="/Empfunction-hall">Function Hall</Link></li>
+                                    <li><Link className="dropdown-item" to="/Rooms">Rooms</Link></li>
+                                    <li><Link className="dropdown-item" to="/">Function Hall</Link></li>
                                     <li><Link className="dropdown-item" to="/Empfood-catering">Food Catering</Link></li>
                                 </ul>
                             </li>

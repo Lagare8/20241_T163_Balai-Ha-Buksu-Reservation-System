@@ -117,25 +117,31 @@ const getNotifications = async (req, res) => {
 };
 
 const getUserBookingHistory = async (req, res) => {
-    const userId = req.user.id;  // Assuming JWT is used to authenticate the user
+    const userId = req.userId;  // Assuming JWT is used to authenticate the user
     try {
         // Fetch bookings for a user (not employee)
-        const reservations = await Reservation.find({ userId: userId }).select('type date roomNumber cateringOptions');
+        const reservations = await Reservation.find({ userId: userId })
+            .select('reserveType status date reservationDetails');  // Ensure this selects all necessary fields
         
+        // Log the fetched reservations for debugging
+        console.log(reservations);
+
         // Format the booking history
         const formattedHistory = reservations.map(reservation => {
             let details = {
-                reservationType: reservation.type,
+                name: userId,  // Or you could map this to the user's name if needed
+                reservationType: reservation.reserveType,  // Using reserveType instead of type
                 date: reservation.date,
+                status: reservation.status,
             };
-            
+
             // Add specific details based on the reservation type
-            if (reservation.type === 'Room') {
-                details.roomNumber = reservation.roomNumber;
-            } else if (reservation.type === 'Function Hall') {
+            if (reservation.reserveType === 'Room') {
+                details.roomNumber = reservation.reservationDetails.roomNumber;
+            } else if (reservation.reserveType === 'Function Hall') {
                 details.functionHall = "Main Function Hall";
-            } else if (reservation.type === 'Catering') {
-                details.cateringOptions = reservation.cateringOptions;
+            } else if (reservation.reserveType === 'Catering') {
+                details.cateringOptions = reservation.reservationDetails.cateringOptions;
             }
             return details;
         });
@@ -146,7 +152,6 @@ const getUserBookingHistory = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch the booking history' });
     }
 };
-
 
 const checkAvailability = async (req, res) => {
     const { reserveType, reserve, date } = req.query;

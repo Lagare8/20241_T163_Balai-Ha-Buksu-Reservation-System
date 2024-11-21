@@ -50,27 +50,48 @@ const AdminDashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Form submitted");
-        try{
+    
+        const generatedPassword = Math.random().toString(36).slice(-8); // Generated password
+    
+        const newEmployeeData = {
+            ...newEmployee,
+            password: generatedPassword // Add the generated password
+        };
+    
+        try {
             const response = await fetch("http://localhost:5000/api/admin/employees", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newEmployee),
+                body: JSON.stringify(newEmployee), // Send the username and email only
             });
-            if(response.ok){
-                const errorData = await response.json();
-                console.error("Error adding employee", errorData);
-                return;
+    
+            if (response.ok) {
+                await fetch('http://localhost:5000/api/admin/employees/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: newEmployee.email,
+                        password: generatedPassword  // Send the generated password
+                    })
+                });
+    
+                setEmployees((prevEmployees) => [...prevEmployees, newEmployeeData]);
+                alert("Employee added and email sent");
+                toggleModal();
+            } else {
+                alert("Failed to add employee");
             }
-            const addedEmployee = await response.json();
-            console.log("Added Employee", addedEmployee);
-            setEmployees((prevEmployees) => [ ...prevEmployees, addedEmployee])
-            setShowModal(false);
-        } catch (error){
-            console.error("Error adding employee", error);
+    
+        } catch (error) {
+            console.error("Error adding employee:", error);
         }
     };
+    
+
     useEffect(() => {
         fetchEmployees()
     }, [])
@@ -437,7 +458,7 @@ const AdminDashboard = () => {
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                 >
-                                 View Offers
+                                View Offers
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><Link className="dropdown-item" to="#">#</Link></li>
@@ -511,7 +532,7 @@ const AdminDashboard = () => {
                                     <button type="button" className="close" onClick={toggleModal}>&times;</button>
                                 </div>
                                 <div className="modal-body">
-                                    <form onSubmit={handleSubmit}>
+                                <form onSubmit={handleSubmit}>
                                         <div className="form-group">
                                             <label htmlFor="inputName">Username</label>
                                             <input
@@ -534,19 +555,6 @@ const AdminDashboard = () => {
                                                 placeholder="Email"
                                                 name="email"
                                                 value={newEmployee.email}
-                                                onChange={handleInputChange}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="password">Password</label>
-                                            <input
-                                                type="password"
-                                                className="form-control"
-                                                id="area"
-                                                placeholder="Password"
-                                                name="password"
-                                                value={newEmployee.password}
                                                 onChange={handleInputChange}
                                                 required
                                             />
