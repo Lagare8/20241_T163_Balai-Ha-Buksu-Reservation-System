@@ -45,11 +45,11 @@ function Login() {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // if (!isCaptchaVerified) {
-        //     setErrorMessage("Please complete the CAPTCHA verification.");
-        //     setIsSubmitting(false);
-        //     return;
-        // }
+        if (!isCaptchaVerified) {
+            setErrorMessage("Please complete the CAPTCHA verification.");
+            setIsSubmitting(false);
+            return;
+        }
 
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph.');
