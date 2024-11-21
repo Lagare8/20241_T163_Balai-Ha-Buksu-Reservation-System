@@ -129,7 +129,7 @@ const getUserBookingHistory = async (req, res) => {
         // Format the booking history
         const formattedHistory = reservations.map(reservation => {
             let details = {
-                name: userId,  // Or you could map this to the user's name if needed
+                name: reservation._id,  // Or you could map this to the user's name if needed
                 reservationType: reservation.reserveType,  // Using reserveType instead of type
                 date: reservation.date,
                 status: reservation.status,
@@ -156,28 +156,23 @@ const getUserBookingHistory = async (req, res) => {
 const checkAvailability = async (req, res) => {
     const { reserveType, reserve, date } = req.query;
     
-    // Validate required parameters
     if (!reserveType || !reserve || !date) {
         return res.status(400).json({ message: 'Missing required parameters' });
     }
 
-    // Validate the date format
     const parsedDate = new Date(date);
     if (isNaN(parsedDate)) {
         return res.status(400).json({ message: 'Invalid date format' });
     }
 
-    // Ensure reserve is a valid room number (parse it as integer)
     const roomNumber = parseInt(reserve);
     if (isNaN(roomNumber)) {
         return res.status(400).json({ message: 'Invalid room number' });
     }
 
-    // Build the query
     try {
         let query = { date: parsedDate };
 
-        // Check reservation type and handle accordingly
         if (reserveType === 'Room') {
             query.reserveType = 'Room';
             query['reservationDetails.roomNumber'] = roomNumber;  // Query for specific room
@@ -185,10 +180,8 @@ const checkAvailability = async (req, res) => {
             return res.status(400).json({ message: 'Invalid reservation type' });
         }
 
-        // Check if reservation exists for the given room and date
         const reservationExists = await Reservation.findOne(query);
 
-        // Return availability status (true = available, false = occupied)
         res.status(200).json({ available: !reservationExists });
     } catch (error) {
         console.error("Error checking availability", error);
@@ -198,20 +191,23 @@ const checkAvailability = async (req, res) => {
 
 
 const cancelReservation = async (req, res) => {
-    const { id } = req.params;
+    const reservationId = req.params.id; // Get the reservation ID from the URL parameter
 
-    try{
-        const reservation = await Reservation.findByIdandDelete(id);
+    try {
 
-        if (!reservation){
-            return res.status(404).json({message: 'Reservation not found'});
+        const reservation = await Reservation.findByIdAndDelete(reservationId);
+
+        if (!reservation) {
+            return res.status(404).json({ message: 'Reservation not found' });
         }
-        res.status(200).json({message: 'Reservation canceled successfully!'});
-    }catch(error){
+
+        res.status(200).json({ message: 'Reservation canceled successfully!' });
+    } catch (error) {
         console.error('Error canceling reservation: ', error);
-        res.status(500).json({message: 'Failed to cancel reservation'});
+        res.status(500).json({ message: 'Failed to cancel reservation' });
     }
-}
+};
+
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;

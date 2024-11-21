@@ -75,6 +75,8 @@ const UserBookings = () => {
         console.log("Bookings state updated:", bookings);
     }, [bookings]);
 
+    
+
     const renderContent = () => {
         console.log(bookings); 
         switch (activeTab) {
@@ -102,8 +104,26 @@ const UserBookings = () => {
                                     selector: row => row.status || "No Status", // Fallback in case status is missing
                                     sortable: true,
                                 },
+                                {
+                                    name: 'Action',
+                                    cell: row => (
+                                        <div>
+                                            <button
+                                                onClick={() => {
+                                                    console.log("Row data:", row); // Debug the row object
+                                                    if (window.confirm("Are you sure you want to cancel?")) {
+                                                        handleCancelBooking(row);
+                                                    }
+                                                }}
+                                                className="btn btn-warning btn-sm me-2"
+                                            >
+                                                <FontAwesomeIcon icon={faX} />
+                                            </button>
+                                        </div>
+                                    )
+                                }
                             ]}
-                            data={bookings.filter(booking => booking.status === 'pending' || booking.status === undefined)}
+                            data={bookings.filter(booking => booking.status === 'pending' )}
                             noDataComponent="No pending bookings found"
                             pagination
                             highlightOnHover
@@ -154,25 +174,50 @@ const UserBookings = () => {
     };
 
     const handleCancelBooking = async (reservation) => {
-        console.log("Canceling reservation", reservation);
-        try{
-            console.log("Sending request to cancel booking with ID:", reservation._id); 
-            const response = await fetch(`http://localhost:5000/employee/reserve/cancel/${reservation._id}`, {
+        console.log("Reservation Object:", reservation);
+    
+        // Check if the reservation ID is correctly defined
+        const reservationId = reservation._id || reservation.name; // Fallback to `name` if `_id` is missing
+        if (!reservationId) {
+            console.error("Reservation ID is missing.");
+            return;
+        }
+    
+        console.log("Reservation ID:", reservationId);
+    
+        const token = localStorage.getItem("token");
+    
+        if (!token) {
+            alert("You must be logged in to cancel a reservation.");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`http://localhost:5000/api/user/cancel/reservations/${reservationId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
             });
-            if (!response.ok){
-                setBookings((prevBookings) => prevBookings.filter(booking => booking._id !== reservation._id));
-                console.log("Booking Cancelled Successfully");
-                } else {
-                    console.error("Error cancelling booking: ", response.statusText);
-                }
-            }catch(error ){
-                console.error("Error Canceling bookings", error);
+    
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error ${response.status}: ${errorText}`);
             }
+    
+            const data = await response.json();
+            alert(data.message);
+    
+            // Update state to remove canceled booking
+            setBookings(prevBookings =>
+                prevBookings.filter(booking => booking._id !== reservationId && booking.name !== reservationId)
+            );
+        } catch (error) {
+            console.error("Error canceling reservation:", error.message);
         }
+    };
+    
+    
     return (
         <div>
             {/* Navbar */}
