@@ -302,4 +302,5 @@ const changePassword = async (req, res) => {
         res.status(500).json({message: 'Error updating password'});
     }
 }
+
 export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile, changePassword}

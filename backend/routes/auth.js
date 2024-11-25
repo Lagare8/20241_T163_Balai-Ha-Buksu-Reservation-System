@@ -33,25 +33,30 @@ router.post('/signup', async (req, res) => {
     } else if (userType === 'Admin') {
         existingUser = await Admin.findOne({ email: normalizedEmail });
     }
-
+    
     if (existingUser) {
         return res.status(400).json({ message: 'User already exists!' });
     }
-
+    
+    console.log('Password before hashing:', password);
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Hashed password:', hashedPassword);
 
     let newUser;
     if (userType === 'User') {
-        newUser = new User({ username, email: normalizedEmail, password: hashedPassword });
+        newUser = new User({ username, email: normalizedEmail, password: password });
     } else if (userType === 'Employee') {
-        newUser = new Employee({ username, email: normalizedEmail, password: hashedPassword });
+        newUser = new Employee({ username, email: normalizedEmail, password: password });
     } else if (userType === 'Admin') {
-        newUser = new Admin({ username, email: normalizedEmail, password: hashedPassword });
+        newUser = new Admin({ username, email: normalizedEmail, password: password });
     }
 
     await newUser.save();
+    const savedUser = await User.findById(newUser._id);
+    console.log('Saved password in DB:', savedUser.password);
 
     const token = generateToken(newUser);
+    console.log('Final user object before saving:', newUser);
     res.status(201).json({ message: 'Signup successful', token, userType: newUser.constructor.modelName });
 });
 
@@ -59,12 +64,13 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-    console.log('Password from client:', `"${password}"`);
+    console.log('Password from client:', `${password}`);
     console.log('Password length:', password.length);
 
     const user = await User.findOne({ email: email.trim().toLowerCase() })
         || await Employee.findOne({ email: email.trim().toLowerCase() })
         || await Admin.findOne({ email: email.trim().toLowerCase() });
+        console.log('Retrieved user:', user);
 
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
@@ -75,6 +81,8 @@ router.post('/login', async (req, res) => {
     try {
         const match = await bcrypt.compare(password, user.password);
         console.log('Password comparison result:', match);
+        console.log('Password entered:', password);
+        console.log('Stored hashed password:', user.password);
 
         if (!match) {
             return res.status(400).json({ message: 'Invalid credentials' });
@@ -89,7 +97,6 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 router.post('/forgotPassword', async (req, res) => {
     const {email} = req.body;

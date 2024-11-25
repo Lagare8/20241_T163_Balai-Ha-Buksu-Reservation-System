@@ -7,30 +7,34 @@ import Notification from '../models/users/Notification.js';
 const postEmployee = async (req, res) => {
     try {
         const { username, email } = req.body;
+        console.log("Request Body:", req.body);
 
         if (!username || !email) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
         const generatedPassword = Math.random().toString(36).slice(-8);  // Ensure password is generated
-
-        const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+        console.log("generated raw password", generatedPassword)
 
         const newEmployee = new Employee({
             username,
             email,
-            password: hashedPassword
+            password: generatedPassword,
         });
 
         await newEmployee.save();
 
-        res.status(201).json({ message: 'Employee added successfully', employee: newEmployee });
+        // Return the new employee and generated password
+        res.status(201).json({ 
+            message: 'Employee added successfully', 
+            employee: newEmployee, 
+            generatedPassword 
+        });
     } catch (error) {
         console.error("Error adding employee:", error);  // Log the error for debugging
         res.status(400).json({ message: "Error adding employee", error: error.message || error });
     }
 };
-
 
 const sendEmail = async (req, res) => {
     const {email, password} = req.body;
@@ -38,12 +42,12 @@ const sendEmail = async (req, res) => {
     const transporter = nodeMailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'hotel1673@gmail.com',
-            pass: 'xnmm ymtb wgss unip',
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
         }
     });
     const mailOptions = {
-        from: 'hotel1673@gmail.com',
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Your account Password',
         text: `Your account has been created. Your password is ${password}`
@@ -57,7 +61,6 @@ const sendEmail = async (req, res) => {
         console.log("Email sent: ", info); // Log the info
         res.status(200).send("Email sent");
     });
-
 }   
 
 

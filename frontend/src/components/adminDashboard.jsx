@@ -51,46 +51,44 @@ const AdminDashboard = () => {
         e.preventDefault();
         console.log("Form submitted");
     
-        const generatedPassword = Math.random().toString(36).slice(-8); // Generated password
-    
-        const newEmployeeData = {
-            ...newEmployee,
-            password: generatedPassword // Add the generated password
-        };
-    
         try {
+            // Send the request to create a new employee
             const response = await fetch("http://localhost:5000/api/admin/employees", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newEmployee), // Send the username and email only
+                body: JSON.stringify(newEmployee), // Send username and email only
             });
     
             if (response.ok) {
+                // Get the backend response
+                const data = await response.json();
+                console.log("Backend response:", data);
+    
+                // Send the email with the generated password
                 await fetch('http://localhost:5000/api/admin/employees/send-email', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         email: newEmployee.email,
-                        password: generatedPassword  // Send the generated password
-                    })
+                        password: data.generatedPassword, // Use the password from the backend
+                    }),
                 });
     
-                setEmployees((prevEmployees) => [...prevEmployees, newEmployeeData]);
+                // Update the employees list with the new employee data
+                setEmployees((prevEmployees) => [...prevEmployees, { ...newEmployee, password: data.generatedPassword }]);
                 alert("Employee added and email sent");
                 toggleModal();
             } else {
                 alert("Failed to add employee");
             }
-    
         } catch (error) {
             console.error("Error adding employee:", error);
         }
     };
-    
 
     useEffect(() => {
         fetchEmployees()

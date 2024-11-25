@@ -13,8 +13,10 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving to database
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next(); // Only hash the password if it's new or modified
-    this.password = await bcrypt.hash(this.password, 10); // 10 is the salt rounds
+    if (!this.isModified('password')) return next(); // Skip hashing if not modified
+    console.log('Password before middleware hashing:', this.password);
+    this.password = await bcrypt.hash(this.password, 10);
+    console.log('Password after middleware hashing:', this.password);
     next();
 });
 
