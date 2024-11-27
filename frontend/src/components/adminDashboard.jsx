@@ -4,6 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUsers, faCalendarAlt, faX, faCheck, faCalendarCheck, faHistory,faUserCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import DataTable from 'react-data-table-component';
 import { Link, useNavigate } from 'react-router-dom';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('confirmed');
     const [showModal, setShowModal] = useState(false);
@@ -21,6 +24,53 @@ const AdminDashboard = () => {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [viewModal, setViewModal] = useState(false);
 
+    const generatedDate = new Date();
+    const formattedDate = generatedDate.toLocaleString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    });
+
+    const generatePDFReport = (data, type) => {
+        const doc = new jsPDF();
+    
+        // Add Title
+        doc.setFontSize(18);
+        doc.text(`${type} Report`, 14, 22);
+    
+        // Add Date of Generation
+        const generatedDate = new Date();
+        const formattedDate = generatedDate.toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+        });
+        doc.setFontSize(10);
+        doc.text(`Generated on: ${formattedDate}`, 14, 30);
+    
+        // Prepare table headers and data
+        const tableColumn = ["Name", "Type", "Date", "Status"];
+        const tableRows = data.map((item) => [
+            item.userId.username,
+            item.reserveType,
+            formatDate(item.date),
+            item.status.toUpperCase(),
+        ]);
+    
+        // Add Table to PDF
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 40,
+        });
+    
+        // Save PDF
+        doc.save(`${type.replace(" ", "_").toLowerCase()}_report.pdf`);
+    };
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -243,47 +293,58 @@ const AdminDashboard = () => {
                         />
                     </div>
                 );
-            case 'confirmed':
-                return (
-                    <div style={contentCardStyle}>
-                        <h3>Confirmed Bookings</h3>
-                        <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
-                        </div>
-                        <DataTable
-                            columns={[
-                                {
-                                    name: 'Name',
-                                    selector: row => row.userId.username,
-                                    sortable: true,
-                                },
-                                {
-                                    name: 'Type',
-                                    selector: row => row.reserveType,
-                                    sortable: true,
-                                },
-                                {
-                                    name: 'Date',
-                                    selector: row => formatDate(row.date),
-                                    sortable: true,
-                                },
-                                {
-                                    name: 'Status',
-                                    cell: row => (
-                                        <div>
-                                            CONFIRMED
-                                        </div>
-                                    ),
-                                    button: true,  // Makes the column button-style
+                case "confirmed":
+                    return (
+                        <div style={contentCardStyle}>
+                            <h3>Confirmed Bookings</h3>
+                            <button
+                                className="btn btn-danger mb-3"
+                                onClick={() =>
+                                    generatePDFReport(
+                                        bookings.filter((booking) => booking.status === "confirmed"),
+                                        "Confirmed Bookings"
+                                    )
                                 }
-                            ]}
-                            data={bookings.filter(booking => booking.status === 'confirmed')}
-                            pagination
-                            highlightOnHover
-                            responsive
-                        />
-                    </div>
-                );
+                            >
+                                Generate Report
+                            </button>
+                            <div className="text-end">
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    style={{ borderRadius: "5px", marginBottom: "5px" }}
+                                />
+                            </div>
+                            <DataTable
+                                columns={[
+                                    {
+                                        name: "Name",
+                                        selector: (row) => row.userId.username,
+                                        sortable: true,
+                                    },
+                                    {
+                                        name: "Type",
+                                        selector: (row) => row.reserveType,
+                                        sortable: true,
+                                    },
+                                    {
+                                        name: "Date",
+                                        selector: (row) => formatDate(row.date),
+                                        sortable: true,
+                                    },
+                                    {
+                                        name: "Status",
+                                        cell: () => <div>CONFIRMED</div>,
+                                        button: true,
+                                    },
+                                ]}
+                                data={bookings.filter((booking) => booking.status === "confirmed")}
+                                pagination
+                                highlightOnHover
+                                responsive
+                            />
+                        </div>
+                    );
                 break;
             case 'history':
                 return (
