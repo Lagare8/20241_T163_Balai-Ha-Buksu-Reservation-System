@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 const employeeSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    address: String,
+    city: String,
+    country: String,
+    cellphone: String,
 });
 
 const Employee = mongoose.models.Employee || mongoose.model('Employee', employeeSchema);

@@ -532,12 +532,12 @@ const AdminDashboard = () => {
                                 <div className="modal-body">
                                 <form onSubmit={handleSubmit}>
                                         <div className="form-group">
-                                            <label htmlFor="inputName">Username</label>
+                                            <label htmlFor="inputName">Full Name</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
                                                 id="name"
-                                                placeholder="Username"
+                                                placeholder="Full Name"
                                                 name="username"
                                                 value={newEmployee.username}
                                                 onChange={handleInputChange}

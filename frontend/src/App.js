@@ -25,6 +25,7 @@ import ProtectedRoute from './components/protectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import Unauthorized from './components/Unauthorized';
 import UserProfile from './components/userProfile';
+import EmployeeProfile from './components/employeeProfile';
 
 function App() {
   return (
@@ -49,7 +50,7 @@ function App() {
             <Route path="/Empfunction-hall" element={<ProtectedRoute allowedRoles={['employee']}><EmpFunctionHall /></ProtectedRoute>} />
             <Route path="/Empfood-catering" element={<ProtectedRoute allowedRoles={['employee']}><EmpFoodcatering /></ProtectedRoute>} />
             <Route path="/employeeBookings" element={<ProtectedRoute allowedRoles={['employee']}><EmployeeBookings /></ProtectedRoute>} />
-
+            <Route path="/employeeProfile" element={<ProtectedRoute allowedRoles={['employee']}><EmployeeProfile /></ProtectedRoute>} />
             {/* Admin Routes */}
             <Route path="/adminDashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/adminBookings" element={<ProtectedRoute allowedRoles={['admin']}><AdminBookings /></ProtectedRoute>} />

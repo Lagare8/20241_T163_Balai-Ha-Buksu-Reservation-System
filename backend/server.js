@@ -4,6 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
 import userRoutes from './routes/user-manager/userReservation.js'; // Ensure this is correctly imported
+import employeeRoutes from './routes/employee-manager/reservation.js';
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,7 @@ mongoose.connect(process.env.MONGO_CONNECT)
 app.use('/api/auth', authRouter);
 // Use the user routes
 app.use('/api/user', userRoutes);  // Correct route for user
+app.use('/api/employee', employeeRoutes);
 
 // Admin routes
 import employeesRouter from './routes/admin-manager/employees.js';

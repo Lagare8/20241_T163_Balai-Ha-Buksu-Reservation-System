@@ -172,8 +172,8 @@ router.post('/resetPassword/:token', async (req, res) => {
         }
 
         // Hash the new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
+        user.password = newPassword;
+        
         await user.save();
 
         // Generate a new JWT token after password change

@@ -106,7 +106,7 @@ function EmpDashboard() {
                                 {showProfile && (
                                     <div className="profile-dropdown">
                                         <ul className="list-group">
-                                            <li className="list-group-item">Profile Info</li>
+                                            <Link className="list-group-item" to="/employeeProfile">Profile Info</Link>
                                             <li className="list-group-item">Settings</li>
                                             <li>
                                             <Link className="list-group-item" to="/">Logout</Link>

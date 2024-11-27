@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     address: String,
     city: String,
     country: String,
+    cellphone: String,
 }, { timestamps: true });
 
 // Hash password before saving to database
