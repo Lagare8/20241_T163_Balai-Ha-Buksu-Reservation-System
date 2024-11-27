@@ -183,7 +183,21 @@ const deleteEmployee = async (req, res) => {
 }
 
 const getEmployeeById = async (req, res) => {
+    try{
+        const {id} = req.params;
 
+        const employee = await Employee.findById(id).select('-password');
+
+        if(!employee){
+            return res.status(404).json({message: 'Employee not found'});
+        }
+
+        res.status(200).json(employee);
+
+    }catch(error){
+        console.error('Error fetching employee by ID: ', error);
+        res.status(500).json({message:'Server error'});
+    }
 }
 
 const getRooms =async (req,res) => {

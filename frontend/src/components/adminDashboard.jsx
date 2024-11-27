@@ -18,6 +18,9 @@ const AdminDashboard = () => {
     const [showProfile, setShowProfile] = useState(false);
     const navigate = useNavigate(); // Initialize useNavigate
     const [bookings, setBookings] = useState([]);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [viewModal, setViewModal] = useState(false);
+
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -160,7 +163,7 @@ const AdminDashboard = () => {
                                 },
                                 {
                                     name: 'Action',
-                                    cell: row => (
+                                    cell: (row) => (
                                         <div>
                                             <button
                                                 onClick={() => handleViewEmployee(row)}
@@ -170,7 +173,7 @@ const AdminDashboard = () => {
                                             </button>
                                         </div>
                                     ),
-                                    button: true,  // Makes the column button-style
+                                    button: true, // Makes the column button-style
                                 }
                             ]}
                             data={employees}
@@ -329,10 +332,21 @@ const AdminDashboard = () => {
         }
     };
     
-    // Edit employee handler
-    const handleViewEmployee = (employee) => {
-        // Set the employee details in the modal or a dedicated area for viewing
-        
+    const handleViewEmployee = async (employee) => {
+        console.log("View button clicked for:", employee);
+        try {
+            const response = await fetch(`http://localhost:5000/api/admin/employees/${employee._id}`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Fetched Employee Data:", data);
+                setSelectedEmployee(data); // Update state with the fetched employee data
+                setViewModal(true); // Open the modal
+            } else {
+                console.error('Error fetching employee details');
+            }
+        } catch (error) {
+            console.error('Error fetching employee details', error);
+        }
     };
 
     const handleConfirmBooking = async (reservation) => {
@@ -564,6 +578,31 @@ const AdminDashboard = () => {
                                             <button type="submit" className="btn btn-primary">Add Employee</button>
                                         </div>
                                     </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {viewModal && selectedEmployee && (
+                    <div className={`modal ${viewModal ? 'fade show' : ''}`} style={{ display: viewModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Employee Details</h5>
+                                    <button type="button" className="btn-close" onClick={() => setViewModal(false)}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p><strong>Full Name:</strong> {selectedEmployee.username}</p>
+                                    <p><strong>Email:</strong> {selectedEmployee.email}</p>
+                                    <p><strong>Address:</strong> {selectedEmployee.address}</p>
+                                    <p><strong>City:</strong> {selectedEmployee.city}</p>
+                                    <p><strong>Country:</strong> {selectedEmployee.country}</p>
+                                    <p><strong>Cellphone:</strong> {selectedEmployee.cellphone}</p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" onClick={() => setViewModal(false)}>
+                                        Close
+                                    </button>
                                 </div>
                             </div>
                         </div>
