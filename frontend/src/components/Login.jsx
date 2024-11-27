@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../index.css';
 import ReCAPTCHA from "react-google-recaptcha";
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
 function Login() {
     const [userType, setUserType] = useState('User');
@@ -115,9 +116,8 @@ function Login() {
     const handleForgotPassword = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setErrorMessage(''); // Clear any previous error message on submit
-    
-        // Validate email format
+        setErrorMessage('');
+
         if (!validateEmail(email)) {
             setErrorMessage('Please enter a valid institutional email address ending with @buksu.edu.ph');
             setIsSubmitting(false);
@@ -126,10 +126,8 @@ function Login() {
     
         try {
             const response = await axios.post('http://localhost:5000/api/auth/forgotPassword', { email });
-            // If the response is successful, you can also show a specific success message
             setErrorMessage(response.data.message || 'Check your email for a password reset link');
         } catch (error) {
-            // Handle different error responses
             if (error.response) {
                 setErrorMessage(error.response?.data?.message || 'Password reset failed');
             } else {
@@ -139,140 +137,169 @@ function Login() {
             setIsSubmitting(false);
         }
     };
-    
+
+    const mapContainerStyle = {
+        width: "100%",
+        height: "400px",
+    };
+
+    const center = {
+        lat: 8.0606,
+        lng: 125.1342,
+    };
 
     return (
-        <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg d-flex">
-                <div className="p-4 bg-light rounded-left" style={{ maxWidth: '500px' }}>
-                    <img
-                        src="/assets/Shield_logo_of_Bukidnon_State_University.png"
-                        alt="BUKSU Logo"
-                        className="mb-3"
-                        style={{ maxHeight: '150px', marginLeft: '110px', marginTop: '40px' }}
-                    />
-                    <h2 className="text-center mb-3">Welcome to BUKSU Hotel</h2>
+        <>
+            <div className="d-flex align-items-center justify-content-center min-vh-100 bg-dark bg-opacity-50">
+                <div className="bg-white rounded-lg shadow-lg d-flex">
+                    <div className="p-4 bg-light rounded-left" style={{ maxWidth: '500px' }}>
+                        <img
+                            src="/assets/Shield_logo_of_Bukidnon_State_University.png"
+                            alt="BUKSU Logo"
+                            className="mb-3"
+                            style={{ maxHeight: '150px', marginLeft: '110px', marginTop: '40px' }}
+                        />
+                        <h2 className="text-center mb-3">Welcome to BUKSU Hotel</h2>
 
-                    {isForgotPassword ? (
-                        <form onSubmit={handleForgotPassword}>
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="form-control mb-3"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                            <button className="btn btn-primary mb-3" type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? 'Sending...' : 'Send Reset Link'}
-                            </button>
-                        </form>
-                    ) : isSignup ? (
-                        <form onSubmit={handleSignupSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Username"
-                                className="form-control mb-3"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                className="form-control mb-3"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className="form-control mb-3"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <input
-                                type="password"
-                                placeholder="Confirm Password"
-                                className="form-control mb-3"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
-                            <button className="btn btn-primary mb-3" type="submit">
-                                Sign Up
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleLoginSubmit}>
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                className="form-control mb-3"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className="form-control mb-3"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                            <ReCAPTCHA
-                                sitekey="6LcwhXkqAAAAAAjVneJCT6pcdpIZ1OlQpQ_scY8g"
-                                onChange={onChange}
-                                required
-                            />
-                            <button className="btn btn-primary mb-3" type="submit">
-                                Log In
-                            </button>
-                        </form>
-                    )}
+                        {isForgotPassword ? (
+                            <form onSubmit={handleForgotPassword}>
+                                <input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    className="form-control mb-3"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                                <button className="btn btn-primary mb-3" type="submit" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+                                </button>
+                            </form>
+                        ) : isSignup ? (
+                            <form onSubmit={handleSignupSubmit}>
+                                <input
+                                    type="text"
+                                    placeholder="Username"
+                                    className="form-control mb-3"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    className="form-control mb-3"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="form-control mb-3"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Confirm Password"
+                                    className="form-control mb-3"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                                <button className="btn btn-primary mb-3" type="submit">
+                                    Sign Up
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleLoginSubmit}>
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    className="form-control mb-3"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="form-control mb-3"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <ReCAPTCHA
+                                    sitekey="6LcwhXkqAAAAAAjVneJCT6pcdpIZ1OlQpQ_scY8g"
+                                    onChange={onChange}
+                                    required
+                                />
+                                <button className="btn btn-primary mb-3" type="submit">
+                                    Log In
+                                </button>
+                            </form>
+                        )}
 
-                    {errorMessage && (
-                        <div className="alert alert-danger mt-3">
-                            {errorMessage}
+                        {errorMessage && (
+                            <div className="alert alert-danger mt-3">
+                                {errorMessage}
+                            </div>
+                        )}
+
+                        <p className="text-center mb-3">Or sign in with</p>
+                        <GoogleLogin
+                            onSuccess={handleLoginSuccess}
+                            onError={handleLoginError}
+                        />
+
+                        <div className="text-center mt-3">
+                            <button
+                                className="btn btn-link"
+                                onClick={() => setIsSignup(!isSignup)}
+                            >
+                                {isSignup ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
+                            </button>
+                            <button
+                                className="btn btn-link"
+                                onClick={() => setIsForgotPassword(!isForgotPassword)}
+                            >
+                                Forgot Password?
+                            </button>
                         </div>
-                    )}
-
-                    <p className="text-center mb-3">Or sign in with</p>
-                    <GoogleLogin
-                        onSuccess={handleLoginSuccess}
-                        onError={handleLoginError}
-                    />
-
-                    <div className="text-center mt-3">
-                        <button
-                            className="btn btn-link"
-                            onClick={() => setIsSignup(!isSignup)}
-                        >
-                            {isSignup ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
-                        </button>
-                        <button
-                            className="btn btn-link"
-                            onClick={() => setIsForgotPassword(!isForgotPassword)}
-                        >
-                            Forgot Password?
-                        </button>
                     </div>
-                </div>
 
-                <div className="p-4 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
-                    <div className="text-center">
-                    <img
-                        src="/assets/lgo.png"
-                        alt="BUKSU Hotel Logo"
-                        className="mb-3"
-                        style={{
-                            maxWidth: '100%',
-                            height: 'auto',
-                        }}
-                    />
+                    <div className="p-4 d-flex align-items-center justify-content-center" style={{ maxWidth: '500px' }}>
+                        <div className="text-center">
+                            <img
+                                src="/assets/lgo.png"
+                                alt="BUKSU Hotel Logo"
+                                className="mb-3"
+                                style={{
+                                    maxWidth: '100%',
+                                    height: 'auto',
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Google Maps Section */}
+            <div className="bg-light py-5">
+                <div className="container text-center">
+                    <h4 className="mb-4">Visit Us</h4>
+                    <div style={{ width: '100%', height: '400px', margin: 'auto' }}>
+                        <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+                            <GoogleMap
+                                mapContainerStyle={mapContainerStyle}
+                                center={center}
+                                zoom={15}
+                            >
+                                <Marker position={center} />
+                            </GoogleMap>
+                        </LoadScript>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 }
 

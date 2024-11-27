@@ -319,7 +319,7 @@ const AdminDashboard = () => {
                                 columns={[
                                     {
                                         name: "Name",
-                                        selector: (row) => row.userId.username,
+                                        selector: (row) => (row.userId && row.userId.username ? row.userId.username : 'No User Assigned'),
                                         sortable: true,
                                     },
                                     {
