@@ -28,7 +28,7 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 oauth2Client.setCredentials({
-    refresh_token: '1//04zrIiAkWNOrbCgYIARAAGAQSNwF-L9Ir7-rzhPW9Ao03DO_62wtWaLicinB68KlEQuboO_EeiPO6HLLgGW5KlU3TUYKt-0DJKd8',
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
 });
 console.log('OAuth2 Client:', {
     clientId: process.env.GOOGLE_CLIENT_ID,
