@@ -26,7 +26,8 @@ const UserProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const [profilePicture, setProfilePicture] = useState(null);
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -41,7 +42,6 @@ const UserProfile = () => {
         }
 
         const data = await response.json();
-        console.log('Fetched user profile:', data);
         setUser(data);
 
       } catch (error) {
@@ -118,6 +118,57 @@ const UserProfile = () => {
       alert(err.message);
     }
   }
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicture(file);
+    }
+  };
+
+  const uploadProfilePicture = async () => {
+    if (!profilePicture) {
+      alert("Please select a picture to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', profilePicture);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/user/upload-profile-picture', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload profile picture');
+      }
+      
+      const { link } = await response.json();
+      setUser((prevUser) => ({
+        ...prevUser,
+        profilePicture: link,
+      }));
+      alert('Profile picture updated successfully');
+      console.log(user.profilePicture);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  if (!user) {
+    return <div>User profile not found.</div>;
+  }
+  const profilePictureUrl = user.profilePicture
+  ? `https://drive.google.com/thumbnail?id=${user.profilePicture.split('=')[1]}`
+  : '/assets/default-profile.jpg';
   
   return (
     <div>
@@ -194,7 +245,6 @@ const UserProfile = () => {
               </Card.Header>
               <Card.Body>
                 {activeTab === "view" ? (
-                  // Profile View Tab
                   <div>
                     <Row>
                       <Col md="6">
@@ -207,24 +257,10 @@ const UserProfile = () => {
                         <p><strong>Country:</strong> {user.country}</p>
                       </Col>
                     </Row>
-                    <Button
-                      onClick={() => setActiveTab("edit")}
-                      className="btn-fill mt-3"
-                      variant="primary"
-                    >
-                      Edit Profile
-                    </Button>
-                    {/* Add Change Password Button */}
-                    <Button
-                      onClick={() => setShowModal(true)}
-                      className="btn-fill mt-3 ms-2"
-                      variant="warning"
-                    >
-                      Change Password
-                    </Button>
+                    <Button onClick={() => setActiveTab("edit")} className="btn-fill mt-3" variant="primary">Edit Profile</Button>
+                    <Button onClick={() => setShowModal(true)} className="btn-fill mt-3 ms-2" variant="warning">Change Password</Button>
                   </div>
                 ) : (
-                  // Edit Profile Tab
                   <Form onSubmit={handleUpdate}>
                     <Row>
                       <Col md="6">
@@ -233,9 +269,7 @@ const UserProfile = () => {
                           <Form.Control
                             type="email"
                             value={user.email}
-                            onChange={(e) =>
-                              setUser((prev) => ({ ...prev, email: e.target.value }))
-                            }
+                            onChange={(e) => setUser((prev) => ({ ...prev, email: e.target.value }))}
                             disabled
                           />
                         </Form.Group>
@@ -246,10 +280,7 @@ const UserProfile = () => {
                           <Form.Control
                             type="text"
                             value={user.username}
-                            onChange={(e) =>
-                              setUser((prev) => ({ ...prev, name: e.target.value }))
-                            }
-                            disabled
+                            onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))}
                           />
                         </Form.Group>
                       </Col>
@@ -261,9 +292,7 @@ const UserProfile = () => {
                           <Form.Control
                             type="text"
                             value={user.address}
-                            onChange={(e) =>
-                              setUser((prev) => ({ ...prev, address: e.target.value }))
-                            }
+                            onChange={(e) => setUser((prev) => ({ ...prev, address: e.target.value }))}
                           />
                         </Form.Group>
                       </Col>
@@ -275,9 +304,7 @@ const UserProfile = () => {
                           <Form.Control
                             type="text"
                             value={user.city}
-                            onChange={(e) =>
-                              setUser((prev) => ({ ...prev, city: e.target.value }))
-                            }
+                            onChange={(e) => setUser((prev) => ({ ...prev, city: e.target.value }))}
                           />
                         </Form.Group>
                       </Col>
@@ -287,63 +314,54 @@ const UserProfile = () => {
                           <Form.Control
                             type="text"
                             value={user.country}
-                            onChange={(e) =>
-                              setUser((prev) => ({ ...prev, country: e.target.value }))
-                            }
+                            onChange={(e) => setUser((prev) => ({ ...prev, country: e.target.value }))}
                           />
                         </Form.Group>
                       </Col>
                     </Row>
-                    <Button
-                      type="submit"
-                      className="btn-fill mt-3"
-                      variant="primary"
-                    >
-                      Save Changes
+                    {/* Profile Picture Upload */}
+                    <Row>
+                      <Col md="12">
+                        <Form.Group>
+                          <label>Profile Picture</label>
+                          <Form.Control
+                            type="file"
+                            onChange={handleProfilePictureChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Button onClick={uploadProfilePicture} className="btn-fill mt-3" variant="info">
+                      Upload Picture
                     </Button>
-                    <Button
-                      onClick={() => setActiveTab("view")}
-                      className="btn-fill mt-3 ms-2"
-                      variant="secondary"
-                    >
-                      Cancel
-                    </Button>
+                    <Button type="submit" className="btn-fill mt-3" variant="primary">Save Changes</Button>
+                    <Button onClick={() => setActiveTab("view")} className="btn-fill mt-3 ms-2" variant="secondary">Cancel</Button>
                   </Form>
                 )}
               </Card.Body>
             </Card>
           </Col>
-          {/* Profile Picture Section */}
+
           <Col md="4">
-            <Card className="card-user">
-              <div className="card-image">
-                <p>IMG</p>
-              </div>
-              <Card.Body>
-                <div className="author">
-                  <p>IMG</p>
-                  <h5 className="title">{user.username}</h5>
-                  <p className="description">{user.email}</p>
-                </div>
-                <p className="description text-center">
-                  "Lamborghini Mercy <br />
-                  Your chick she so thirsty <br />
-                  I'm in that two-seat Lambo"
-                </p>
-              </Card.Body>
-              <hr />
-              <div className="button-container mr-auto ml-auto">
-                <Button className="btn-simple btn-icon" variant="link">
-                  <i className="fab fa-facebook-square"></i>
-                </Button>
-                <Button className="btn-simple btn-icon" variant="link">
-                  <i className="fab fa-twitter"></i>
-                </Button>
-                <Button className="btn-simple btn-icon" variant="link">
-                  <i className="fab fa-google-plus-square"></i>
-                </Button>
-              </div>
-            </Card>
+          <Card className="card-user">
+  <div className="card-image">
+    {user.profilePicture ? (
+      <img
+      src={profilePictureUrl} // Use the formatted URL here
+      alt="Profile Picture"
+      style={{ maxWidth: '100%', borderRadius: '50%' }}
+    />
+    ) : (
+      <p>No profile picture available</p> // Fallback if no profile picture
+    )}
+      </div>
+      <Card.Body>
+        <div className="author">
+          <h5 className="title">{user.username}</h5>
+          <p className="description">{user.email}</p>
+        </div>
+      </Card.Body>
+    </Card>
           </Col>
         </Row>
       </Container>
@@ -364,17 +382,15 @@ const UserProfile = () => {
               />
             </Form.Group>
             <Form.Group>
-                <label>Confirm New Password</label>
-                <Form.Control
-                  type='password'
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
+              <label>Confirm New Password</label>
+              <Form.Control
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </Form.Group>
-            <Button type="submit" className='mt-3' variant="primary">
-                Change Password
-            </Button>
+            <Button type="submit" className="mt-3" variant="primary">Change Password</Button>
           </Form>
         </Modal.Body>
       </Modal>

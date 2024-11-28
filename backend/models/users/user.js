@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     city: String,
     country: String,
     cellphone: String,
+    profilePicture: {type: String},
 }, { timestamps: true });
 
 // Hash password before saving to database

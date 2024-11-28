@@ -4,6 +4,104 @@ import Reservation from "../models/users/Reservation.js";
 import Notification from "../models/users/Notification.js";
 import {User, Employee, Admin} from "../models/users/user.js";
 import bcrypt from 'bcryptjs';
+import { google } from 'googleapis';
+import multer from 'multer';
+import path from 'path';
+import { Readable } from 'stream';
+import dotenv from 'dotenv';
+dotenv.config();
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024, // Limit file size to 5MB
+    },
+    fileFilter: (req, file, cb) => {
+        console.log('Incoming File:', file); // Debug log for file details
+        cb(null, true); // Accept the file
+    },
+});
+
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URL
+);
+
+oauth2Client.setCredentials({
+    refresh_token: '1//04zrIiAkWNOrbCgYIARAAGAQSNwF-L9Ir7-rzhPW9Ao03DO_62wtWaLicinB68KlEQuboO_EeiPO6HLLgGW5KlU3TUYKt-0DJKd8',
+});
+console.log('OAuth2 Client:', {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: process.env.GOOGLE_REDIRECT_URL,
+    refreshToken: oauth2Client.credentials.refresh_token,
+});
+console.log('OAuth2 Client Credentials:', oauth2Client.credentials);
+
+const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
+const bufferToStream = (buffer) => {
+    const readable = new Readable();
+    readable._read = () => {}; // No-op
+    readable.push(buffer);
+    readable.push(null);
+    return readable;
+};
+
+    const uploadProfilePicture = async (req, res) => {
+        try {
+            console.log('Uploaded File:', req.file);
+            if (!req.file) {
+                return res.status(400).json({ message: 'No file uploaded' });
+            }
+
+            // Prepare file metadata
+            const fileMetadata = {
+                name: `${req.userId}_profile_${Date.now()}.png`,
+                parents: [process.env.DRIVE_FOLDER_ID],
+            };
+
+            const media = {
+                mimeType: req.file.mimetype,
+                body: bufferToStream(req.file.buffer),
+            };
+
+            // Upload to Google Drive
+            const response = await drive.files.create({
+                resource: fileMetadata,
+                media: media,
+                fields: 'id, webViewLink',
+            });
+
+            // Set file permissions to be publicly accessible
+        await drive.permissions.create({
+            fileId: response.data.id,
+            requestBody: {
+                role: 'reader',
+                type: 'anyone',
+            },
+        });
+            console.log('Google Drive Response:', response);
+            const pictureLink = `https://drive.google.com/uc?id=${response.data.id}`;
+
+            // Update the user model with the picture URL
+            const user = await User.findByIdAndUpdate(
+                req.userId,
+                { profilePicture: pictureLink }, // Save the Google Drive URL here
+                { new: true }
+            );
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // Respond with the updated user data (including the new profile picture URL)
+            res.status(200).json({ message: 'Profile picture uploaded successfully', user });
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            res.status(500).json({ message: 'Failed to upload profile picture' });
+        }
+    };
 
 const generateToken = (user) => {
     return jwt.sign(
@@ -303,4 +401,4 @@ const changePassword = async (req, res) => {
     }
 }
 
-export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile, changePassword}
+export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile, changePassword, uploadProfilePicture, upload}

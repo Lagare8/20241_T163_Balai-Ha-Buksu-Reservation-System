@@ -8,7 +8,10 @@ import employeeRoutes from './routes/employee-manager/reservation.js';
 dotenv.config();
 
 const app = express();
-
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
+console.log('GOOGLE_REDIRECT_URL:', process.env.GOOGLE_REDIRECT_URL);
+console.log('GOOGLE_REFRESH_TOKEN:', process.env.GOOGLE_REFRESH_TOKEN);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
