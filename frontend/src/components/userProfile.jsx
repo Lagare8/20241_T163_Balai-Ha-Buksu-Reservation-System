@@ -344,16 +344,25 @@ const UserProfile = () => {
 
           <Col md="4">
           <Card className="card-user">
-  <div className="card-image">
-    {user.profilePicture ? (
-      <img
-      src={profilePictureUrl} // Use the formatted URL here
-      alt="Profile Picture"
-      style={{ maxWidth: '100%', borderRadius: '50%' }}
-    />
-    ) : (
-      <p>No profile picture available</p> // Fallback if no profile picture
-    )}
+          <div
+    className="card-image d-flex justify-content-center align-items-center"
+    style={{ height: '200px' }} // Optional: Adjust container height for proper alignment
+      >
+        {user.profilePicture ? (
+          <img
+            src={profilePictureUrl} // Use the formatted URL here
+            alt="Profile Picture"
+            style={{
+              width: '150px', // Adjust the size as needed
+              height: '150px',
+              borderRadius: '50%', // Makes it a perfect circle
+              objectFit: 'cover', // Ensures the image fits well within the circle
+              border: '4px solid #ddd', // Optional: Add a border for aesthetics
+            }}
+          />
+        ) : (
+          <p>No profile picture available</p> // Fallback if no profile picture
+        )}
       </div>
       <Card.Body>
         <div className="author">
