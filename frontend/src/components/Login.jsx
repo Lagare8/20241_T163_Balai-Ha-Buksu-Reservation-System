@@ -144,8 +144,8 @@ function Login() {
     };
 
     const center = {
-        lat: 8.1448,
-        lng: 125.1249,
+        lat: 8.1443,
+        lng: 125.1278,
     };
 
     return (
@@ -287,7 +287,7 @@ function Login() {
                 <div className="container text-center">
                     <h4 className="mb-4">Visit Us</h4>
                     <div style={{ width: '100%', height: '400px', margin: 'auto' }}>
-                        <LoadScript googleMapsApiKey="AIzaSyCkA6ydZJIM3f4cBxIj3rhbRwY849Y8hz0">
+                        <LoadScript googleMapsApiKey={process.env.GOOGLE_MAP}>
                             <GoogleMap
                                 mapContainerStyle={mapContainerStyle}
                                 center={center}
