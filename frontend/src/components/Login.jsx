@@ -144,8 +144,8 @@ function Login() {
     };
 
     const center = {
-        lat: 8.1443,
-        lng: 125.1278,
+        lat: 8.144808798077904, 
+        lng: 125.12494191352911,
     };
 
     return (
@@ -288,13 +288,17 @@ function Login() {
                     <h4 className="mb-4">Visit Us</h4>
                     <div style={{ width: '100%', height: '400px', margin: 'auto' }}>
                         <LoadScript googleMapsApiKey={process.env.GOOGLE_MAP}>
-                            <GoogleMap
-                                mapContainerStyle={mapContainerStyle}
-                                center={center}
-                                zoom={15}
-                            >
-                                <Marker position={center} />
-                            </GoogleMap>
+                        <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={center}
+                        zoom={19} // Set a higher zoom level for close-up view
+                        options={{
+                            disableDefaultUI: true, // Optional: Removes unnecessary UI controls
+                            gestureHandling: "none", // Optional: Disables user zooming and panning
+                        }}
+                    >
+                        <Marker position={center} label="BUKSU Hotel" />
+                    </GoogleMap>
                         </LoadScript>
                     </div>
                 </div>
