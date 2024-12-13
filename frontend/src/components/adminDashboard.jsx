@@ -26,7 +26,8 @@ const AdminDashboard = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [alertMessage, setAlertMessage] = useState(""); // Store the alert message
     const [alertType, setAlertType] = useState(""); 
-    
+    const [searchQuery, setSearchQuery] = useState('');
+
     const generatedDate = new Date();
     const formattedDate = generatedDate.toLocaleString("en-US", {
         month: "long",
@@ -81,6 +82,22 @@ const AdminDashboard = () => {
 
     const toggleProfile = () => {
         setShowProfile(!showProfile);
+    };
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+    
+    const filteredBookings = (status) => {
+        return bookings
+            .filter((booking) => booking.status === status)
+            .filter((booking) => {
+                const search = searchQuery.toLowerCase();
+                return (
+                    booking.userId.username.toLowerCase().includes(search) ||
+                    booking.reserveType.toLowerCase().includes(search) ||
+                    formatDate(booking.date).toLowerCase().includes(search)
+                );
+            });
     };
     useEffect(() => {
                 if (alertMessage) {
@@ -197,6 +214,13 @@ const AdminDashboard = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'employees':
+                const filteredEmployees = employees.filter((employee) => {
+                    const search = searchQuery.toLowerCase();
+                    return (
+                        employee.username.toLowerCase().includes(search) ||
+                        employee.email.toLowerCase().includes(search)
+                    );
+                });
                 return (
                     <div style={contentCardStyle}>
                         <h3>Employees</h3>
@@ -209,7 +233,13 @@ const AdminDashboard = () => {
                         </button>
                         </div>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                            <input
+                                type='text'
+                                placeholder='Search...'
+                                value={searchQuery} // Bind input value to state
+                                onChange={handleSearchChange} // Handle input changes
+                                style={{ borderRadius: '5px', marginBottom: '5px' }}
+                            />
                         </div>
                         <DataTable
                             columns={[
@@ -238,7 +268,7 @@ const AdminDashboard = () => {
                                     button: true, // Makes the column button-style
                                 }
                             ]}
-                            data={employees}
+                            data={filteredEmployees}
                             pagination
                             highlightOnHover
                             responsive
@@ -250,7 +280,13 @@ const AdminDashboard = () => {
                     <div style={contentCardStyle}>
                         <h3>Pending Bookings</h3>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                            <input
+                                type='text'
+                                placeholder='Search...'
+                                value={searchQuery} // Bind input value to state
+                                onChange={handleSearchChange} // Handle input changes
+                                style={{ borderRadius: '5px', marginBottom: '5px' }}
+                            />
                         </div>
                         <DataTable
                             columns={[
@@ -298,7 +334,7 @@ const AdminDashboard = () => {
                                     button: true,  // Makes the column button-style
                                 }
                             ]}
-                            data={bookings.filter((booking) => booking.status === 'pending')}
+                            data={filteredBookings('pending')}
                             pagination
                             highlightOnHover
                             responsive
@@ -320,11 +356,13 @@ const AdminDashboard = () => {
                             >
                                 Generate Report
                             </button>
-                            <div className="text-end">
+                            <div className='text-end'>
                                 <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    style={{ borderRadius: "5px", marginBottom: "5px" }}
+                                    type='text'
+                                    placeholder='Search...'
+                                    value={searchQuery} // Bind input value to state
+                                    onChange={handleSearchChange} // Handle input changes
+                                    style={{ borderRadius: '5px', marginBottom: '5px' }}
                                 />
                             </div>
                             <DataTable
@@ -350,7 +388,7 @@ const AdminDashboard = () => {
                                         button: true,
                                     },
                                 ]}
-                                data={bookings.filter((booking) => booking.status === "confirmed")}
+                                data={filteredBookings('confirmed')}
                                 pagination
                                 highlightOnHover
                                 responsive
