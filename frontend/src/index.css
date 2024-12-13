@@ -1,0 +1,45 @@
+
+body {
+    background-image: url('../public/assets/background.jpg');
+    background-size: cover;
+    background-position: center;
+    font-family: Arial, sans-serif;
+}
+.notification-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    z-index: 1000;
+}
+.notification-dropdown .list-group-item {
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+.notification-dropdown .list-group-item:hover {
+    background-color: #f1f1f1;
+}
+.profile-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    z-index: 1000;
+}
+.profile-dropdown .list-group-item {
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+.profile-dropdown .list-group-item:hover {
+    background-color: #f1f1f1;
+}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 20241_T163_Balai-Ha-Buksu-POS-System
 # Class Code: T163
 # Name of System:
@@ -16,3 +17,6 @@ Carl S. Abellanosa,
 Joshua Z. Adaro, 
 Harmand G. Diolan, 
 Dave M. Lagare
+=======
+# 20241_T163_Balai-Ha-Buksu-Reservation-System
+>>>>>>> INTEGRATION
