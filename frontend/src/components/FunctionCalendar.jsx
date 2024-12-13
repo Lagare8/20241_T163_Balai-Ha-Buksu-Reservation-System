@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -15,6 +15,12 @@ function FunctionHallCalendar() {
     const navigate = useNavigate();
     const { token, setToken, userId, setUserId } = useAuth(); // Get token and userId directly from context
     const calendarRef = useRef(null);
+    const [showProfile, setShowProfile] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");  // For alert message
+    const [alertType, setAlertType] = useState("");  // For alert type (success, danger, etc.)
+    const [isReserving, setIsReserving] = useState(false);
+    const [ notifications, setNotifications] = useState([]);
+    const [ showNotifications, setShowNotifications] = useState(false);
 
     // Set the token when the component mounts or if it's updated
 useEffect(() => {
@@ -36,6 +42,9 @@ useEffect(() => {
     }
 }, [navigate, setToken, setUserId]);  // Make sure setUserId is passed from context
 
+const toggleProfile = () => {
+    setShowProfile(!showProfile);
+};
 
 // Fetch function hall availability when token and userId are set
 useEffect(() => {
@@ -92,7 +101,10 @@ useEffect(() => {
             alert('Missing required data for reservation. Please try again.');
             return;
         }
-        
+        if(isReserving){
+            return;
+        }
+        setIsReserving(true);
         try {
             const formattedDate = new Date(date).toISOString().split('T')[0];
             console.log("Reserving function hall for date:", formattedDate);
@@ -107,10 +119,22 @@ useEffect(() => {
                 }
             );
             console.log('Function hall reserved successfully:', response.data);
-            alert(response.data.message || 'Reservation Successful');
+            setAlertMessage(response.data.message || 'Reservation Successful');
+            setAlertType("success");
+            setTimeout(() => {
+                setAlertMessage(""); // Remove alert after 2 seconds
+                setAlertType(""); // Reset alert type
+            }, 2000);
         } catch (error) {
             console.error('Error reserving function hall:', error.response?.data || error.message);
-            alert('Error reserving function hall');
+            setAlertMessage('Error reserving function hall');
+            setAlertType("danger");
+            setTimeout(() => {
+                setAlertMessage(""); // Remove alert after 2 seconds
+                setAlertType(""); // Reset alert type
+            }, 2000);
+        }finally{
+            setIsReserving(false);
         }
     };
 
@@ -151,7 +175,31 @@ useEffect(() => {
             calendarRef.current.getApi().gotoDate(today); // Set the calendar's date to today dynamically
         }
     }, [today]);
-
+    const fetchNotifications = async () => {
+        try {
+            const token = localStorage.getItem('token'); // Make sure you have a valid token
+            const response = await axios.get('http://localhost:5000/api/user/notifications', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            setNotifications(response.data); // Assuming you're using React's state management
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    };
+    useEffect(() => {
+            fetchNotifications();
+        }, []);
+    const toggleNotifications = () => {
+        setShowNotifications((prevState) => !prevState);
+    }
+    
+    const clearNotifications = () => {
+        setNotifications([]);
+        setShowNotifications(false);
+    }
     return (
         <div
             style={{
@@ -175,19 +223,6 @@ useEffect(() => {
                             style={{ height: "80px", width: "100px" }}
                         />
                     </a>
-                    <form className="form-inline my-2 my-lg-0 ml-auto">
-                        <div className="d-flex align-items-center">
-                            <input
-                                className="form-control mr-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
@@ -211,13 +246,132 @@ useEffect(() => {
                                 </ul>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
-                            </li>
+                                                                                        <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                                                                            <FontAwesomeIcon icon={faUserCircle} />
+                                                                                        </a>
+                                                                                        {showProfile && (
+                                                                                            <div className="profile-dropdown">
+                                                                                                <ul className="list-group">
+                                                                                                    <li className="list-group-item">Profile Info</li>
+                                                                                                    <li className="list-group-item">Settings</li>
+                                                                                                    <li>
+                                                                                                    <Link className="list-group-item" to="/">Logout</Link>
+                                                                                                    </li>
+                                                                                                </ul>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </li>
+                                                        <li className="nav-item"></li>
+                                                        <li className="nav-item">
+                                                        <FontAwesomeIcon 
+                                                            icon={faBell} 
+                                                            size="lg" 
+                                                            style={{color:"white", cursor: "pointer", position: "relative"}} 
+                                                            onClick={toggleNotifications}
+                                                        />
+                                                        {notifications.length > 0 && (
+                                                            <span 
+                                                                style={{
+                                                                    top: "-5px", 
+                                                                    right: "-10px", 
+                                                                    backgroundColor: "red", 
+                                                                    color: "white", 
+                                                                    borderRadius: "50%",
+                                                                    padding: "2px 6px", 
+                                                                    fontSize: "12px",
+                                                                    zIndex: 10
+                                                                }}
+                                                            >
+                                                                {notifications.filter(notification => notification?.status === 'unread').length}
+                                                            </span>
+                                                        )}
+                                                        </li>
                         </ul>
                     </div>
                 </div>
             </nav>
-
+            {/* Bootstrap Alert */}
+            {alertMessage && (
+                <div className={`alert alert-${alertType} alert-dismissible fade show`} role="alert" style={{ position: "fixed", top: "10%", right: "10%", zIndex: 9999 }}>
+                    {alertMessage}
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            )}
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "70px",
+                        right: "20px",
+                        backgroundColor: "white",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                        borderRadius: "5px",
+                        width: "300px",
+                        zIndex: 1000,
+                    }}
+                >
+                    <div
+                        style={{
+                            padding: "10px",
+                            borderBottom: "1px solid #ddd",
+                            fontWeight: "bold",
+                            textAlign: "center",
+                        }}
+                    >
+                        Notifications
+                    </div>
+                    <div
+                        style={{
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                        }}
+                    >
+                    {notifications.length > 0 ? (
+                        notifications.map((notification, index) => {
+                            if (!notification || !notification.message) {
+                                console.error("Invalid notification:", notification);
+                                return null; // Skip rendering this item
+                            }
+                            return (
+                                <div
+                                    key={index}
+                                    style={{
+                                        padding: "10px",
+                                        borderBottom: "1px solid #ddd",
+                                    }}
+                                >
+                                    {notification.message} - {notification.status || "Unread"}
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div
+                            style={{
+                                padding: "10px",
+                                textAlign: "center",
+                                color: "#999",
+                            }}
+                        >
+                            No notifications
+                        </div>
+                    )}
+                    </div>
+                    <div
+                        style={{
+                            padding: "10px",
+                            textAlign: "center",
+                        }}
+                    >
+                        <button
+                            className="btn btn-sm btn-danger"
+                            onClick={clearNotifications}
+                        >
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            )}                                                                            
             <div
                 style={{
                     padding: "20px",

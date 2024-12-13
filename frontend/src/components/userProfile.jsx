@@ -27,7 +27,7 @@ const UserProfile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -97,7 +97,7 @@ const UserProfile = () => {
       alert("Password don't match");
       return;
     }
-
+    setIsSubmitting(true);
     try{
       const response = await fetch('http://localhost:5000/api/user/changepassword', {
         method: 'PUT',
@@ -116,6 +116,8 @@ const UserProfile = () => {
       setShowModal(false);
     }catch(err){
       alert(err.message);
+    }finally{
+      setIsSubmitting(false);
     }
   }
 
@@ -134,7 +136,7 @@ const UserProfile = () => {
 
     const formData = new FormData();
     formData.append('file', profilePicture);
-
+    setIsSubmitting(true);
     try {
       const response = await fetch('http://localhost:5000/api/user/upload-profile-picture', {
         method: 'POST',
@@ -157,6 +159,8 @@ const UserProfile = () => {
       console.log(user.profilePicture);
     } catch (err) {
       alert(err.message);
+    }finally{
+      setIsSubmitting(false);
     }
   };
 
@@ -198,7 +202,6 @@ const UserProfile = () => {
             >
             <span className="navbar-toggler-icon"></span>
             </button>
-            <input type="text"  placeholder="Search...." style={{ borderRadius: '50px', padding: '10px', margin: '5px' }}></input>
             <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
                 <li className="nav-item">
@@ -331,8 +334,12 @@ const UserProfile = () => {
                         </Form.Group>
                       </Col>
                     </Row>
-                    <Button onClick={uploadProfilePicture} className="btn-fill mt-3" variant="info">
-                      Upload Picture
+                    <Button onClick={uploadProfilePicture} className="btn-fill mt-3" variant="info" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <span>Uploading...</span> // Change button text during submission
+                      ) : (
+                        'Upload Picture'
+                      )}
                     </Button>
                     <Button type="submit" className="btn-fill mt-3" variant="primary">Save Changes</Button>
                     <Button onClick={() => setActiveTab("view")} className="btn-fill mt-3 ms-2" variant="secondary">Cancel</Button>
@@ -399,7 +406,12 @@ const UserProfile = () => {
                 required
               />
             </Form.Group>
-            <Button type="submit" className="mt-3" variant="primary">Change Password</Button>
+            <Button type="submit" className="mt-3" variant="primary" disabled={isSubmitting}>{isSubmitting ? (
+          <span>Changing...</span> // Change button text during submission
+        ) : (
+          'Change Password'
+        )}
+        </Button>
           </Form>
         </Modal.Body>
       </Modal>

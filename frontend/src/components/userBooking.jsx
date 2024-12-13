@@ -11,7 +11,11 @@ const UserBookings = () => {
     const toggleModal = () => setShowModal(!showModal);
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+    const [cancelBookingId, setCancelBookingId] = useState(null); // Store the booking to cancel
+    const [alertMessage, setAlertMessage] = useState(""); // Store the alert message
+    const [alertType, setAlertType] = useState(""); 
     const navigate = useNavigate(); // Initialize useNavigate
+    const [search, setSearch] = useState("");
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -76,7 +80,16 @@ const UserBookings = () => {
     
         console.log("Bookings state updated:", bookings);
     }, [bookings]);
+    useEffect(() => {
+        if (alertMessage) {
+            const timer = setTimeout(() => {
+                setAlertMessage(""); // Clear the alert after 2 seconds
+            }, 2000); // 2 seconds delay
     
+            return () => clearTimeout(timer); // Clean up the timeout if the component unmounts or the alert changes
+        }
+    }, [alertMessage]);
+ 
     const renderContent = () => {
         console.log(bookings); 
         switch (activeTab) {
@@ -84,9 +97,7 @@ const UserBookings = () => {
                 return (
                     <div style={contentCardStyle}>
                         <h3>Pending Bookings</h3>
-                        <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
-                        </div>
+                        
                         <DataTable
                             columns={[
                                 {
@@ -135,9 +146,7 @@ const UserBookings = () => {
                 return (
                     <div style={contentCardStyle}>
                         <h3>Booking History</h3>
-                        <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
-                        </div>
+                       
                         <DataTable
                             columns={[
                                 {
@@ -174,21 +183,21 @@ const UserBookings = () => {
     };
 
     const handleCancelBooking = async (reservation) => {
-        console.log("Reservation Object:", reservation);
-    
-        // Check if the reservation ID is correctly defined
+        // Set the booking ID
         const reservationId = reservation._id || reservation.name; // Fallback to `name` if `_id` is missing
         if (!reservationId) {
             console.error("Reservation ID is missing.");
             return;
         }
     
+        console.log("Reservation Object:", reservation);
         console.log("Reservation ID:", reservationId);
     
         const token = localStorage.getItem("token");
     
         if (!token) {
-            alert("You must be logged in to cancel a reservation.");
+            setAlertMessage("You must be logged in to cancel a reservation.");
+            setAlertType("danger");
             return;
         }
     
@@ -206,17 +215,18 @@ const UserBookings = () => {
             }
     
             const data = await response.json();
-            alert(data.message);
+            setAlertMessage(data.message); // Show the message returned from the server
+            setAlertType("success");
     
             // Update state to remove canceled booking
             setBookings(prevBookings =>
                 prevBookings.filter(booking => booking._id !== reservationId && booking.name !== reservationId)
             );
         } catch (error) {
-            console.error("Error canceling reservation:", error.message);
+            setAlertMessage(`Error canceling reservation: ${error.message}`);
+            setAlertType("danger");
         }
     };
-    
     
     return (
         <div>
@@ -246,25 +256,10 @@ const UserBookings = () => {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    
-                    <form className="form-inline my-2 my-lg-0 ml-auto">
-                        <div className="d-flex align-items-center">
-                            <input
-                                className="form-control mr-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
-                    
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <Link className="nav-link" to="/employeeDashboard">Home</Link>
+                                <Link className="nav-link" to="/userDashboard">Home</Link>
                             </li>
                             <li className="nav-item dropdown">
                                 <a
@@ -328,25 +323,16 @@ const UserBookings = () => {
                         History <FontAwesomeIcon icon={faHistory} />
                     </button>
                 </div>
-
+                {/* Bootstrap Alert Message */}
+                {alertMessage && (
+                    <div className={`alert alert-${alertType} mt-3`} role="alert">
+                        {alertMessage}
+                    </div>
+                )}    
                 <div style={contentContainerStyle}>
                     {renderContent()}
                 </div>
-
-                {/* Modal */}
-                {showModal && (
-                    <div className={`modal fade ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title">Add New Employee</h5>
-                                    <button type="button" className="close" onClick={toggleModal}>&times;</button>
-                                </div>
-                               
-                            </div>
-                        </div>
-                    </div>
-                )}
+                            
             </div>
         </div>
     );

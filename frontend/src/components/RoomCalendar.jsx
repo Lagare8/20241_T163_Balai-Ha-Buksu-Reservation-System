@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef  } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import Fullcalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -8,6 +8,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import Rooms from "./Rooms";
 
 function RoomCalendar() {
     const [roomAvailability, setRoomAvailability] = useState({});
@@ -18,7 +19,10 @@ function RoomCalendar() {
     const calendarRef = useRef(null);
     const [ notifications, setNotifications] = useState([]);
     const [ showNotifications, setShowNotifications] = useState(false);
-
+    const [alertMessage, setAlertMessage] = useState("");  // For alert message
+    const [alertType, setAlertType] = useState("");  // For alert type (success, danger, etc.)
+    const [isReserving, setIsReserving] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
     useEffect(() => {
         console.log("Token in RoomsCalendar.jsx:", token);
         // If you need to use the token to fetch data or make requests, do so here
@@ -34,6 +38,10 @@ function RoomCalendar() {
         navigate('/'); // Redirect to login if no token
     }
     }, [navigate, setToken]);
+
+    const toggleProfile = () => {
+        setShowProfile(!showProfile);
+    };
 
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
@@ -73,11 +81,11 @@ function RoomCalendar() {
     };
     
     const handleReserveRoom = async (roomId, date) => {
+        if (isReserving) {
+            return;  // Prevent multiple reservations
+        }
+        setIsReserving(true);
         try {
-            if (!date) {
-                console.error('Date is missing!');
-                return;  // Prevent further execution if date is invalid
-            }
     
             console.log('Reserving room:', roomId, 'on date:', date);  // Verify the date is correct
     
@@ -96,7 +104,12 @@ function RoomCalendar() {
             );
     
             console.log('Room reserved successfully:', response.data);
-            alert(response.data.message || 'Reservation Successful');
+            setAlertMessage(response.data.message || 'Reservation Successful');
+            setAlertType("success");
+            setTimeout(() => {
+                setAlertMessage(""); // Remove alert after 2 seconds
+                setAlertType(""); // Reset alert type
+            }, 2000); 
             //notificaitons
             setNotifications(prev => [
                 ...prev,
@@ -105,6 +118,14 @@ function RoomCalendar() {
             ]);
         } catch (error) {
             console.error('Error reserving room:', error.response?.data || error.message);
+            setAlertMessage('Reservation failed, please try again.');
+            setAlertType("danger");
+            setTimeout(() => {
+                setAlertMessage(""); // Remove alert after 2 seconds
+                setAlertType(""); // Reset alert type
+            }, 2000);
+        } finally {
+            setIsReserving(false);  // Re-enable the reservation button
         }
     };
 
@@ -122,7 +143,7 @@ function RoomCalendar() {
             console.error("Date is missing or invalid!");
             return; // If date is invalid, stop further execution
         }
-    
+        const isPastDate = dateStr < today;
         const roomNumber = 1; // Assuming we're working with room 1 for now (use dynamic logic if needed)
         const availability = roomAvailability[`${roomNumber}-${dateStr}`]; // Check if the room is available
         const isAvailable = availability !== undefined ? availability : true;
@@ -186,7 +207,6 @@ function RoomCalendar() {
         setShowNotifications(false);
     }
     
-    
     return (
         <div
             style={{
@@ -210,19 +230,6 @@ function RoomCalendar() {
                             style={{ height: "80px", width: "100px" }}
                         />
                     </a>
-                    <form className="form-inline my-2 my-lg-0 ml-auto">
-                        <div className="d-flex align-items-center">
-                            <input
-                                className="form-control mr-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
@@ -245,6 +252,22 @@ function RoomCalendar() {
                                     <li><Link className="dropdown-item" to="/catering">Food Catering</Link></li>
                                 </ul>
                             </li>
+                            <li className="nav-item">
+                                                            <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                                                <FontAwesomeIcon icon={faUserCircle} />
+                                                            </a>
+                                                            {showProfile && (
+                                                                <div className="profile-dropdown">
+                                                                    <ul className="list-group">
+                                                                        <li className="list-group-item">Profile Info</li>
+                                                                        <li className="list-group-item">Settings</li>
+                                                                        <li>
+                                                                        <Link className="list-group-item" to="/">Logout</Link>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            )}
+                                                        </li>
                             <li className="nav-item">
                             <FontAwesomeIcon 
                                 icon={faBell} 
@@ -273,8 +296,15 @@ function RoomCalendar() {
                     </div>
                 </div>
             </nav>
-             {/* Notifications Dropdown */}
-             {showNotifications && (
+            {/* Bootstrap Alert */}
+            {alertMessage && (
+                <div className={`alert alert-${alertType} alert-dismissible fade show`} role="alert" style={{ position: "fixed", top: "10%", right: "10%", zIndex: 9999 }}>
+                    {alertMessage}
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            )}
+            {/* Notifications Dropdown */}
+            {showNotifications && (
                 <div
                     style={{
                         position: "absolute",

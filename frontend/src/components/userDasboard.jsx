@@ -57,7 +57,6 @@ import { useAuth } from '../context/AuthContext';
             >
               <span className="navbar-toggler-icon"></span>
             </button>
-            <input type="text"  placeholder="Search...." style={{ borderRadius: '50px', padding: '10px', margin: '5px' }}></input>
             <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav ms-auto">
                 <li className="nav-item">
@@ -103,7 +102,7 @@ import { useAuth } from '../context/AuthContext';
                                         </ul>
                                     </div>
                                 )}
-                            </li>
+                  </li>
               </ul>
             </div>
           </div>
