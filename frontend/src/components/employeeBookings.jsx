@@ -12,6 +12,9 @@ const EmployeeBookings = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const navigate = useNavigate(); // Initialize useNavigate
+    const [alertMessage, setAlertMessage] = useState(""); // Store the alert message
+    const [alertType, setAlertType] = useState(""); 
+    const [searchQuery, setSearchQuery] = useState('');
 
     const toggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -52,7 +55,31 @@ const EmployeeBookings = () => {
     useEffect(() => {
         console.log('Updated bookings:', bookings);
     }, [bookings]);
-
+    useEffect(() => {
+            if (alertMessage) {
+                const timer = setTimeout(() => {
+                    setAlertMessage(""); // Clear the alert after 2 seconds
+                }, 2000); // 2 seconds delay
+        
+                return () => clearTimeout(timer); // Clean up the timeout if the component unmounts or the alert changes
+            }
+        }, [alertMessage]);
+        const handleSearchChange = (event) => {
+            setSearchQuery(event.target.value);
+        };
+        
+        const filteredBookings = (status) => {
+            return bookings
+                .filter((booking) => booking.status === status)
+                .filter((booking) => {
+                    const search = searchQuery.toLowerCase();
+                    return (
+                        booking.userId.username.toLowerCase().includes(search) ||
+                        booking.reserveType.toLowerCase().includes(search) ||
+                        formatDate(booking.date).toLowerCase().includes(search)
+                    );
+                });
+        };
     const renderContent = () => {
         switch (activeTab) {
             case 'bookings':
@@ -60,7 +87,13 @@ const EmployeeBookings = () => {
                     <div style={contentCardStyle}>
                         <h3>Pending Bookings</h3>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        <input
+                            type='text'
+                            placeholder='Search...'
+                            value={searchQuery} // Bind input value to state
+                            onChange={handleSearchChange} // Handle input changes
+                            style={{ borderRadius: '5px', marginBottom: '5px' }}
+                        />
                         </div>
                         <DataTable
                             columns={[
@@ -94,6 +127,7 @@ const EmployeeBookings = () => {
                                                 <FontAwesomeIcon icon={faCheck} />
                                             </button>
                                             <button
+
                                                 onClick={() => {
                                                     if(window.confirm("Are you sure want to cancel this booking?")){
                                                         handleCancelBooking(row);
@@ -108,7 +142,8 @@ const EmployeeBookings = () => {
                                     button: true,  // Makes the column button-style
                                 }
                             ]}
-                            data={bookings.filter((booking) => booking.status === 'pending')}
+                            //data={bookings.filter((booking) => booking.status === 'pending')}
+                            data={filteredBookings('pending')}
                             pagination
                             highlightOnHover
                             responsive
@@ -120,7 +155,13 @@ const EmployeeBookings = () => {
                     <div style={contentCardStyle}>
                         <h3>Confirmed Bookings</h3>
                         <div className='text-end'>
-                            <input type='text' placeholder='Search...' style={{borderRadius: '5px', marginBottom: '5px'}}/>
+                        <input
+                            type='text'
+                            placeholder='Search...'
+                            value={searchQuery} // Bind input value to state
+                            onChange={handleSearchChange} // Handle input changes
+                            style={{ borderRadius: '5px', marginBottom: '5px' }}
+                        />
                         </div>
                         <DataTable
                             columns={[
@@ -149,7 +190,8 @@ const EmployeeBookings = () => {
                                     button: true,  // Makes the column button-style
                                 }
                             ]}
-                            data={bookings.filter(booking => booking.status === 'confirmed')}
+                            //data={bookings.filter(booking => booking.status === 'confirmed')}
+                            data={filteredBookings('confirmed')}
                             pagination
                             highlightOnHover
                             responsive
@@ -204,36 +246,43 @@ const EmployeeBookings = () => {
         }
     };
     const handleConfirmBooking = async (reservation) => {
-        try{
-            const response = await fetch(`http://localhost:5000/employee/reserve/confirm/${reservation._id}`, {
+        try {
+            const response = await fetch(`http://localhost:5000/api/employee/reserve/confirm/${reservation._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({status: 'confirmed'})
+                body: JSON.stringify({ status: 'confirmed' })
             });
-            if (!response.ok){
-                setBookings((prevBookings) => {
-                    const updatedBookings = prevBookings.map((booking) =>
-                        booking._id == reservation._id ? { ...booking, status: 'confirmed'} : booking
-                    );
-                    return updatedBookings;
-                });
-
-                console.log('Booking confirmed successfully!');
+    
+            if (response.ok) {
+                // Update the local state to reflect the confirmation
+                setBookings((prevBookings) =>
+                    prevBookings.map((booking) =>
+                        booking._id === reservation._id
+                            ? { ...booking, status: 'confirmed' }
+                            : booking
+                    )
+                );
+                
+                const data = await response.json();
+                setAlertMessage(data.message);
+                setAlertType("success");
             } else {
-                console.error("Error confirm bookings");
+                console.error("Error confirming booking");
             }
-        }catch(error){
-            console.error("Error confirming bookings", error);
+        } catch (error) {
+            setAlertMessage(`Error confirming reservation: ${error.message}`);
+            setAlertType("danger");
         }
-    }
+    };
 
     const handleCancelBooking = async (reservation) => {
         console.log("Canceling reservation", reservation);
+
         try{
             console.log("Sending request to cancel booking with ID:", reservation._id); 
-            const response = await fetch(`http://localhost:5000/employee/reserve/cancel/${reservation._id}`, {
+            const response = await fetch(`http://localhost:5000/api/employee/reserve/cancel/${reservation._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -245,8 +294,12 @@ const EmployeeBookings = () => {
                 } else {
                     console.error("Error cancelling booking: ", response.statusText);
                 }
+            const data = await response.json();
+            setAlertMessage(data.message);
+            setAlertType("success");
             }catch(error ){
-                console.error("Error Canceling bookings", error);
+                setAlertMessage(`Error canceling reservation: ${error.message}`);
+                setAlertType("danger");
             }
         }
     return (
@@ -277,56 +330,17 @@ const EmployeeBookings = () => {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    
-                    <form className="form-inline my-2 my-lg-0 ml-auto">
-                        <div className="d-flex align-items-center">
-                            <input
-                                className="form-control mr-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
-                    
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
                                 <Link className="nav-link" to="/employeeDashboard">Home</Link>
                             </li>
                             <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-white"
-                                    href="#"
-                                    id="navbarDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Update Offers
-                                </a>
                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><Link className="dropdown-item" to="/Emprooms">Rooms</Link></li>
                                     <li><Link className="dropdown-item" to="/Empfunction-hall">Function Hall</Link></li>
                                     <li><Link className="dropdown-item" to="/Empfood-catering">Food Catering</Link></li>
                                 </ul>
-                            </li>
-                            <li>
-                                <a className="nav-link" href="#" onClick={toggleNotifications}>
-                                    <FontAwesomeIcon icon={faBell} />
-                                </a>
-                                {showNotifications && (
-                                    <div className="notification-dropdown">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">Notification 1</li>
-                                            <li className="list-group-item">Notification 2</li>
-                                            <li className="list-group-item">Notification 3</li>
-                                        </ul>
-                                    </div>
-                                )}
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link text-white" href="#" onClick={toggleProfile}>
@@ -335,7 +349,7 @@ const EmployeeBookings = () => {
                                 {showProfile && (
                                     <div className="profile-dropdown">
                                         <ul className="list-group">
-                                            <li className="list-group-item">Profile Info</li>
+                                            <Link className="list-group-item" to="/employeeProfile">Profile Info</Link>
                                             <li className="list-group-item">Settings</li>
                                             <li>
                                             <Link className="list-group-item" to="/">Logout</Link>
@@ -348,7 +362,7 @@ const EmployeeBookings = () => {
                     </div>
                 </div>
             </nav>
-
+            
           {/* Main Content */}
           <div style={mainContainerStyle}>
                 <div style={buttonContainerStyle}>
@@ -362,7 +376,12 @@ const EmployeeBookings = () => {
                         History <FontAwesomeIcon icon={faHistory} />
                     </button>
                 </div>
-
+                {/* Bootstrap Alert Message */}
+                {alertMessage && (
+                    <div className={`alert alert-${alertType} mt-3`} role="alert">
+                        {alertMessage}
+                    </div>
+                )}                  
                 <div style={contentContainerStyle}>
                     {renderContent()}
                 </div>

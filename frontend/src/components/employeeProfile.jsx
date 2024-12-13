@@ -23,6 +23,7 @@ const EmployeeProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -54,7 +55,7 @@ const EmployeeProfile = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
+    
     try {
       const response = await fetch('http://localhost:5000/api/employee/employeeProfile', {
         method: 'PUT',
@@ -79,7 +80,7 @@ const EmployeeProfile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
     if (newPassword !== confirmPassword) {
       alert("Passwords don't match");
       return;
@@ -103,6 +104,8 @@ const EmployeeProfile = () => {
       setShowModal(false);
     } catch (err) {
       alert(err.message);
+    }finally{
+      setIsSubmitting(false);
     }
   };
 
@@ -141,15 +144,10 @@ const EmployeeProfile = () => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <input
-            type="text"
-            placeholder="Search...."
-            style={{ borderRadius: '50px', padding: '10px', margin: '5px' }}
-          ></input>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <a className="nav-link" href="#">Home</a>
+                <Link className="nav-link" to="/employeeDashboard">Home</Link>
               </li>
               <li>
                 <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
@@ -308,8 +306,12 @@ const EmployeeProfile = () => {
                 required
               />
             </Form.Group>
-            <Button type="submit" className="mt-3" variant="primary">
-              Change Password
+            <Button type="submit" className="mt-3" variant="primary" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <span>Changing...</span>
+              ) : (
+                'Change Password'
+              )}
             </Button>
           </Form>
         </Modal.Body>

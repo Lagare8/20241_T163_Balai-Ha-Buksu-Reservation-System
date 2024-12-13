@@ -48,56 +48,10 @@ function EmpDashboard() {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    
-                    <form className="form-inline my-2 my-lg-0 ml-auto">
-                        <div className="d-flex align-items-center">
-                            <input
-                                className="form-control mr-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
-                    
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
                                 <Link className="nav-link" to="/employeeDashboard">Home</Link>
-                            </li>
-                            <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-white"
-                                    href="#"
-                                    id="navbarDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Update Offers
-                                </a>
-                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><Link className="dropdown-item" to="/Emprooms">Rooms</Link></li>
-                                    <li><Link className="dropdown-item" to="/Empfunction-hall">Function Hall</Link></li>
-                                    <li><Link className="dropdown-item" to="/Empfood-catering">Food Catering</Link></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a className="nav-link" href="#" onClick={toggleNotifications}>
-                                    <FontAwesomeIcon icon={faBell} />
-                                </a>
-                                {showNotifications && (
-                                    <div className="notification-dropdown">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">Notification 1</li>
-                                            <li className="list-group-item">Notification 2</li>
-                                            <li className="list-group-item">Notification 3</li>
-                                        </ul>
-                                    </div>
-                                )}
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link text-white" href="#" onClick={toggleProfile}>

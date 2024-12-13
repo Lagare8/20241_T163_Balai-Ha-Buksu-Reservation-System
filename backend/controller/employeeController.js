@@ -23,7 +23,7 @@ const getBookingHistory = async (req, res) => {
 
 const deleteReservation = async (req, res) => {
     const reservationId = req.params.id;
-    console.log('Reservation ID:', reservationId); 
+    console.log('Reservation ID:', reservationId);
 
     try {
         const canceledReservation = await Reservation.findByIdAndDelete(reservationId);
@@ -31,14 +31,14 @@ const deleteReservation = async (req, res) => {
         if (!canceledReservation) {
             return res.status(404).json({ message: 'Booking not found or already canceled' });
         }
-        await canceledReservation.save();
-        // Perform additional actions (if needed) after deletion here
+
         return res.status(200).json({ message: 'Booking canceled successfully' });
     } catch (error) {
         console.error('Error canceling booking', error);
         return res.status(500).json({ message: 'An error occurred while canceling the booking' });
     }
 };
+
 
 
 const postReservation = async (req, res) => {
@@ -142,7 +142,7 @@ const changePassword = async (req, res) => {
     try {
         const { newPassword } = req.body; // Extract new password from the request body
         const userId = req.userId; // Extract the user ID from the request
-
+        console.log("YAWA ANG USERID KAY: ", userId);
         if (!newPassword || newPassword.length < 6) {
             return res.status(400).json({ message: "Password must be at least 6 characters long" });
         }
