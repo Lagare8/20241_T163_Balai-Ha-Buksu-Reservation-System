@@ -23,7 +23,10 @@ const AdminDashboard = () => {
     const [bookings, setBookings] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [viewModal, setViewModal] = useState(false);
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [alertMessage, setAlertMessage] = useState(""); // Store the alert message
+    const [alertType, setAlertType] = useState(""); 
+    
     const generatedDate = new Date();
     const formattedDate = generatedDate.toLocaleString("en-US", {
         month: "long",
@@ -79,7 +82,15 @@ const AdminDashboard = () => {
     const toggleProfile = () => {
         setShowProfile(!showProfile);
     };
-
+    useEffect(() => {
+                if (alertMessage) {
+                    const timer = setTimeout(() => {
+                        setAlertMessage(""); // Clear the alert after 2 seconds
+                    }, 2000); // 2 seconds delay
+            
+                    return () => clearTimeout(timer); // Clean up the timeout if the component unmounts or the alert changes
+                }
+            }, [alertMessage]);
     // fetching employee
     const fetchEmployees = async () => {
         try{
@@ -103,7 +114,7 @@ const AdminDashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Form submitted");
-    
+        setIsSubmitting(true);
         try {
             // Send the request to create a new employee
             const response = await fetch("http://localhost:5000/api/admin/employees", {
@@ -140,6 +151,8 @@ const AdminDashboard = () => {
             }
         } catch (error) {
             console.error("Error adding employee:", error);
+        }finally{
+            setIsSubmitting(false);
         }
     };
 
@@ -158,7 +171,6 @@ const AdminDashboard = () => {
                 throw new Error (`Http error! Status: ${response.status}`);
             }
             const data = await response.json();
-            console.log("Fetched bookings data:", data);
             setBookings(data);
         }catch (error){
             console.error('Error fetching bookings: ', error.messsage);
@@ -420,18 +432,24 @@ const AdminDashboard = () => {
                 body: JSON.stringify({status: 'confirmed'})
             });
             if (response.ok) {
-                const data = await response.json();
+                
                 setBookings((prevBookings) => 
                     prevBookings.map((booking) =>
                         booking._id === reservation._id ? { ...booking, status: 'confirmed' } : booking
                     )
                 );
+                const data = await response.json();
+                setAlertMessage("Confirmed Successfully");
+                setAlertType("success")
                 console.log('Booking confirmed successfully!');
             } else {
                 console.error('Error confirming bookings');
+                setAlertMessage('Error confirming booking');
+                setAlertType('danger'); 
             }
         }catch(error){
-            console.error("Error confirming bookings", error);
+            setAlertMessage(`Error confirming reservation: ${error.message}`);
+            setAlertType("danger");
         }
     }
 
@@ -451,8 +469,12 @@ const AdminDashboard = () => {
                 } else {
                     console.error("Error cancelling booking: ", response.statusText);
                 }
+                const data = await response.json();
+                setAlertMessage("Cancelled Succesfully")
+                setAlertType("danger");
             }catch(error ){
-                console.error("Error Canceling bookings", error);
+                setAlertMessage(`Error canceling reservation: ${error.message}`);
+                setAlertType("danger");
             }
         }
     
@@ -503,55 +525,10 @@ const AdminDashboard = () => {
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     
-                    <form className="form-inline my-2 my-lg-0 ml-auto">
-                        <div className="d-flex align-items-center">
-                            <input
-                                className="form-control mr-2"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn btn-outline-light" type="submit">
-                                <i className="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
-                    
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
                             <li className="nav-item">
-                                <Link className="nav-link" to="/employeeDashboard">Home</Link>
-                            </li>
-                            <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-white"
-                                    href="#"
-                                    id="navbarDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                View Offers
-                                </a>
-                                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><Link className="dropdown-item" to="#">#</Link></li>
-                                    <li><Link className="dropdown-item" to="#">#</Link></li>
-                                    <li><Link className="dropdown-item" to="#">#</Link></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a className="nav-link" href="#" onClick={toggleNotifications}>
-                                    <FontAwesomeIcon icon={faBell} />
-                                </a>
-                                {showNotifications && (
-                                    <div className="notification-dropdown">
-                                        <ul className="list-group">
-                                            <li className="list-group-item">Notification 1</li>
-                                            <li className="list-group-item">Notification 2</li>
-                                            <li className="list-group-item">Notification 3</li>
-                                        </ul>
-                                    </div>
-                                )}
+                                <Link className="nav-link" to="/adminDashboard">Home</Link>
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link text-white" href="#" onClick={toggleProfile}>
@@ -560,8 +537,6 @@ const AdminDashboard = () => {
                                 {showProfile && (
                                     <div className="profile-dropdown">
                                         <ul className="list-group">
-                                            <li className="list-group-item">Profile Info</li>
-                                            <li className="list-group-item">Settings</li>
                                             <li>
                                             <Link className="list-group-item" to="/">Logout</Link>
                                             </li>
@@ -590,7 +565,12 @@ const AdminDashboard = () => {
                         History <FontAwesomeIcon icon={faHistory} />
                     </button>
                 </div>
-
+                {/* Bootstrap Alert Message */}
+                {alertMessage && (
+                    <div className={`alert alert-${alertType} mt-3`} role="alert">
+                        {alertMessage}
+                    </div>
+                )}     
                 <div style={contentContainerStyle}>
                     {renderContent()}
                 </div>
@@ -636,7 +616,11 @@ const AdminDashboard = () => {
                                             <button type="button" className="btn btn-secondary" onClick={toggleModal}>
                                                 Close
                                             </button>
-                                            <button type="submit" className="btn btn-primary">Add Employee</button>
+                                            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? (
+                                                <span>Adding...</span>
+                                            ) : (
+                                                'Add Employee'
+                                            )}</button>
                                         </div>
                                     </form>
                                 </div>
