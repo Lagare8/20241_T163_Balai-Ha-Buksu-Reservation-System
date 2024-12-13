@@ -22,7 +22,9 @@ router.post('/signup', async (req, res) => {
     if (!username || !email || !password || !userType) {
         return res.status(400).json({ message: 'All fields are required!' });
     }
-
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long!' });
+    }
     const normalizedEmail = email.trim().toLowerCase();
 
     let existingUser;
@@ -134,7 +136,13 @@ router.post('/forgotPassword', async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Password Reset Required',
-        html: `<p><a href="${resetURL}">here</a> to reset your password.</p>`,
+        html: `
+        <div style="font-family: Arial, sans-serif; color: #333; padding: 20px; text-align: center;">
+            <h2 style="color: #000;">Password Reset</h2>
+            <p style="font-size: 16px; margin: 20px 0;">Click the link below to reset your password:</p>
+            <a href="${resetURL}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px;">Reset Password</a>
+        </div>
+        `,
     };
 
     try{
@@ -156,6 +164,10 @@ router.post('/resetPassword/:token', async (req, res) => {
         return res.status(400).json({ message: 'New Password is required' });
     }
 
+    if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long!' });
+    }
+    
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('Decoded Token:', decoded);
@@ -200,11 +212,32 @@ router.post('/resetPassword/:token', async (req, res) => {
 router.get('/resetPassword/:token', (req, res) => {
     const { token } = req.params;
     res.send(`
-        <form action="/api/auth/resetPassword/${token}" method="POST">
-            <label for="password">New Password:</label>
-            <input type="password" name="newPassword" id="password" required>
-            <button type="submit">Reset Password</button>
-        </form>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reset Password</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body>
+            <div class="container mt-5" style="max-width: 400px;">
+                <h2 class="text-center mb-4">Reset Your Password</h2>
+                <form action="/api/auth/resetPassword/${token}" method="POST">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">New Password</label>
+                        <input type="password" name="newPassword" id="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Reset Password</button>
+                </form>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        </body>
+        </html>
     `);
 });
 
