@@ -75,7 +75,7 @@ import { useAuth } from '../context/AuthContext';
                                       View Offers
                                   </a>
                                   <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                      <li><Link className="dropdown-item" to="/roomCalendar">Rooms</Link></li>
+                                      <li><Link className="dropdown-item" to="/Rooms">Rooms</Link></li>
                                       <li><Link className="dropdown-item" to="/functionCalendar">Function Hall</Link></li>
                                       <li><Link className="dropdown-item" to="/catering">Food Catering</Link></li>
                                   </ul>

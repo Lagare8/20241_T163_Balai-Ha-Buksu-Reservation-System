@@ -80,9 +80,6 @@ router.post('/login', async (req, res) => {
 
     try {
         const match = await bcrypt.compare(password, user.password);
-        console.log('Password comparison result:', match);
-        console.log('Password entered:', password);
-        console.log('Stored hashed password:', user.password);
 
         if (!match) {
             return res.status(400).json({ message: 'Invalid credentials' });
@@ -91,7 +88,7 @@ router.post('/login', async (req, res) => {
         const token = generateToken(user);
         console.log('Login successful. Token:', token);
 
-        res.json({ message: 'Login successful', token, userType: user.constructor.modelName });
+        res.json({ message: 'Login successful', token, userId: user._id, userType: user.constructor.modelName });
     } catch (error) {
         console.error('Error during bcrypt.compare:', error);
         res.status(500).json({ message: 'Internal server error' });

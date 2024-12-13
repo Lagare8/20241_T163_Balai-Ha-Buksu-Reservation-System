@@ -4,6 +4,7 @@ import nodeMailer from 'nodemailer';
 import bcrypt from 'bcryptjs';
 import Notification from '../models/users/Notification.js';
 
+
 const postEmployee = async (req, res) => {
     try {
         const { username, email } = req.body;
@@ -139,28 +140,24 @@ const confirmReservation = async (req, res) => {
 };
 
 const cancelReservation = async (req, res) => {
-const reservationId = req.params.id;
-console.log('Reservation ID:', reservationId); 
-    try{
+    const reservationId = req.params.id;
+    console.log('Reservation ID:', reservationId); 
+
+    try {
         const canceledReservation = await Reservation.findByIdAndDelete(reservationId);
 
         if (!canceledReservation) {
-            return res.status(404).json({message: 'Booking not found or already canceled'});
+            return res.status(404).json({ message: 'Booking not found or already canceled' });
         }
-        // Ensure the history array exists before pushing
-        if (!canceledReservation.history) {
-            canceledReservation.history = [];
-        }
-        canceledReservation.status = 'canceled';
-        canceledReservation.history.push({status: 'canceled'});
 
         await canceledReservation.save();
-
-        return res.status(200).json({message: 'Booking canceled successfully'});
-    }catch (error){
+        // Perform additional actions (if needed) after deletion here
+        return res.status(200).json({ message: 'Booking canceled successfully' });
+    } catch (error) {
         console.error('Error canceling booking', error);
-        return res.status(500).json({message: 'An occured while cancelling the booking'});
+        return res.status(500).json({ message: 'An error occurred while canceling the booking' });
     }
+    
 }
 
 const getBookingHistory = async (req, res) => {

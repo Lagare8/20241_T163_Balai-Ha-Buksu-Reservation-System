@@ -35,8 +35,9 @@ const UserBookings = () => {
             const token = localStorage.getItem("token");
             const userId = localStorage.getItem("userId");
             
-            console.log("Token from localStorage:", localStorage.getItem("token"));
-            console.log("UserId from localStorage:", localStorage.getItem("userId"));
+            console.log("Token from localStorage:", token);
+            console.log("UserId from localStorage:", userId);
+
             if (!token || !userId) {
                 console.error("Missing token or userId");
                 return;
@@ -45,7 +46,7 @@ const UserBookings = () => {
             const response = await fetch(`http://localhost:5000/api/user/booking-history/${userId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -67,6 +68,7 @@ const UserBookings = () => {
     useEffect(() => {
         fetchAllBookings();
     }, []);
+    
     useEffect(() => {
         console.log("Fetched bookings:", bookings); 
         // Log the statuses of the bookings to check what's being returned
@@ -74,9 +76,7 @@ const UserBookings = () => {
     
         console.log("Bookings state updated:", bookings);
     }, [bookings]);
-
     
-
     const renderContent = () => {
         console.log(bookings); 
         switch (activeTab) {
@@ -123,7 +123,7 @@ const UserBookings = () => {
                                     )
                                 }
                             ]}
-                            data={bookings.filter(booking => booking.status === 'pending' )}
+                            data={bookings.filter(booking => booking.status === 'pending')}
                             noDataComponent="No pending bookings found"
                             pagination
                             highlightOnHover

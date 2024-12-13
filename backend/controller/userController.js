@@ -391,7 +391,7 @@ const changePassword = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         const updatedUser = await User.findByIdAndUpdate(userId, {password: hashedPassword}, {new: true});
-
+        
         if(!updatedUser){
             return res.status(404).json({message: 'User not found'});
         }

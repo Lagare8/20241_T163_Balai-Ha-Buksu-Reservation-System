@@ -2,8 +2,6 @@ import express from "express";
 import { postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile, changePassword, uploadProfilePicture, upload} from "../../controller/userController.js";
 import authMiddleware from "../../middleware/authMiddleware.js";
 const router = express.Router();
-// Simulated database using an array
-let reservations = [];
 
 // 1. Reserve a room
 router.post('/reserve/room', authMiddleware, postRoomReservation);
