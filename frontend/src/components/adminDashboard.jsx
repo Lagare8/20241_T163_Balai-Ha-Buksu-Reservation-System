@@ -31,20 +31,19 @@ const AdminDashboard = () => {
 
 
   // Fetch the lock status from the backend
-  useEffect(() => {
-    const checkLockStatus = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/api/lock/is-adding');
-            const data = await response.json();
-            setIsLocked(data.isLocked);
-        } catch (error) {
-            console.error("Error checking lock status:", error);
+const checkLockStatus = async () => {
+    try {
+        const response = await fetch('/api/check-lock'); // Adjust this to your actual endpoint
+        const data = await response.json();
+        if (data.isLocked) {
+            console.log('Action is locked');
+            return;
         }
-    };
-    checkLockStatus();
-}, [isSubmitting]);
-
-
+        console.log('Action is unlocked');
+    } catch (error) {
+        console.error('Error checking lock status:', error);
+    }
+};
 
 
     const generatedDate = new Date();
@@ -150,7 +149,7 @@ const AdminDashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-    
+        
         try {
             // Send the request to create a new employee
             const response = await fetch("http://localhost:5000/api/admin/employees", {
@@ -188,16 +187,25 @@ const AdminDashboard = () => {
             }
         } catch (error) {
             console.error("Error adding employee:", error);
+            alert("Error adding employee. Please try again.");
         } finally {
             setIsSubmitting(false);
     
-            // Unlock the action after the process is done
-            await fetch('http://localhost:5000/api/lock/unlock', {
-                method: 'POST',
-            });
+            // Unlock the action after the process is done or if an error occurs
+            try {
+                const unlockResponse = await fetch('http://localhost:5000/api/lock/unlock', {
+                    method: 'POST',
+                });
+    
+                if (!unlockResponse.ok) {
+                    console.error("Failed to release the lock.");
+                }
+            } catch (unlockError) {
+                console.error("Error releasing the lock:", unlockError);
+            }
         }
     };
-    
+
     useEffect(() => {
         fetchEmployees()
     }, [])
@@ -221,7 +229,6 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchAllBookings();
     }, []);
-    console.log(bookings);
     useEffect(() => {
         console.log('Updated bookings: ', bookings);
     }, [bookings]);
@@ -236,43 +243,53 @@ const AdminDashboard = () => {
 
     const toggleModal = async () => {
         try {
-            // First, check if the action is locked
-            const lockStatusResponse = await fetch('http://localhost:5000/api/lock/is-adding');
-            const text = await lockStatusResponse.text();  // Get the response as text first
-            console.log("Response Text:", text);  // Log the response
-   
-            try {
-                const lockStatus = JSON.parse(text);  // Try parsing the text as JSON
-                if (lockStatus.isLocked) {
-                    alert("Another admin is currently adding an employee. Please wait.");
+            // Before toggling the modal, check if the lock state is correct
+            console.log("Lock status before toggle:", isLocked);
+    
+            // If the modal is being closed, release the lock first
+            if (showModal) {
+                const unlockResponse = await fetch('http://localhost:5000/api/lock/unlock', { method: 'POST' });
+                if (!unlockResponse.ok) {
+                    alert("Error releasing the lock. Please try again.");
                     return;
                 }
-   
-                // Lock the action before opening the modal
-                const lockResponse = await fetch('http://localhost:5000/api/lock/lock', {
-                    method: 'POST',
-                });
-   
-                if (!lockResponse.ok) {
-                    alert("Unable to lock the action. Please try again later.");
-                    return;
-                }
-   
-                // Open the modal to add employee
-                setShowModal(!showModal);
-   
-            } catch (jsonError) {
-                console.error("Error parsing JSON response:", jsonError);
-                alert("Error checking lock status. Please try again later.");
+                console.log("Lock released successfully.");
             }
+    
+            // Check if another admin is adding an employee before showing the modal
+            const lockStatusResponse = await fetch('http://localhost:5000/api/lock/is-adding');
+            const lockStatus = await lockStatusResponse.json();
+            console.log("Lock status after checking:", lockStatus.isLocked);
+    
+            if (lockStatus.isLocked && !showModal) {
+                alert("Another admin is currently adding an employee. Please wait.");
+                return;
+            }
+    
+            // Lock the action for the current admin before proceeding
+            const lockResponse = await fetch('http://localhost:5000/api/lock/lock', { method: 'POST' });
+            if (!lockResponse.ok) {
+                alert("Unable to lock the action. Please try again later.");
+                return;
+            }
+            console.log("Lock acquired successfully.");
+            
+            if (showModal) {
+                const unlockResponse = await fetch('http://localhost:5000/api/lock/unlock', { method: 'POST' });
+                if (!unlockResponse.ok) {
+                    alert("Error releasing the lock. Please try again.");
+                    return;
+                }
+                console.log("Lock released successfully.");
+            }
+            // Show the modal
+            setShowModal(!showModal);
+
         } catch (error) {
-            console.error("Error checking lock status:", error);
-            alert("Error checking lock status. Please try again later.");
+            console.error("Error during modal toggle:", error);
+            alert("Error toggling modal. Please try again.");
         }
     };
-   
-   
-    
 
     const renderContent = () => {
         switch (activeTab) {
