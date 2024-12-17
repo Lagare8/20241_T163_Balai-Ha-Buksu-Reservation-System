@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import authRouter from './routes/auth.js';
 import userRoutes from './routes/user-manager/userReservation.js'; // Ensure this is correctly imported
 import employeeRoutes from './routes/employee-manager/reservation.js';
+import lockRoutes from './routes/admin-manager/cc.js';
 dotenv.config();
 
 const app = express();
@@ -53,6 +54,9 @@ app.use('/employee/reservation', reservationsRouter);
 
 import employeeRoomsRouter from './routes/employee-manager/RoomRoutes.js';
 app.use('/employee/rooms', employeeRoomsRouter);
+
+// Use the lock routes
+app.use('/api/lock', lockRoutes);
 
 app.use('/api', authRouter);
 // Start the server

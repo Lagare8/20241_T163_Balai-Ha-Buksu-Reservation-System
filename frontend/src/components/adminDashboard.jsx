@@ -27,6 +27,24 @@ const AdminDashboard = () => {
     const [alertMessage, setAlertMessage] = useState(""); // Store the alert message
     const [alertType, setAlertType] = useState(""); 
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLocked, setIsLocked] = useState(false); // To track the lock status from the backend
+
+
+  // Fetch the lock status from the backend
+const checkLockStatus = async () => {
+    try {
+        const response = await fetch('/api/check-lock'); // Adjust this to your actual endpoint
+        const data = await response.json();
+        if (data.isLocked) {
+            console.log('Action is locked');
+            return;
+        }
+        console.log('Action is unlocked');
+    } catch (error) {
+        console.error('Error checking lock status:', error);
+    }
+};
+
 
     const generatedDate = new Date();
     const formattedDate = generatedDate.toLocaleString("en-US", {
@@ -130,8 +148,8 @@ const AdminDashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form submitted");
         setIsSubmitting(true);
+        
         try {
             // Send the request to create a new employee
             const response = await fetch("http://localhost:5000/api/admin/employees", {
@@ -139,11 +157,10 @@ const AdminDashboard = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newEmployee), // Send username and email only
+                body: JSON.stringify(newEmployee),
             });
     
             if (response.ok) {
-                // Get the backend response
                 const data = await response.json();
                 console.log("Backend response:", data);
     
@@ -162,14 +179,30 @@ const AdminDashboard = () => {
                 // Update the employees list with the new employee data
                 setEmployees((prevEmployees) => [...prevEmployees, { ...newEmployee, password: data.generatedPassword }]);
                 alert("Employee added and email sent");
+    
+                // Close the modal
                 toggleModal();
             } else {
                 alert("Failed to add employee");
             }
         } catch (error) {
             console.error("Error adding employee:", error);
-        }finally{
+            alert("Error adding employee. Please try again.");
+        } finally {
             setIsSubmitting(false);
+    
+            // Unlock the action after the process is done or if an error occurs
+            try {
+                const unlockResponse = await fetch('http://localhost:5000/api/lock/unlock', {
+                    method: 'POST',
+                });
+    
+                if (!unlockResponse.ok) {
+                    console.error("Failed to release the lock.");
+                }
+            } catch (unlockError) {
+                console.error("Error releasing the lock:", unlockError);
+            }
         }
     };
 
@@ -196,7 +229,6 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchAllBookings();
     }, []);
-    console.log(bookings);
     useEffect(() => {
         console.log('Updated bookings: ', bookings);
     }, [bookings]);
@@ -209,7 +241,55 @@ const AdminDashboard = () => {
         return `${month}/${day}/${year}`;
     };
 
-    const toggleModal = () => setShowModal(!showModal);
+    const toggleModal = async () => {
+        try {
+            // Before toggling the modal, check if the lock state is correct
+            console.log("Lock status before toggle:", isLocked);
+    
+            // If the modal is being closed, release the lock first
+            if (showModal) {
+                const unlockResponse = await fetch('http://localhost:5000/api/lock/unlock', { method: 'POST' });
+                if (!unlockResponse.ok) {
+                    alert("Error releasing the lock. Please try again.");
+                    return;
+                }
+                console.log("Lock released successfully.");
+            }
+    
+            // Check if another admin is adding an employee before showing the modal
+            const lockStatusResponse = await fetch('http://localhost:5000/api/lock/is-adding');
+            const lockStatus = await lockStatusResponse.json();
+            console.log("Lock status after checking:", lockStatus.isLocked);
+    
+            if (lockStatus.isLocked && !showModal) {
+                alert("Another admin is currently adding an employee. Please wait.");
+                return;
+            }
+    
+            // Lock the action for the current admin before proceeding
+            const lockResponse = await fetch('http://localhost:5000/api/lock/lock', { method: 'POST' });
+            if (!lockResponse.ok) {
+                alert("Unable to lock the action. Please try again later.");
+                return;
+            }
+            console.log("Lock acquired successfully.");
+            
+            if (showModal) {
+                const unlockResponse = await fetch('http://localhost:5000/api/lock/unlock', { method: 'POST' });
+                if (!unlockResponse.ok) {
+                    alert("Error releasing the lock. Please try again.");
+                    return;
+                }
+                console.log("Lock released successfully.");
+            }
+            // Show the modal
+            setShowModal(!showModal);
+
+        } catch (error) {
+            console.error("Error during modal toggle:", error);
+            alert("Error toggling modal. Please try again.");
+        }
+    };
 
     const renderContent = () => {
         switch (activeTab) {
