@@ -25,7 +25,6 @@ router.post('/upload-profile-picture', authMiddleware, upload.single('file'),  u
 // Cancel a reservation
 router.delete('/cancel/reservations/:id',  cancelReservation);
 
-
 // Login route
 router.post("/login", loginUser);
 

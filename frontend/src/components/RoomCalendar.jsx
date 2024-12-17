@@ -54,7 +54,7 @@ function RoomCalendar() {
 
     const location = useLocation();
     const roomNumber = location.state ? location.state.roomNumber : null;
-
+    const index = location.state ? location.state.roomNumber : null;
     // Fetch availability data for a room based on the room number
     useEffect(() => {
         console.log("Room number:", roomNumber);
@@ -118,7 +118,7 @@ function RoomCalendar() {
             ]);
         } catch (error) {
             console.error('Error reserving room:', error.response?.data || error.message);
-            setAlertMessage('Reservation failed, please try again.');
+            setAlertMessage('Its already booked.');
             setAlertType("danger");
             setTimeout(() => {
                 setAlertMessage(""); // Remove alert after 2 seconds
@@ -144,8 +144,8 @@ function RoomCalendar() {
             return; // If date is invalid, stop further execution
         }
         const isPastDate = dateStr < today;
-        const roomNumber = 1; // Assuming we're working with room 1 for now (use dynamic logic if needed)
-        const availability = roomAvailability[`${roomNumber}-${dateStr}`]; // Check if the room is available
+        const roomNumber = index; // Assuming we're working with room 1 for now (use dynamic logic if needed)
+        const availability = roomAvailability[`${roomNumber}-${dateStr}`];
         const isAvailable = availability !== undefined ? availability : true;
     
         const button = document.createElement("button");

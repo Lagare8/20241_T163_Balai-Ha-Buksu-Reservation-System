@@ -3,7 +3,7 @@ import { Link, useNavigate} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import {
     Badge,
@@ -28,6 +28,11 @@ const UserProfile = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [showProfile, setShowProfile] = useState(false);
+   const toggleProfile = () => {
+    setShowProfile(!showProfile);
+};
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -227,6 +232,24 @@ const UserProfile = () => {
                 <li className="nav-item">
                 <a className="nav-link" href="#"><i className="bi bi-search"></i></a>
                 </li>
+                <li className="nav-item">
+                                                <a className="nav-link text-white" href="#" onClick={toggleProfile}>
+                                                    <FontAwesomeIcon icon={faUserCircle} />
+                                                </a>
+                                                {showProfile && (
+                                                    <div className="profile-dropdown">
+                                                        <ul className="list-group">
+                                                            <li>
+                                                            <Link className="list-group-item" to="/userProfile">Profile Info</Link>
+                                                            </li>
+                                                            <li className="list-group-item">Settings</li>
+                                                            <li>
+                                                            <Link className="list-group-item" to="/">Logout</Link>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                  </li>
                 <li>
                 <a className="nav-link" href="#"><FontAwesomeIcon icon={faBell} /></a>
                 </li>
@@ -258,6 +281,7 @@ const UserProfile = () => {
                         <p><strong>Address:</strong> {user.address}</p>
                         <p><strong>City:</strong> {user.city}</p>
                         <p><strong>Country:</strong> {user.country}</p>
+                        <p><strong>Cellphone Number:</strong> {user.cellphone}</p>
                       </Col>
                     </Row>
                     <Button onClick={() => setActiveTab("edit")} className="btn-fill mt-3" variant="primary">Edit Profile</Button>
@@ -321,6 +345,16 @@ const UserProfile = () => {
                           />
                         </Form.Group>
                       </Col>
+                      <Col md="6">
+                                <Form.Group>
+                                  <label>Cellphone Number</label>
+                                    <Form.Control
+                                      type="text"
+                                      value={user.cellphone}
+                                      onChange={(e) => setUser({ ...user, cellphone: e.target.value })}
+                                      />
+                                    </Form.Group>
+                                </Col>
                     </Row>
                     {/* Profile Picture Upload */}
                     <Row>

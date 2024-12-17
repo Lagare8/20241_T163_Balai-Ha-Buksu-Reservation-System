@@ -89,7 +89,7 @@ const UserBookings = () => {
             return () => clearTimeout(timer); // Clean up the timeout if the component unmounts or the alert changes
         }
     }, [alertMessage]);
- 
+
     const renderContent = () => {
         console.log(bookings); 
         switch (activeTab) {
