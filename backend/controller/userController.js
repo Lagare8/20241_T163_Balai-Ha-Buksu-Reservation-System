@@ -113,8 +113,8 @@ const generateToken = (user) => {
 
 const postRoomReservation = async (req, res) => {
     const { roomNumber, date } = req.body;
-    const userId = req.userId;  // Extract user ID from token
-    
+    const userId = req.userId; // Extract user ID from token
+
     if (!roomNumber || !date) {
         return res.status(400).json({ message: 'Room number and date are required.' });
     }
@@ -126,14 +126,26 @@ const postRoomReservation = async (req, res) => {
     }
 
     try {
+        // Check if the room is already reserved for the given date
+        const existingReservation = await Reservation.findOne({
+            'reservationDetails.roomNumber': roomNumber,
+            date: parsedDate.toISOString(), // Match date precisely
+        });
+
+        if (existingReservation) {
+            return res.status(400).json({ message: 'Room is already reserved for this date.' });
+        }
+
+        // Create a new reservation if the room is available
         const reservation = new Reservation({
             userId,
             reserveType: 'Room',
             reservationDetails: { roomNumber },
-            date,
+            date: parsedDate.toISOString(),
         });
+
         await reservation.save();
-        res.status(201).json({ message: 'Room reserved successfully!', reservation });
+        res.status(201).json({ message: `Room ${roomNumber} reserved successfully on ${date}! `, reservation });
     } catch (error) {
         console.error('Error creating room reservation:', error);
         res.status(500).json({ message: 'Failed to create room reservation' });
@@ -400,5 +412,6 @@ const changePassword = async (req, res) => {
         res.status(500).json({message: 'Error updating password'});
     }
 }
+
 
 export {postRoomReservation, postCateringReservation, postHallReservation, getUserBookingHistory, cancelReservation, checkAvailability, loginUser, getNotifications, getUserProfile, updateUserProfile, changePassword, uploadProfilePicture, upload}
