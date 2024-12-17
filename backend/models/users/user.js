@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     address: String,
     city: String,
     country: String,
-    cellphone: { type: String, required: true },
+    cellphone: String,
     profilePicture: {type: String},
 }, { timestamps: true });
 

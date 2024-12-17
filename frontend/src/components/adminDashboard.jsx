@@ -27,6 +27,25 @@ const AdminDashboard = () => {
     const [alertMessage, setAlertMessage] = useState(""); // Store the alert message
     const [alertType, setAlertType] = useState(""); 
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLocked, setIsLocked] = useState(false); // To track the lock status from the backend
+
+
+  // Fetch the lock status from the backend
+  useEffect(() => {
+    const checkLockStatus = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/lock/is-adding');
+            const data = await response.json();
+            setIsLocked(data.isLocked);
+        } catch (error) {
+            console.error("Error checking lock status:", error);
+        }
+    };
+    checkLockStatus();
+}, [isSubmitting]);
+
+
+
 
     const generatedDate = new Date();
     const formattedDate = generatedDate.toLocaleString("en-US", {
@@ -130,8 +149,8 @@ const AdminDashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form submitted");
         setIsSubmitting(true);
+    
         try {
             // Send the request to create a new employee
             const response = await fetch("http://localhost:5000/api/admin/employees", {
@@ -139,11 +158,10 @@ const AdminDashboard = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newEmployee), // Send username and email only
+                body: JSON.stringify(newEmployee),
             });
     
             if (response.ok) {
-                // Get the backend response
                 const data = await response.json();
                 console.log("Backend response:", data);
     
@@ -162,17 +180,24 @@ const AdminDashboard = () => {
                 // Update the employees list with the new employee data
                 setEmployees((prevEmployees) => [...prevEmployees, { ...newEmployee, password: data.generatedPassword }]);
                 alert("Employee added and email sent");
+    
+                // Close the modal
                 toggleModal();
             } else {
                 alert("Failed to add employee");
             }
         } catch (error) {
             console.error("Error adding employee:", error);
-        }finally{
+        } finally {
             setIsSubmitting(false);
+    
+            // Unlock the action after the process is done
+            await fetch('http://localhost:5000/api/lock/unlock', {
+                method: 'POST',
+            });
         }
     };
-
+    
     useEffect(() => {
         fetchEmployees()
     }, [])
@@ -209,7 +234,45 @@ const AdminDashboard = () => {
         return `${month}/${day}/${year}`;
     };
 
-    const toggleModal = () => setShowModal(!showModal);
+    const toggleModal = async () => {
+        try {
+            // First, check if the action is locked
+            const lockStatusResponse = await fetch('http://localhost:5000/api/lock/is-adding');
+            const text = await lockStatusResponse.text();  // Get the response as text first
+            console.log("Response Text:", text);  // Log the response
+   
+            try {
+                const lockStatus = JSON.parse(text);  // Try parsing the text as JSON
+                if (lockStatus.isLocked) {
+                    alert("Another admin is currently adding an employee. Please wait.");
+                    return;
+                }
+   
+                // Lock the action before opening the modal
+                const lockResponse = await fetch('http://localhost:5000/api/lock/lock', {
+                    method: 'POST',
+                });
+   
+                if (!lockResponse.ok) {
+                    alert("Unable to lock the action. Please try again later.");
+                    return;
+                }
+   
+                // Open the modal to add employee
+                setShowModal(!showModal);
+   
+            } catch (jsonError) {
+                console.error("Error parsing JSON response:", jsonError);
+                alert("Error checking lock status. Please try again later.");
+            }
+        } catch (error) {
+            console.error("Error checking lock status:", error);
+            alert("Error checking lock status. Please try again later.");
+        }
+    };
+   
+   
+    
 
     const renderContent = () => {
         switch (activeTab) {
